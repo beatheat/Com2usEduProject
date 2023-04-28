@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Com2usEduProject.Services;
 using Com2usEduProject.Tools;
 using ZLogger;
-using static Com2usEduProject.Tools.LogManager;
 
 namespace Com2usEduProject.Controllers;
 
@@ -32,7 +31,7 @@ public class CreateAccount : ControllerBase
 			return response;
 		}
 
-		_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Id = request.Id }, "CreateAccount Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new { Id = request.Id }, "CreateAccount Success");
 		return response;
 	}
 }

@@ -8,8 +8,12 @@ public enum ErrorCode : UInt16
     // Common 1000 ~
     UnhandleException = 1001,
     RedisFailException = 1002,
-    InValidRequestHttpBody = 1003,
+    RedisKeyNotFound = 1003,
+    InValidRequestHttpBody = 1004,
     AuthTokenFailWrongAuthToken = 1006,
+    
+    InvalidMasterDataVersion = 1007,
+    InvalidClientVersion = 1008,
 
     // Account 2000 ~
     CreateAccountFailException = 2001,    
@@ -24,10 +28,13 @@ public enum ErrorCode : UInt16
     AccountIdMismatch = 2010,
     DuplicatedLogin = 2011,
     CreateAccountFailInsert = 2012,
+    CreateAccountDuplicate = 2013,
     LoginFailAddRedis = 2014,
-    CheckAuthFailNotExist = 2015,
-    CheckAuthFailNotMatch = 2016,
-    CheckAuthFailException = 2017,
+    LoginFailConnectRedis = 2015,
+
+    // CheckAuthFailNotExist = 2016,
+    // CheckAuthFailNotMatch = 2017,
+    // CheckAuthFailException = 2018,
 
     // Character 3000 ~
     CreateCharacterRollbackFail = 3001,

@@ -62,14 +62,23 @@ public class AccountDb : IAccountDb
             
             return ErrorCode.None;
         }
+        catch(MySqlException e)
+        {
+	        if (e.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+	        {
+		        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountDuplicate}, Id: {id}");
+		        return ErrorCode.CreateAccountDuplicate;
+	        }
+	        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountFailException}, Id: {id}");
+	        return ErrorCode.CreateAccountFailException;
+        }
         catch (Exception e)
         {
-            _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountFailException}, Id: {id}");
+	        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountFailException}, Id: {id}");
             return ErrorCode.CreateAccountFailException;
         }	
 	}
-
-
+	
 	public async Task<Tuple<ErrorCode, long>> VerifyAccountAsync(string id, string password)
 	{
 		try
