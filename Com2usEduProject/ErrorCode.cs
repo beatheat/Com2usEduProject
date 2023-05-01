@@ -7,13 +7,12 @@ public enum ErrorCode : UInt16
 
     // Common 1000 ~
     UnhandleException = 1001,
-    RedisFailException = 1002,
-    RedisKeyNotFound = 1003,
     InValidRequestHttpBody = 1004,
     AuthTokenFailWrongAuthToken = 1006,
     
     InvalidMasterDataVersion = 1007,
     InvalidClientVersion = 1008,
+    
 
     // Account 2000 ~
     CreateAccountFailException = 2001,    
@@ -31,42 +30,23 @@ public enum ErrorCode : UInt16
     CreateAccountDuplicate = 2013,
     LoginFailAddRedis = 2014,
     LoginFailConnectRedis = 2015,
+    
 
-    // CheckAuthFailNotExist = 2016,
-    // CheckAuthFailNotMatch = 2017,
-    // CheckAuthFailException = 2018,
+    //GameDb 3000~ 
+    GetGameDbConnectionFail = 3002,
+    
+    PlayerDataInsertFailException = 3003,
+    PlayerDataSelectFailException = 3004,
+    PlayerItemInsertFailException = 3005,
+    PlayerItemSelectFailException = 3006,
+    
+    
+    //MasterDb 4000~
+    UnknownCode = 4001,
 
-    // Character 3000 ~
-    CreateCharacterRollbackFail = 3001,
-    CreateCharacterFailNoSlot = 3002,
-    CreateCharacterFailException = 3003,
-    CharacterNotExist = 3004,
-    CountCharactersFail = 3005,
-    DeleteCharacterFail = 3006,
-    GetCharacterInfoFail = 3007,
-    InvalidCharacterInfo = 3008,
-    GetCharacterItemsFail = 3009,
-    CharacterCountOver = 3010,
-    CharacterArmorTypeMisMatch = 3011,
-    CharacterHelmetTypeMisMatch = 3012,
-    CharacterCloakTypeMisMatch = 3012,
-    CharacterDressTypeMisMatch = 3013,
-    CharacterPantsTypeMisMatch = 3012,
-    CharacterMustacheTypeMisMatch = 3012,
-    CharacterArmorCodeMisMatch = 3013,
-    CharacterHelmetCodeMisMatch = 3014,
-    CharacterCloakCodeMisMatch = 3015,
-    CharacterDressCodeMisMatch = 3016,
-    CharacterPantsCodeMisMatch = 3017,
-    CharacterMustacheCodeMisMatch = 3018,
-    CharacterHairCodeMisMatch = 3019,
-    CharacterCheckCodeError = 3010,
-    CharacterLookTypeError = 3011,
-
-    CharacterStatusChangeFail = 3012,
-    CharacterIsExistGame = 3013,
-    GetCharacterListFail = 3014,
-
-    //GameDb 4000~ 
-    GetGameDbConnectionFail = 4002
+    //RedisDb 5000 ~
+    RedisFailException = 5001,
+    RedisKeyNotFound = 5002,
+    RedisSetDuplicateKey = 5003,
+    RedisGetFailed = 5004,
 }

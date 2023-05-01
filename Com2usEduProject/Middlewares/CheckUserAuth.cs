@@ -1,7 +1,7 @@
 ﻿
 using System.Text;
 using System.Text.Json;
-using Com2usEduProject.ModelDB;
+using Com2usEduProject.DBSchema;
 using Com2usEduProject.Services;
 
 namespace Com2usEduProject.Middleware;
@@ -9,10 +9,12 @@ namespace Com2usEduProject.Middleware;
 public class CheckUserAuth
 {
     readonly IMemoryDb _memoryDb;
+    readonly IMasterDb _masterDb;
     readonly RequestDelegate _next;
 
-    public CheckUserAuth(RequestDelegate next, IMemoryDb memoryDb)
+    public CheckUserAuth(RequestDelegate next, IMemoryDb memoryDb, IMasterDb masterDb)
     {
+        _masterDb = masterDb;
         _memoryDb = memoryDb;
         _next = next;
     }
@@ -20,11 +22,9 @@ public class CheckUserAuth
     public async Task Invoke(HttpContext context)
     {
         var formString = context.Request.Path.Value;
-        if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0 ||
-            string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0)
+        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0)
         {
             await _next(context);
-
             return;
         }
         
@@ -32,9 +32,7 @@ public class CheckUserAuth
 
         string authToken;
         string id;
-        string clientAppVersion;
-        string masterDataVersion;
-        
+
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
         {
             var bodyStr = await reader.ReadToEndAsync();
@@ -47,20 +45,27 @@ public class CheckUserAuth
             
             var document = JsonDocument.Parse(bodyStr);
             
-            // id와 authToken이 존재하는지 검증
-            if (IsInvalidJsonFormatThenSendError(context, document, out id, out authToken, out clientAppVersion, out masterDataVersion))
-            {
-                return;
-            }
-
             // 마스터 데이터 버전 확인
-            if (await IsInvalidMasterDataVersionThenSendError(context, masterDataVersion))
+            if (await IsInvalidMasterDataVersionThenSendError(context, document))
             {
                 return;
             }
             
             // 클라이언트 데이터 버전 확인
-            if (await IsInvalidClientVersionThenSendError(context, clientAppVersion))
+            if (await IsInvalidClientVersionThenSendError(context, document))
+            {
+                return;
+            }
+            
+            if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                context.Request.Body.Position = 0;
+                await _next(context);
+                return;
+            }
+                        
+            // id와 authToken이 존재하는지 검증
+            if (IsInvalidJsonFormatThenSendError(context, document, out id, out authToken))
             {
                 return;
             }
@@ -93,12 +98,12 @@ public class CheckUserAuth
         await _next(context);
 
         // 트랜잭션 해제(Redis 동기화 해제)
-        await _memoryDb.DelUserReqLockAsync(id);
+        await _memoryDb.DelUserRequestLockAsync(id);
     }
 
     private async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, string id)
     {
-        if (await _memoryDb.SetUserReqLockAsync(id))
+        if (await _memoryDb.SetUserRequestLockAsync(id))
         {
             return false;
         }
@@ -120,36 +125,36 @@ public class CheckUserAuth
             return false;
         }
         
-
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
         {
             result = ErrorCode.AuthTokenFailWrongAuthToken
         });
-        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
-        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+        await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errorJsonResponse));
 
         return true;
     }
     
-    async Task<bool> IsInvalidMasterDataVersionThenSendError(HttpContext context, string userVersion)
+    async Task<bool> IsInvalidMasterDataVersionThenSendError(HttpContext context, JsonDocument document)
     {
-        var (errorCode, masterVersion) = await _memoryDb.GetLatestMasterDataVersionAsync();
-
+        string masterDataVersion;
         string errorJsonResponse;
-        byte[] bytes;
         
-        if (errorCode != ErrorCode.None)
+        try
+        {
+            masterDataVersion = document.RootElement.GetProperty("MasterDataVersion").GetString();
+        }
+        catch
         {
             errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
             {
-                result = errorCode
+                result = ErrorCode.InValidRequestHttpBody
             });
-            bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
-            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errorJsonResponse));
+
             return true;
         }
         
-        if (string.CompareOrdinal(masterVersion, userVersion) == 0)
+        if (string.CompareOrdinal(_masterDb.GetVersion(), masterDataVersion) == 0)
         {
             return false;
         }
@@ -158,30 +163,34 @@ public class CheckUserAuth
         {
             result = ErrorCode.InvalidMasterDataVersion
         });
-        bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
-        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+        await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errorJsonResponse));
+
         return true;
     }
     
-    async Task<bool> IsInvalidClientVersionThenSendError(HttpContext context, string userVersion)
-    {
-        var (errorCode, clientVersion) = await _memoryDb.GetLatestClientVersionAsync();
-
-        string errorJsonResponse;
-        byte[] bytes;
         
-        if (errorCode != ErrorCode.None)
+    async Task<bool> IsInvalidClientVersionThenSendError(HttpContext context, JsonDocument document)
+    {
+
+        string clientAppVersion;
+        string errorJsonResponse;
+        
+        try
+        {
+            clientAppVersion = document.RootElement.GetProperty("ClientVersion").GetString();
+        }
+        catch
         {
             errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
             {
-                result = errorCode
+                result = ErrorCode.InValidRequestHttpBody
             });
-            bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
-            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errorJsonResponse));
+
             return true;
         }
         
-        if (string.CompareOrdinal(clientVersion, userVersion) == 0)
+        if (string.CompareOrdinal(_masterDb.GetVersion(), clientAppVersion) == 0)
         {
             return false;
         }
@@ -190,25 +199,24 @@ public class CheckUserAuth
         {
             result = ErrorCode.InvalidClientVersion
         });
-        bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
-        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+        await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(errorJsonResponse));
+
         return true;
     }
-
     
-    private bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out string id, out string authToken, out string clientAppVersion, out string masterDataVersion)
+
+
+    private bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out string id, out string authToken)
     {
         try
         {
             id = document.RootElement.GetProperty("Id").GetString();
             authToken = document.RootElement.GetProperty("AuthToken").GetString();
-            clientAppVersion = document.RootElement.GetProperty("clientAppVersion").GetString();
-            masterDataVersion = document.RootElement.GetProperty("masterDataVersion").GetString();
             return false;
         }
         catch
         {
-            id = authToken = clientAppVersion = masterDataVersion = "";
+            id = authToken = "";
 
             var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
             {

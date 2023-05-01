@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Com2usEduProject.DBSchema;
 using Com2usEduProject.ModelDB;
 using Com2usEduProject.Tools;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,7 @@ public class AccountDb : IAccountDb
 
 	readonly QueryFactory _queryFactory;
 
-	public AccountDb( ILogger<AccountDb> logger, IOptions<DbConnectionConfig> dbConfig)
+	public AccountDb(ILogger<AccountDb> logger, IOptions<DbConnectionConfig> dbConfig)
 	{
 		_dbConfig = dbConfig;
 		_logger = logger;
@@ -36,8 +37,16 @@ public class AccountDb : IAccountDb
 
 	private void Open()
 	{
-		_dbConnection = new MySqlConnection(_dbConfig.Value.AccountDb);
-		_dbConnection.Open();
+		try
+		{
+			_dbConnection = new MySqlConnection(_dbConfig.Value.AccountDb);
+			_dbConnection.Open();
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.AccountDbConnection], e,
+				new {ConnectionString = _dbConfig.Value.AccountDb}, "AccountDB Connection Failed");
+		}
 	}
 	
 	public void Close()
@@ -45,7 +54,7 @@ public class AccountDb : IAccountDb
 		_dbConnection.Close();
 	}
 	
-	public async Task<ErrorCode> CreateAccountAsync(string id, string password)
+	public async Task<(ErrorCode,int)> CreateAccountAsync(string id, string password)
 	{
         try
         {
@@ -53,33 +62,28 @@ public class AccountDb : IAccountDb
             var hashingPassword = Security.MakeHashPassWord(saltValue, password);
             _logger.ZLogDebug($"[CreateAccount] Id: {id}, SaltValue : {saltValue}, HashingPassword:{hashingPassword}");
 			
-            var count = await _queryFactory.Query("account").InsertAsync(new {Id = id, SaltValue = saltValue, HashedPassword = hashingPassword});            
-            
-            if(count != 1)
-            {
-                return ErrorCode.CreateAccountFailInsert;
-            }
-            
-            return ErrorCode.None;
+            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {Id = id, SaltValue = saltValue, HashedPassword = hashingPassword});
+
+            return (ErrorCode.None,accountId);
         }
         catch(MySqlException e)
         {
 	        if (e.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 	        {
-		        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountDuplicate}, Id: {id}");
-		        return ErrorCode.CreateAccountDuplicate;
+		        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountDuplicate}, "Insert Account Duplicated");
+		        return (ErrorCode.CreateAccountDuplicate, -1);
 	        }
-	        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountFailException}, Id: {id}");
-	        return ErrorCode.CreateAccountFailException;
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountFailException}, "Insert Account Failed");
+	        return (ErrorCode.CreateAccountFailException, -1);
         }
         catch (Exception e)
         {
-	        _logger.ZLogError(e, $"[AccountDb.CreateAccount] ErrorCode: {ErrorCode.CreateAccountFailException}, Id: {id}");
-            return ErrorCode.CreateAccountFailException;
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountFailException}, "Insert Account Failed");
+	        return (ErrorCode.CreateAccountFailException, -1);
         }	
 	}
 	
-	public async Task<Tuple<ErrorCode, long>> VerifyAccountAsync(string id, string password)
+	public async Task<(ErrorCode, int)> VerifyAccountAsync(string id, string password)
 	{
 		try
 		{
@@ -87,22 +91,23 @@ public class AccountDb : IAccountDb
 
 			if (accountInfo is null || accountInfo.AccountId == 0)
 			{
-				return new Tuple<ErrorCode, long>(ErrorCode.LoginFailUserNotExist, 0);
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailUserNotExist}, "Account Id Not Exist");
+				return (ErrorCode.LoginFailUserNotExist, -1);
 			}   
            
 			var hashingPassword = Security.MakeHashPassWord(accountInfo.SaltValue, password);
 			if (accountInfo.HashedPassword != hashingPassword)
 			{
-				_logger.ZLogError($"[AccountDb.VerifyAccount] ErrorCode: {ErrorCode.LoginFailPwNotMatch}, Id: {id}");
-				return new Tuple<ErrorCode, long>(ErrorCode.LoginFailPwNotMatch, 0);
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailPwNotMatch}, "Password Not Match");
+				return (ErrorCode.LoginFailPwNotMatch, -1);
 			}
 
-			return new Tuple<ErrorCode, long>(ErrorCode.None, accountInfo.AccountId);
+			return (ErrorCode.None, accountInfo.AccountId);
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogError(e, $"[AccountDb.VerifyAccount] ErrorCode: {ErrorCode.LoginFailException}, Id: {id}");
-			return new Tuple<ErrorCode, long>(ErrorCode.LoginFailException, 0);
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailException}, "Select Account Fail Exception");
+			return (ErrorCode.LoginFailException, -1);
 		}	
 	}
 }

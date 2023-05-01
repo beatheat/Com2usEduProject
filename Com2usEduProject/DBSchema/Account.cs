@@ -1,31 +1,24 @@
-﻿namespace Com2usEduProject.ModelDB;
+﻿namespace Com2usEduProject.DBSchema;
 
 public class Account
 {
-	public long AccountId { get; set; }
+	public int AccountId { get; set; }
 
-	public String Id { get; set; }
-	public String HashedPassword { get; set; }
-	public String SaltValue { get; set; }
+	public string Id { get; set; }
+	public string HashedPassword { get; set; }
+	public string SaltValue { get; set; }
 }
 
-/// Redis 관련
+/// Redis 관련=========================================
+
 public class AuthUser
 {
 	public string Id { get; set; } = "";
 	public string AuthToken { get; set; } = "";
-	public long AccountId { get; set; } = 0;
+	public int AccountId { get; set; } = 0;
 	public string State { get; set; } = ""; 
 }
 
-// enum UserState
-public enum UserState
-{
-	Default = 0,
-	Login = 1,
-	Matching = 2,
-	Playing = 3
-}
 
 public class RediskeyExpireTime
 {

@@ -1,4 +1,4 @@
-﻿using Com2usEduProject.ModelReqRes;
+﻿using Com2usEduProject.ReqRes;
 using Com2usEduProject.Services;
 using Com2usEduProject.Tools;
 using Microsoft.AspNetCore.Mvc;
@@ -12,21 +12,23 @@ public class Login : ControllerBase
 {
 	readonly IAccountDb _accountDb;
 	readonly IMemoryDb _memoryDb;
+	readonly IGameDb _gameDb;
 	readonly ILogger<Login> _logger;
 
-	
-	public Login(ILogger<Login> logger, IAccountDb accountDb, IMemoryDb memoryDb)
+	public Login(ILogger<Login> logger, IAccountDb accountDb, IMemoryDb memoryDb, IGameDb gameDb)
 	{
 		_logger = logger;
 		_accountDb = accountDb;
 		_memoryDb = memoryDb;
+		_gameDb = gameDb;
 	}
-	// GET
+	
 	[HttpPost]
-	public async Task<PkLoginResponse> Post(PkLoginRequest request)
+	public async Task<LoginResponse> Post(LoginRequest request)
 	{
-		var response = new PkLoginResponse();
+		var response = new LoginResponse();
 
+		//TODO: 이중 로그인 막기 
 		// ID, PW 검증
 		var (errorCode, accountId) = await _accountDb.VerifyAccountAsync(request.Id, request.Password);
 		if (errorCode != ErrorCode.None)
@@ -34,10 +36,26 @@ public class Login : ControllerBase
 			response.Result = errorCode;
 			return response;
 		}
-
-                
+		
+		// auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
 		errorCode = await _memoryDb.RegisterUserAsync(request.Id, authToken, accountId);
+		if(errorCode != ErrorCode.None)
+		{
+			response.Result = errorCode;
+			return response;
+		}
+
+		// 플레이어 데이터 로드
+		(errorCode, response.playerData) = await _gameDb.LoadPlayerDataAsync(accountId);
+		if(errorCode != ErrorCode.None)
+		{
+			response.Result = errorCode;
+			return response;
+		}
+		
+		// 플레이어 아이템 데이터 로드
+		(errorCode, response.playerItems) = await _gameDb.LoadPlayerItemsAsync(response.playerData.PlayerId);
 		if(errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;

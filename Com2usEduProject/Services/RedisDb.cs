@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System;
 using CloudStructures;
 using CloudStructures.Structures;
+using Com2usEduProject.DBSchema;
 using Com2usEduProject.ModelDB;
 using Com2usEduProject.Tools;
 using Humanizer;
@@ -26,16 +27,10 @@ public class RedisDb : IMemoryDb
         _redisConn = new RedisConnection(config);
         s_logger.ZLogDebug($"userDbAddress:{address}");
     }
-
-    public void LoadMasterData(IMasterDb masterDb)
-    {
-        masterDb.
-    }
-
-    public async Task<ErrorCode> RegisterUserAsync(string id, string authToken, long accountId)
+    
+    public async Task<ErrorCode> RegisterUserAsync(string id, string authToken, int accountId)
     {
         var uid = UID + id;
-        var result = ErrorCode.None;
         var loginTimeSpan = TimeSpan.FromMinutes(RediskeyExpireTime.LoginKeyExpireMin);
         
         var user = new AuthUser
@@ -43,7 +38,6 @@ public class RedisDb : IMemoryDb
             Id = id,
             AuthToken = authToken,
             AccountId = accountId, 
-            State = UserState.Default.ToString()
         };
         
         try
@@ -51,19 +45,19 @@ public class RedisDb : IMemoryDb
             var redis = new RedisString<AuthUser>(_redisConn, uid, loginTimeSpan);
             if (await redis.SetAsync(user, loginTimeSpan) == false)
             {
-                s_logger.ZLogError($"[RedisDb.RegisterUserAsync] ErrorCode: {ErrorCode.LoginFailAddRedis} Id:{id}, AuthToken:{authToken}");
-                result = ErrorCode.LoginFailAddRedis;
-                return result;
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUser],
+                    new {AuthUser= user, ErrorCode = ErrorCode.RedisSetDuplicateKey}, "Set Redis Key Already Exists");
+                return ErrorCode.RedisSetDuplicateKey;
             }
         }
-        catch
+        catch (Exception e)
         {
-            s_logger.ZLogError($"[RedisDb.RegisterUserAsync] ErrorCode: {ErrorCode.RedisFailException} Id:{id}, AuthToken:{authToken}");
-            result = ErrorCode.RedisFailException;
-            return result;
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUser], e, 
+                new {AuthUser = user, ErrorCode = ErrorCode.RedisFailException}, "Set Redis String Failed With Exception");
+            return ErrorCode.RedisFailException;
         }
         
-        return result;    
+        return ErrorCode.None;    
     }
 
     public async Task<(ErrorCode, AuthUser)> GetUserAsync(string id)
@@ -76,62 +70,23 @@ public class RedisDb : IMemoryDb
             var user = await redis.GetAsync();
             if (!user.HasValue)
             {
-                s_logger.ZLogError($"[RedisDb.GetUserAsync] ErrorCode: {ErrorCode.RedisKeyNotFound} Id = {id}, ErrorMessage = Not Assigned User, RedisString get Error");
-                return (ErrorCode.RedisKeyNotFound, null);
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUser],
+                    new {RedisKey = uid, ErrorCode = ErrorCode.RedisKeyNotFound}, "Get Redis Key Not Exist");
+                return (ErrorCode.RedisKeyNotFound, new AuthUser());
             }
 
             return (ErrorCode.None, user.Value);
         }
-        catch
+        catch(Exception e)
         {
-            s_logger.ZLogError($"[RedisDb.GetUserAsync] ErrorCode: {ErrorCode.RedisFailException} Id = {id}");
-            return (ErrorCode.RedisFailException, null);
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUser], e,
+                new {RedisKey = uid, ErrorCode = ErrorCode.RedisFailException}, "Get Redis String Failed");           
+            return (ErrorCode.RedisFailException, new AuthUser());
         }
     }
 
-    public async Task<(ErrorCode, string)> GetLatestMasterDataVersionAsync()
-    {
-        try
-        {
-            var redis = new RedisString<string>(_redisConn, "MasterDataVersion", null);
-            var version = await redis.GetAsync();
-            if (!version.HasValue)
-            {
-                s_logger.ZLogError($"[RedisDb.GetLatestMasterDataVersionAsync] ErrorCode: {ErrorCode.RedisKeyNotFound} , ErrorMessage = Cannot Find MasterDataVersion, RedisString get Error");
-                return (ErrorCode.RedisKeyNotFound, null);
-            }
-
-            return (ErrorCode.None, version.Value);
-        }
-        catch (Exception e)
-        {
-            s_logger.ZLogError($"[RedisDb.GetLatestMasterDataVersionAsync] ErrorCode: {ErrorCode.RedisFailException}");
-            return (ErrorCode.RedisFailException, null);
-        }
-    }
-
-    public async Task<(ErrorCode, string)> GetLatestClientVersionAsync()
-    {
-        try
-        {
-            var redis = new RedisString<string>(_redisConn, "ClientVersion", null);
-            var version = await redis.GetAsync();
-            if (!version.HasValue)
-            {
-                s_logger.ZLogError($"[RedisDb.GetLatestClientVersionAsync] ErrorCode: {ErrorCode.RedisKeyNotFound} , ErrorMessage = Cannot Find ClientVersion, RedisString get Error");
-                return (ErrorCode.RedisKeyNotFound, null);
-            }
-
-            return (ErrorCode.None, version.Value);
-        }
-        catch (Exception e)
-        {
-            s_logger.ZLogError($"[RedisDb.GetLatestClientVersionAsync] ErrorCode: {ErrorCode.RedisFailException}");
-            return (ErrorCode.RedisFailException, null);
-        }
-    }
     
-    public async Task<bool> SetUserReqLockAsync(string lockName)
+    public async Task<bool> SetUserRequestLockAsync(string lockName)
     {
         var lockId = ULOCK + lockName;
         var keyTimeSpan = TimeSpan.FromSeconds(RediskeyExpireTime.NxKeyExpireSecond);
@@ -141,18 +96,22 @@ public class RedisDb : IMemoryDb
             var redis = new RedisString<AuthUser>(_redisConn, lockId, keyTimeSpan);
             if (await redis.SetAsync(null, keyTimeSpan, StackExchange.Redis.When.NotExists) == false)
             {
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLock],
+                    new {RedisKey = lockId, ErrorCode = ErrorCode.RedisSetDuplicateKey}, "Set Redis Key Already Exists");  
                 return false;
             }
         }
-        catch
+        catch (Exception e)
         {
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLock], e,
+                new {RedisKey = lockId, ErrorCode = ErrorCode.RedisFailException}, "Set Redis String Failed");  
             return false;
         }
 
         return true;
     }
 
-    public async Task<bool> DelUserReqLockAsync(string lockName)
+    public async Task<bool> DelUserRequestLockAsync(string lockName)
     {
         if(string.IsNullOrEmpty(lockName))
         {
@@ -167,11 +126,12 @@ public class RedisDb : IMemoryDb
             var redisResult = await redis.DeleteAsync();
             return redisResult;
         }
-        catch
+        catch (Exception e)
         {
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DelUserRequestLock], e,
+                new {RedisKey = lockId, ErrorCode = ErrorCode.RedisFailException}, "Delete Redis String Failed");      
             return false;
         }
     }
-
     
 }
