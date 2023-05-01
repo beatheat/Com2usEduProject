@@ -147,5 +147,22 @@ public class RedisDb : IMemoryDb
             return false;
         }
     }
+
     
+    public async Task<(bool,string)> GetNoticeAsync()
+    {
+        try
+        {
+            var redis = new RedisString<string>(_redisConn, NOTICE, null);
+            var notice = await redis.GetAsync();
+            
+            return (notice.HasValue, notice.Value);
+        }
+        catch(Exception e)
+        {
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetNotice], e,
+                new {ErrorCode = ErrorCode.RedisFailException}, "Get Redis String Failed");           
+            return (false, "");
+        }
+    }
 }

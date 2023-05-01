@@ -26,6 +26,7 @@ public enum EventType
 	RegisterUser = 5002,
 	GetUser = 5003,
 	SetUserRequestLock = 5004,
-	DelUserRequestLock = 5005
+	DelUserRequestLock = 5005,
+	GetNotice = 5006,
 
 }

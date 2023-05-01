@@ -62,6 +62,13 @@ public class Login : ControllerBase
 			return response;
 		}
 
+		// 공지사항 로드
+		(var isNoticeExist, response.Notice) = await _memoryDb.GetNoticeAsync();
+		if (!isNoticeExist)
+		{
+			response.Notice = null;
+		}
+		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.Login], new { Id = request.Id, AuthToken = authToken, AccountId = accountId }, "Login Success"); 
         
 		response.AuthToken = authToken; 

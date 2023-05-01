@@ -1,5 +1,5 @@
 ﻿using Com2usEduProject.DBSchema;
-using Com2usEduProject.RedisModel;
+using Com2usEduProject.Authorization;
 
 namespace Com2usEduProject.Services;
 
@@ -15,5 +15,6 @@ public interface IMemoryDb
 	
 	public Task<bool> DelUserRequestLockAsync(string lockName);
 
+	public Task<(bool, string)> GetNoticeAsync();
 }
 

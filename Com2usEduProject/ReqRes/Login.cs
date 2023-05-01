@@ -25,4 +25,5 @@ public class LoginResponse
 	
 	public Player playerData { get; set; }
 	public IList<PlayerItem> playerItems { get; set; }
+	public string Notice { get; set; }
 }
