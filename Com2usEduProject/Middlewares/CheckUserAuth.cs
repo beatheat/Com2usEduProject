@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using Com2usEduProject.DBSchema;
+using Com2usEduProject.Authorization;
 using Com2usEduProject.Services;
 
 namespace Com2usEduProject.Middleware;

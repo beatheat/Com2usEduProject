@@ -1,4 +1,5 @@
 ﻿using Com2usEduProject.DBSchema;
+using Com2usEduProject.RedisModel;
 
 namespace Com2usEduProject.Services;
 

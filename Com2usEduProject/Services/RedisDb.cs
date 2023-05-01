@@ -5,6 +5,7 @@ using CloudStructures;
 using CloudStructures.Structures;
 using Com2usEduProject.DBSchema;
 using Com2usEduProject.ModelDB;
+using Com2usEduProject.Authorization;
 using Com2usEduProject.Tools;
 using Humanizer;
 using ZLogger;
@@ -17,9 +18,21 @@ public class RedisDb : IMemoryDb
 
     const string UID = "UID_";
     const string ULOCK = "ULOCK_";
+    const string NOTICE = "Notice";
+
+    public class RedisKeyExpireTime
+    {
+        public const ushort KeyExpireSecond = 3;
+        public const ushort RegisterKeyExpireSecond = 6000;
+        public const ushort LoginKeyExpireMin = 60; 
+        public const ushort TicketKeyExpireSecond = 6000; 
+    }
+
+    
     RedisConnection _redisConn;
 
     static readonly ILogger<RedisDb> s_logger = LogManager.GetLogger<RedisDb>();
+    private IMemoryDb _memoryDbImplementation;
 
     public void Init(string address)
     {
@@ -31,7 +44,8 @@ public class RedisDb : IMemoryDb
     public async Task<ErrorCode> RegisterUserAsync(string id, string authToken, int accountId)
     {
         var uid = UID + id;
-        var loginTimeSpan = TimeSpan.FromMinutes(RediskeyExpireTime.LoginKeyExpireMin);
+        //TODO: 로그인 키 갱신 필요
+        var loginTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.LoginKeyExpireMin);
         
         var user = new AuthUser
         {
@@ -89,7 +103,7 @@ public class RedisDb : IMemoryDb
     public async Task<bool> SetUserRequestLockAsync(string lockName)
     {
         var lockId = ULOCK + lockName;
-        var keyTimeSpan = TimeSpan.FromSeconds(RediskeyExpireTime.NxKeyExpireSecond);
+        var keyTimeSpan = TimeSpan.FromSeconds(RedisKeyExpireTime.KeyExpireSecond);
         
         try
         {
