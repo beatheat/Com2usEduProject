@@ -15,7 +15,6 @@ public class Item
 	public bool Consumable { get; set; }
 }
 
-
 public enum ItemType
 {
 	WEAPON      = 1,
@@ -24,7 +23,6 @@ public enum ItemType
 	MAGICTOOL	= 4,
 	MONEY		= 5,
 }
-
 
 public class AttendanceReward
 {

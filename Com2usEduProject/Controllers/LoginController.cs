@@ -37,7 +37,7 @@ public class Login : ControllerBase
 			return response;
 		}
 		
-		// auth 생성 및 등록
+		// Auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
 		errorCode = await _memoryDb.RegisterUserAsync(request.Id, authToken, accountId);
 		if(errorCode != ErrorCode.None)
@@ -47,7 +47,7 @@ public class Login : ControllerBase
 		}
 
 		// 플레이어 데이터 로드
-		(errorCode, response.playerData) = await _gameDb.LoadPlayerDataAsync(accountId);
+		(errorCode, response.PlayerData) = await _gameDb.LoadPlayerDataAsync(accountId);
 		if(errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;
@@ -55,7 +55,7 @@ public class Login : ControllerBase
 		}
 		
 		// 플레이어 아이템 데이터 로드
-		(errorCode, response.playerItems) = await _gameDb.LoadPlayerItemsAsync(response.playerData.PlayerId);
+		(errorCode, response.PlayerItems) = await _gameDb.LoadPlayerItemsAsync(response.PlayerData.Id);
 		if(errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;
@@ -72,6 +72,8 @@ public class Login : ControllerBase
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.Login], new { Id = request.Id, AuthToken = authToken, AccountId = accountId }, "Login Success"); 
         
 		response.AuthToken = authToken; 
+		
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.Login], new {AccountId = accountId}, "Login Success");
 		return response;
 	}
 }

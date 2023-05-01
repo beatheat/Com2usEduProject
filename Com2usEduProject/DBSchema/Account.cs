@@ -2,9 +2,10 @@
 
 public class Account
 {
-	public int AccountId { get; set; }
+	public int Id { get; set; }
 
-	public string Id { get; set; }
+	public string LoginId { get; set; }
 	public string HashedPassword { get; set; }
 	public string SaltValue { get; set; }
+	public DateTime CreateAt { get; set; }
 }

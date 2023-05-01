@@ -2,7 +2,7 @@
 
 public class Player
 {
-	public int PlayerId { get; set; }
+	public int Id { get; set; }
 	public int AccountId { get; set; }
 	public int ContinuousAttendanceDays { get; set; }
 	public DateTime LastAttendanceDate { get; set; }
@@ -10,7 +10,7 @@ public class Player
 
 public class PlayerItem
 {
-	public int UniqueNo { get; set; }
+	public int Id { get; set; }
 	public int PlayerId { get; set; }
 	public int ItemCode { get; set; }
 	public int Attack { get; set; }
@@ -20,10 +20,11 @@ public class PlayerItem
 	public int Count { get; set; }
 }
 
-public class Mailbox
+public class Mail
 {
-	public int UniqueNo { get; set; }
-	public int PostName { get; set; }
+	public int Id { get; set; }
+	public int PlayerId { get; set; }
+	public string PostName { get; set; }
 	public int ItemCode { get; set; }
 	public int ItemCount { get; set; }
 	public DateTime ExpireDate { get; set; }
@@ -32,6 +33,7 @@ public class Mailbox
 
 public class Bill
 {
-	public long UniqueToken { get; set; }
+	public long Id { get; set; }
+	public long Token { get; set; }
 	public int PlayerId { get; set; }
 }

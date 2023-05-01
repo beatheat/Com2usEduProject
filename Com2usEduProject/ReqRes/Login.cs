@@ -23,7 +23,7 @@ public class LoginResponse
 	[Required] public ErrorCode Result { get; set; } = ErrorCode.None;
 	[Required] public string AuthToken { get; set; } = "";
 	
-	public Player playerData { get; set; }
-	public IList<PlayerItem> playerItems { get; set; }
+	public Player PlayerData { get; set; }
+	public IList<PlayerItem> PlayerItems { get; set; }
 	public string Notice { get; set; }
 }

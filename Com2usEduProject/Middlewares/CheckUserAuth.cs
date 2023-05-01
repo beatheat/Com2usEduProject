@@ -95,7 +95,6 @@ public class CheckUserAuth
 
         context.Request.Body.Position = 0;
 
-        // Call the next delegate/middleware in the pipeline
         await _next(context);
 
         // 트랜잭션 해제(Redis 동기화 해제)

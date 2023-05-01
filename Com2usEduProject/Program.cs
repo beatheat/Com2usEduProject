@@ -16,7 +16,7 @@ builder.Services.AddTransient<IGameDb, GameDb>();
 builder.Services.AddSingleton<IMemoryDb, RedisDb>();
 builder.Services.AddSingleton<IMasterDb, MasterDb>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 LogManager.SettingLogger(builder.Logging, configuration["LogDirectory"]);
 
@@ -29,10 +29,7 @@ app.UseMiddleware<CheckUserAuth>();
 
 app.UseRouting();
 
-app.UseEndpoints(endpoints =>
-{
-	endpoints.MapControllers();
-});
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 
 var redisDb = app.Services.GetRequiredService<IMemoryDb>();

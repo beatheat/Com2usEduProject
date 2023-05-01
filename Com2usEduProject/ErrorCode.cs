@@ -35,12 +35,19 @@ public enum ErrorCode : UInt16
     //GameDb 3000~ 
     GetGameDbConnectionFail = 3002,
     
-    PlayerDataInsertFailException = 3003,
-    PlayerDataSelectFailException = 3004,
-    PlayerItemInsertFailException = 3005,
-    PlayerItemSelectFailException = 3006,
+    NotRegisteredPlayerId = 3003,
+
+    PlayerDataInsertFailException = 3004,
+    PlayerDataSelectFailException = 3005,
+    PlayerItemInsertFailException = 3006,
+    PlayerItemSelectFailException = 3007,
     
-    
+    MailSelectFailException = 3008,
+    MailInsertFail = 3009,
+    MailInsertFailException = 3010,
+    MailUpdateFail = 3011,
+    MailUpdateFailException = 3012,
+
     //MasterDb 4000~
     UnknownCode = 4001,
 
@@ -49,4 +56,7 @@ public enum ErrorCode : UInt16
     RedisKeyNotFound = 5002,
     RedisSetDuplicateKey = 5003,
     RedisGetFailed = 5004,
+    
+    //Controller 6000 ~
+    ReceiveMailAlready = 6001,
 }

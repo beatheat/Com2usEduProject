@@ -56,6 +56,15 @@ public class CreateAccount : ControllerBase
 			return response;
 		}
 
+		// 메일함 테스트용 테스트 메일 삽입
+		errorCode = await InsertTestMails(playerId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Test Mail Creation Failed");
+			response.Result = errorCode;
+			return response;
+		}
+		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "CreateAccount Success");
 		return response;
 	}
@@ -66,21 +75,39 @@ public class CreateAccount : ControllerBase
 		foreach (var item in initialPlayerItemList)
 		{
 			var (_,itemData) = _masterDb.GetItem(item.ItemCode);
-			PlayerItem playerItem = new PlayerItem
-			{
-				PlayerId = playerId,
-				ItemCode = item.ItemCode,
-				Count = item.ItemCount,
-				Attack = itemData.Attack,
-				Defence = itemData.Defence,
-				Magic = itemData.Magic,
-				EnhanceCount = 0
-			};
-			var (errorCode, _) = await _gameDb.InsertPlayerItemAsync(playerItem);
+			
+			var (errorCode, _) = await _gameDb.InsertPlayerItemAsync(playerId, itemData, item.ItemCount);
 			
 			if (errorCode != ErrorCode.None)
 				return errorCode;
 		}
+		return ErrorCode.None;
+	}
+
+	private async Task<ErrorCode> InsertTestMails(int playerId)
+	{
+		Random random = new Random();
+		for (int i = 0; i < 1000; i++)
+		{
+			Mail mail = new Mail();
+			
+			mail.PlayerId = playerId;
+			mail.PostName = $"테스트 메일 ({i})";
+			mail.ItemCode = random.Next(6); // 랜덤 아이템 삽입
+			mail.ItemCount = mail.ItemCode switch
+			{
+				1 => random.Next(1000), //돈이면 1000이하 
+				6 => random.Next(20), // 포션이면 6개 이하
+				_ => 1				  // 그외는 장비아이템
+			};
+			mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
+			mail.IsItemReceived = false;
+			
+			var errorCode = await _gameDb.InsertMailAsync(mail);
+			if (errorCode != ErrorCode.None)
+				return errorCode;
+		}
+
 		return ErrorCode.None;
 	}
 }

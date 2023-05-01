@@ -53,16 +53,17 @@ public class AccountDb : IAccountDb
 	{
 		_dbConnection.Close();
 	}
-	
+
+
 	public async Task<(ErrorCode,int)> CreateAccountAsync(string id, string password)
 	{
         try
         {
             var saltValue = Security.MakeSaltString();
             var hashingPassword = Security.MakeHashPassWord(saltValue, password);
-            _logger.ZLogDebug($"[CreateAccount] Id: {id}, SaltValue : {saltValue}, HashingPassword:{hashingPassword}");
-			
-            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {Id = id, SaltValue = saltValue, HashedPassword = hashingPassword});
+            _logger.ZLogDebug($"[CreateAccount] LoginId: {id}, SaltValue : {saltValue}, HashingPassword:{hashingPassword}");
+	        
+            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {LoginId = id, SaltValue = saltValue, HashedPassword = hashingPassword});
 
             return (ErrorCode.None,accountId);
         }
@@ -87,9 +88,9 @@ public class AccountDb : IAccountDb
 	{
 		try
 		{
-			var accountInfo = await _queryFactory.Query("account").Where("Id", id).FirstOrDefaultAsync<Account>();
+			var accountInfo = await _queryFactory.Query("account").Where("LoginId", id).FirstOrDefaultAsync<Account>();
 
-			if (accountInfo is null || accountInfo.AccountId == 0)
+			if (accountInfo is null || accountInfo.Id == 0)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailUserNotExist}, "Account Id Not Exist");
 				return (ErrorCode.LoginFailUserNotExist, -1);
@@ -102,11 +103,12 @@ public class AccountDb : IAccountDb
 				return (ErrorCode.LoginFailPwNotMatch, -1);
 			}
 
-			return (ErrorCode.None, accountInfo.AccountId);
+			return (ErrorCode.None, accountInfo.Id);
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailException}, "Select Account Fail Exception");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], e,
+				new {AccountId = id, ErrorCode = ErrorCode.LoginFailException}, "Select Account Fail Exception");
 			return (ErrorCode.LoginFailException, -1);
 		}	
 	}
