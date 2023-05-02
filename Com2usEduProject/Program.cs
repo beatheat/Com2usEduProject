@@ -1,4 +1,4 @@
-using Com2usEduProject.Middleware;
+using Com2usEduProject.Middlewares;
 using Com2usEduProject.ModelDB;
 using Com2usEduProject.Services;
 using Com2usEduProject.Tools;
