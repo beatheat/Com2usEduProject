@@ -91,7 +91,7 @@ public class GameDb : IGameDb
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadPlayerData], e,
 				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerDataSelectFailException}, "Select PlayerData Failed");		
-			return (ErrorCode.CreateAccountFailException, new Player());
+			return (ErrorCode.InsertAccountFailException, new Player());
 		}
 	}
 

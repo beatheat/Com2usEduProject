@@ -55,7 +55,7 @@ public class AccountDb : IAccountDb
 	}
 
 
-	public async Task<(ErrorCode,int)> CreateAccountAsync(string id, string password)
+	public async Task<(ErrorCode,int)> InsertAccountAsync(string id, string password)
 	{
         try
         {
@@ -71,17 +71,35 @@ public class AccountDb : IAccountDb
         {
 	        if (e.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 	        {
-		        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountDuplicate}, "Insert Account Duplicated");
-		        return (ErrorCode.CreateAccountDuplicate, -1);
+		        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.InsertAccountDuplicate}, "Insert Account Duplicated");
+		        return (ErrorCode.InsertAccountDuplicate, -1);
 	        }
-	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountFailException}, "Insert Account Failed");
-	        return (ErrorCode.CreateAccountFailException, -1);
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.
+		        InsertAccountFailException}, "Insert Account Failed");
+	        return (ErrorCode.InsertAccountFailException, -1);
         }
         catch (Exception e)
         {
-	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.CreateAccountFailException}, "Insert Account Failed");
-	        return (ErrorCode.CreateAccountFailException, -1);
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.InsertAccountFailException}, "Insert Account Failed");
+	        return (ErrorCode.InsertAccountFailException, -1);
         }	
+	}
+	
+	public async Task<ErrorCode> DeleteAccountAsync(string id)
+	{
+		try
+		{
+	        
+			var accountId = await _queryFactory.Query("account").Where("Id", id).DeleteAsync();
+			_logger.ZLogDebug($"[DeleteAccount] LoginId: {id}");
+
+			return ErrorCode.None;
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DeleteAccount], e, new {AccountId = id, ErrorCode = ErrorCode.DeleteAccountFailException}, "Delete Account Failed");
+			return ErrorCode.DeleteAccountFailException;
+		}	
 	}
 	
 	public async Task<(ErrorCode, int)> VerifyAccountAsync(string id, string password)

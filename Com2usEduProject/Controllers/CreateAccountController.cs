@@ -30,7 +30,7 @@ public class CreateAccount : ControllerBase
 		var response = new CreateAccountRes();
         
 		// 계정 생성
-		var (errorCode,accountId) = await _accountDb.CreateAccountAsync(request.Id, request.Password);
+		var (errorCode,accountId) = await _accountDb.InsertAccountAsync(request.Id, request.Password);
 		if (errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;
@@ -41,9 +41,16 @@ public class CreateAccount : ControllerBase
 		(errorCode, var playerId) = await _gameDb.CreatePlayerDataAsync(accountId);
 		if (errorCode != ErrorCode.None)
 		{
-			// TODO: 플레이어 데이터 생성 실패 시 계정정보 삭제해서 롤백하는 기능 고려
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Data Creation Failed");
 			response.Result = errorCode;
+			
+			// 플레이어 데이터 생성 실패 시 계정정보 삭제해서 롤백
+			errorCode = await _accountDb.DeleteAccountAsync(request.Id);
+			if (errorCode != ErrorCode.None)
+			{
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "AccountDB Rollback Failed");
+			}
+			
 			return response;
 		}
 		

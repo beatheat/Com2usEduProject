@@ -28,7 +28,6 @@ public class Login : ControllerBase
 	{
 		var response = new LoginResponse();
 
-		//TODO: 이중 로그인 막기 
 		// ID, PW 검증
 		var (errorCode, accountId) = await _accountDb.VerifyAccountAsync(request.Id, request.Password);
 		if (errorCode != ErrorCode.None)

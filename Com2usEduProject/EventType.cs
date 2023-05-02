@@ -12,6 +12,7 @@ public enum EventType
 	AccountDbConnection = 2001,
 	InsertAccount = 2002,
 	VerifyAccount = 2003,
+	DeleteAccount = 2004,
 	
 	// GameDB 3000 ~
 	GameDbConnection = 3001,

@@ -15,7 +15,7 @@ public enum ErrorCode : UInt16
     
 
     // Account 2000 ~
-    CreateAccountFailException = 2001,    
+    InsertAccountFailException = 2001,    
     LoginFailException = 2002,
     LoginFailUserNotExist = 2003,
     LoginFailPwNotMatch = 2004,
@@ -27,9 +27,10 @@ public enum ErrorCode : UInt16
     AccountIdMismatch = 2010,
     DuplicatedLogin = 2011,
     CreateAccountFailInsert = 2012,
-    CreateAccountDuplicate = 2013,
+    InsertAccountDuplicate = 2013,
     LoginFailAddRedis = 2014,
     LoginFailConnectRedis = 2015,
+    DeleteAccountFailException = 2016,
     
 
     //GameDb 3000~ 
