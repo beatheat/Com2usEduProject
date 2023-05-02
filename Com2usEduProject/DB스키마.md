@@ -130,10 +130,10 @@ CREATE TABLE IF NOT EXISTS GameDB.`PlayerItem`
 ) COMMENT '플레이어 아이템 테이블';
 ```
 
-## Mailbox 테이블
+## Mail 테이블
 플레이어의 메일 데이터를 가진 테이블
 ```sql
-CREATE TABLE GameDB.`Mailbox`
+CREATE TABLE GameDB.`Mail`
 (
 	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
     PlayerId INT NOT NULL COMMENT '메일 소유 플레이어 고유번호',
