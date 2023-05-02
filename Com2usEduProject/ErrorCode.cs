@@ -51,6 +51,12 @@ public enum ErrorCode : UInt16
 
     //MasterDb 4000~
     UnknownCode = 4001,
+    UnknownItemCode = 4002,
+    UnknownAttendanceRewardDay = 4003,
+    UnknownShopItemCode = 4004,
+    UnknownStageItemCode = 4005,
+    UnknownStageNpcCode = 4006,
+    
 
     //RedisDb 5000 ~
     RedisFailException = 5001,

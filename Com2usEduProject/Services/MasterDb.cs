@@ -69,17 +69,17 @@ public class MasterDb : IMasterDb
 			return (ErrorCode.None, _itemList[itemCode]);
 		}
 		
-		return (ErrorCode.UnknownCode, new Item());
+		return (ErrorCode.UnknownItemCode, new Item());
 	}
 
 	public (ErrorCode, AttendanceReward) GetAttendanceReward(int day)
 	{
 		if(day > 0 && day < _attendanceRewards.Count)
 		{
-			return (ErrorCode.UnknownCode, _attendanceRewards[day]);
-
+			return (ErrorCode.None, _attendanceRewards[day]);
 		}
-		return (ErrorCode.UnknownCode, new AttendanceReward());
+		
+		return (ErrorCode.UnknownAttendanceRewardDay, new AttendanceReward());
 	}
 
 	public (ErrorCode, IList<ShopItem>) GetShopItem(int shopItemCode)
@@ -88,7 +88,7 @@ public class MasterDb : IMasterDb
 
 		if(selectedShopItems.Count  == 0)
 		{
-			return (ErrorCode.UnknownCode, new List<ShopItem>());
+			return (ErrorCode.UnknownShopItemCode, new List<ShopItem>());
 		}
 		
 		return (ErrorCode.None, selectedShopItems);
@@ -100,7 +100,7 @@ public class MasterDb : IMasterDb
 
 		if (selectedStageItems.Count == 0)
 		{
-			return (ErrorCode.UnknownCode, new List<StageItem>());
+			return (ErrorCode.UnknownStageItemCode, new List<StageItem>());
 		}
 		
 		return (ErrorCode.None, selectedStageItems);
@@ -112,7 +112,7 @@ public class MasterDb : IMasterDb
 
 		if (selectedStageNpcs.Count == 0)
 		{
-			return (ErrorCode.UnknownCode, new List<StageNpc>());
+			return (ErrorCode.UnknownStageNpcCode, new List<StageNpc>());
 		}
 		
 		return (ErrorCode.None, selectedStageNpcs);
