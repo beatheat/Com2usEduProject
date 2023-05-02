@@ -6,7 +6,7 @@
 ```sql
 CREATE TABLE AccountDB.`Account`
 (
-    Id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
+    Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
     LoginId VARCHAR(50) NOT NULL UNIQUE COMMENT '계정',
     SaltValue VARCHAR(100) NOT NULL COMMENT  '암호화 값',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
@@ -23,7 +23,7 @@ CREATE TABLE AccountDB.`Account`
 ```sql
 CREATE TABLE MasterDB.`Version`
 (
-UniqueNo BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '고유번호',
+UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '고유번호',
 Version VARCHAR(30) NOT NULL COMMENT '마스터데이터 버전',
 ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
 ) COMMENT '데이터 버전 테이블';
@@ -34,7 +34,7 @@ ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
 ```sql
 CREATE TABLE MasterDB.`Item`
 (
-    Code BIGINT NOT NULL PRIMARY KEY COMMENT '아이템 번호',
+    Code INT NOT NULL PRIMARY KEY COMMENT '아이템 번호',
     Name VARCHAR(50) NOT NULL UNIQUE COMMENT '아이템 이름',
     Attribute SMALLINT NOT NULL COMMENT  '특성번호',
     Sell INT NOT NULL COMMENT '판매 금액',
@@ -53,8 +53,8 @@ CREATE TABLE MasterDB.`Item`
 ```sql
 CREATE TABLE MasterDB.`AttendanceReward`
 (
-    Code SMALLINT NOT NULL PRIMARY KEY COMMENT '날짜',
-    ItemCode BIGINT NOT NULL COMMENT '아이템 코드',
+    Code INT NOT NULL PRIMARY KEY COMMENT '날짜',
+    ItemCode INT NOT NULL COMMENT '아이템 코드',
     ItemCount INT NOT NULL COMMENT  '아이템 개수'
 ) COMMENT '출석 보상 테이블';
 
@@ -65,9 +65,9 @@ CREATE TABLE MasterDB.`AttendanceReward`
 ```sql
 CREATE TABLE MasterDB.`ShopItem`
 (
-    UniqueNo BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품고유번호',
-    Code BIGINT NOT NULL COMMENT '상품번호',
-    ItemCode BIGINT NOT NULL COMMENT '아이템코드',
+    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품고유번호',
+    Code INT NOT NULL COMMENT '상품번호',
+    ItemCode INT NOT NULL COMMENT '아이템코드',
     ItemCount INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '인앱상품 테이블';
 ```
@@ -77,9 +77,9 @@ CREATE TABLE MasterDB.`ShopItem`
 ```sql
 CREATE TABLE MasterDB.`StageItem`
 (
-    UniqueNo BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
-    StageCode BIGINT NOT NULL COMMENT '상품번호',
-    ItemCode BIGINT NOT NULL COMMENT '아이템코드'
+    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
+    StageCode INT NOT NULL COMMENT '상품번호',
+    ItemCode INT NOT NULL COMMENT '아이템코드'
 ) COMMENT '스테이지 아이템 테이블';
 ```
 
@@ -88,10 +88,10 @@ CREATE TABLE MasterDB.`StageItem`
 ```sql
 CREATE TABLE MasterDB.`StageNpc`
 (
-    Code BIGINT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
-    StageCode BIGINT NOT NULL COMMENT '스테이지 번호',
+    Code INT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
+    StageCode INT NOT NULL COMMENT '스테이지 번호',
     Count INT NOT NULL COMMENT 'NPC 개수',
-    Exp BIGINT NOT NULL COMMENT '1개당 경험치'
+    Exp INT NOT NULL COMMENT '1개당 경험치'
 
 ) COMMENT '스테이지 NPC 테이블';
 ```
