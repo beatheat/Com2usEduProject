@@ -63,8 +63,7 @@ CREATE TABLE MasterDB.`AttendanceReward`
 ## ShopItem 테이블
 게임 인앱상점 아이템에 대한 정보를 가진 테이블
 ```sql
-DROP TABLE IF EXISTS MasterDB.`ShopItem`;
-CREATE TABLE IF NOT EXISTS MasterDB.`ShopItem`
+CREATE TABLE MasterDB.`ShopItem`
 (
     UniqueNo BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품고유번호',
     Code BIGINT NOT NULL COMMENT '상품번호',
@@ -76,8 +75,7 @@ CREATE TABLE IF NOT EXISTS MasterDB.`ShopItem`
 ## StageItem 테이블
 게임의 한 스테이지에서 얻을 수 있는 아이템 정보를 가진 테이블
 ```sql
-DROP TABLE IF EXISTS MasterDB.`StageItem`;
-CREATE TABLE IF NOT EXISTS MasterDB.`StageItem`
+CREATE TABLE MasterDB.`StageItem`
 (
     UniqueNo BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
     StageCode BIGINT NOT NULL COMMENT '상품번호',
@@ -88,8 +86,7 @@ CREATE TABLE IF NOT EXISTS MasterDB.`StageItem`
 ## StageNpc 테이블
 게임의 한 스테이지에서 등장하는 NPC 정보를 가진 테이블
 ```sql
-DROP TABLE IF EXISTS MasterDB.`StageNpc`;
-CREATE TABLE IF NOT EXISTS MasterDB.`StageNpc`
+CREATE TABLE MasterDB.`StageNpc`
 (
     Code BIGINT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
     StageCode BIGINT NOT NULL COMMENT '스테이지 번호',
@@ -117,7 +114,7 @@ CREATE TABLE GameDB.`Player`
 ## PlayerItem 테이블
 플레이어 아이템 데이터를 가진 테이블
 ```sql
-CREATE TABLE IF NOT EXISTS GameDB.`PlayerItem`
+CREATE TABLE GameDB.`PlayerItem`
 (
 	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
 	PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
@@ -148,8 +145,7 @@ CREATE TABLE GameDB.`Mail`
 ## Bill 테이블
 플레이어의 결제 영수증 데이터를 가진 테이블
 ```sql
-DROP TABLE IF EXISTS GameDB.`Bill`;
-CREATE TABLE IF NOT EXISTS GameDB.`Bill`
+CREATE TABLE GameDB.`Bill`
 (
 	Id BIGINT NOT NULL PRIMARY KEY COMMENT '영수증 고유번호',
 	Token BIGINT NOT NULL COMMENT '영수증 인증토큰',
