@@ -6,8 +6,8 @@
 ```sql
 CREATE TABLE AccountDB.`Account`
 (
-    AccountId BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
-    Id VARCHAR(50) NOT NULL UNIQUE COMMENT '계정',
+    Id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
+    LoginId VARCHAR(50) NOT NULL UNIQUE COMMENT '계정',
     SaltValue VARCHAR(100) NOT NULL COMMENT  '암호화 값',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성 날짜'
@@ -106,10 +106,10 @@ CREATE TABLE IF NOT EXISTS MasterDB.`StageNpc`
 ```sql
 CREATE TABLE GameDB.`Player`
 (
-PlayerId INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
-AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
-ContinuousAttendanceDays INT NOT NULL COMMENT '연속출석일수',
-LastAttendanceDate DATE NOT NULL COMMENT '마지막출석일'
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
+    AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
+    ContinuousAttendanceDays INT NOT NULL COMMENT '연속출석일수',
+    LastAttendanceDate DATE NOT NULL COMMENT '마지막출석일'
 ) COMMENT '플레이어 기본 데이터 테이블';
 ```
 
@@ -119,13 +119,14 @@ LastAttendanceDate DATE NOT NULL COMMENT '마지막출석일'
 ```sql
 CREATE TABLE IF NOT EXISTS GameDB.`PlayerItem`
 (
-UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
-PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
-ItemCode INT NOT NULL COMMENT '아이템 코드',
-Attack INT NOT NULL COMMENT '아이템 공격력',
-Defence INT NOT NULL COMMENT '아이템 방어력',
-Magic INT NOT NULL COMMENT '아이템 마법력',
-EnhanceCount INT NOT NULL COMMENT '아이템 강화횟수'
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
+	PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
+    ItemCode INT NOT NULL COMMENT '아이템 코드',
+    Attack INT NOT NULL COMMENT '아이템 공격력',
+    Defence INT NOT NULL COMMENT '아이템 방어력',
+    Magic INT NOT NULL COMMENT '아이템 마법력',
+    EnhanceCount INT NOT NULL COMMENT '아이템 강화횟수',
+    Count INT NOT NULL COMMENT '아이템 갯수'
 ) COMMENT '플레이어 아이템 테이블';
 ```
 
@@ -134,12 +135,13 @@ EnhanceCount INT NOT NULL COMMENT '아이템 강화횟수'
 ```sql
 CREATE TABLE GameDB.`Mailbox`
 (
-UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
-PostName VARCHAR(50) NOT NULL COMMENT '메일 이름',
-ItemCode INT NOT NULL COMMENT '메일 첨부 아이템 코드',
-ItemCount INT NOT NULL COMMENT '메일 첨부 아이템 갯수',
-ExpireTime INT NOT NULL COMMENT '아이템 보관 시간',
-IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부'
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
+    PlayerId INT NOT NULL COMMENT '메일 소유 플레이어 고유번호',
+    PostName VARCHAR(50) NOT NULL COMMENT '메일 이름',
+    ItemCode INT NOT NULL COMMENT '메일 첨부 아이템 코드',
+    ItemCount INT NOT NULL COMMENT '메일 첨부 아이템 갯수',
+    ExpireDate DateTime NOT NULL COMMENT '아이템 보관 기일',
+    IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부'
 ) COMMENT '플레이어 우편함 테이블';
 ```
 
@@ -149,8 +151,9 @@ IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부'
 DROP TABLE IF EXISTS GameDB.`Bill`;
 CREATE TABLE IF NOT EXISTS GameDB.`Bill`
 (
-UniqueToken BIGINT NOT NULL PRIMARY KEY COMMENT '영수증 고유번호',
-PlayerId INT NOT NULL COMMENT '결제한 플레이어 고유번호'
+	Id BIGINT NOT NULL PRIMARY KEY COMMENT '영수증 고유번호',
+	Token BIGINT NOT NULL COMMENT '영수증 인증토큰',
+    PlayerId INT NOT NULL COMMENT '결제한 플레이어 고유번호' 
 ) COMMENT '플레이어 영수증 테이블';
 ```
 
