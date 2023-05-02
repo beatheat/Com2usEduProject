@@ -6,7 +6,7 @@ public enum ErrorCode : UInt16
     None = 0,
 
     // Common 1000 ~
-    UnhandleException = 1001,
+    UnhandledException = 1001,
     InValidRequestHttpBody = 1004,
     AuthTokenFailWrongAuthToken = 1006,
     
