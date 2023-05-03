@@ -9,7 +9,7 @@ using SqlKata.Execution;
 using ZLogger;
 using Exception = System.Exception;
 
-namespace Com2usEduProject.Services;
+namespace Com2usEduProject.Databases;
 
 public class GameDb : IGameDb
 {
@@ -20,6 +20,7 @@ public class GameDb : IGameDb
 	IDbConnection _dbConnection;
 
 	const int MAILBOX_PAGE_SIZE = 20;
+	const int MAIL_MAX_ITEM_SLOT_COUNT = 4;
 
 	public GameDb(ILogger<AccountDb> logger, IOptions<DbConnectionConfig> dbConfig)
 	{
@@ -100,11 +101,11 @@ public class GameDb : IGameDb
 	{
 		try
 		{
-			var playerItemUniqueNo = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(item);
+			var playerItemId = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(item);
 		
 			_logger.ZLogDebug($"[InsertPlayerItem] PlayerId: {item.PlayerId} ItemCode {item.ItemCode} Count {item.Count}");
 
-			return (ErrorCode.None, playerItemUniqueNo);
+			return (ErrorCode.None, playerItemId);
 		}
 		catch (Exception e)
 		{
@@ -129,11 +130,11 @@ public class GameDb : IGameDb
 				EnhanceCount = 0
 			};
 			
-			var playerItemUniqueNo = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(playerItem);
+			var playerItemId = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(playerItem);
 		
 			_logger.ZLogDebug($"[InsertPlayerItem] PlayerId: {playerId} ItemCode {item.Code} Count {count}");
 
-			return (ErrorCode.None, playerItemUniqueNo);
+			return (ErrorCode.None, playerItemId);
 		}
 		catch (Exception e)
 		{
@@ -161,36 +162,83 @@ public class GameDb : IGameDb
 			return (ErrorCode.PlayerItemSelectFailException, new List<PlayerItem>());
 		}
 	}
-	public async Task<ErrorCode> InsertMailAsync(Mail mail)
+
+	public async Task<ErrorCode> DeletePlayerItemAsync(int playerItemId)
 	{
 		try
 		{
-			var count = await _queryFactory.Query("Mail").InsertAsync(mail);
-
+			int count = await _queryFactory.Query("PlayerItem").Where("Id", playerItemId).DeleteAsync();
 			if (count != 1)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadMailboxPageCount],
-					new {Mail = mail, ErrorCode = ErrorCode.MailInsertFail}, "Insert Mailbox Failed");
-				return ErrorCode.MailInsertFail;
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DeletePlayerItem],
+					new {PlayerItemId = playerItemId, ErrorCode = ErrorCode.PlayerItemDeleteFail}, "Delete PlayerItem Failed");
+				return ErrorCode.PlayerItemDeleteFail;
+
 			}
-			
-			_logger.ZLogDebug($"[InsertMailAsync] PlayerId: {mail.PlayerId},MailName : {mail.PostName}");
-			
+			_logger.ZLogDebug($"[DeletePlayerItem] PlayerItemId: {playerItemId}");
 			return ErrorCode.None;
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadMailboxPageCount], e,
-				new {Mail = mail, ErrorCode = ErrorCode.MailInsertFailException}, "Insert Mailbox Failed");
-			return ErrorCode.MailInsertFailException;
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DeletePlayerItem], e,
+				new {PlayerItemId = playerItemId, ErrorCode = ErrorCode.PlayerItemDeleteFailException}, "Delete PlayerItem Failed");
+			return ErrorCode.PlayerItemDeleteFailException;
 		}
+	}
+
+	public Task<(ErrorCode, int)> InsertMailAsync(Mail mail)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<(ErrorCode, int)> InsertMailItemAsync(MailItem mailItem)
+	{
+		throw new NotImplementedException();
+	}
+
+
+	public async Task<(ErrorCode,int)> InsertMailAsync(Mail mail, IList<MailItem> mailItems)
+	{
+		try
+		{
+			var mailId = await _queryFactory.Query("Mail").InsertGetIdAsync<int>(mail);
+			
+			_logger.ZLogDebug($"[InsertMailAsync] PlayerId: {mail.PlayerId},MailName : {mail.Name}");
+			return (ErrorCode.None, mailId);
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadMailboxPageCount], e,
+				new {Mail = mail, ErrorCode = ErrorCode.MailInsertFailException}, "Insert Mail Failed");
+			return (ErrorCode.MailInsertFailException,-1);
+		}
+	}
+
+	public async Task<(ErrorCode, int)> LoadMailItemAsync(MailItem mailItem)
+	{
+				
+		try
+		{
+			var id = await _queryFactory.Query("MailItem").InsertGetIdAsync<int>(mailItem);
+			
+			//_logger.ZLogDebug($"[InsertMailItemAsync] PlayerId: {mail.PlayerId},MailName : {mail.Name}");
+			return (ErrorCode.None,id);
+		}
+		catch (Exception e)
+		{
+			//_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadMail], e,
+			//	new {Mail = mail, ErrorCode = ErrorCode.MailItemInsertFailException}, "Insert Mail Failed");
+			return (ErrorCode.MailItemInsertFailException,-1);
+		}
+
 	}
 	
 	public async Task<(ErrorCode, int)> LoadMailboxPageCountAsync(int playerId)
 	{
 		try
 		{
-			var mailCount = await _queryFactory.Query("Mail").Where("PlayerId", playerId).CountAsync<int>();
+			var mailCount = await _queryFactory.Query("Mail").Where("PlayerId", playerId).
+				Where("ExpireDate",">","NOW()").CountAsync<int>();
 
 			_logger.ZLogDebug($"[LoadMailboxPageCount] PlayerId: {playerId}, MailCount : {mailCount}");
 			
@@ -209,8 +257,14 @@ public class GameDb : IGameDb
 	{
 		try
 		{
-			var mailboxPage = await _queryFactory.Query("Mail").Where("PlayerId", playerId).Limit(MAILBOX_PAGE_SIZE).Offset(MAILBOX_PAGE_SIZE * (pageNo-1)).GetAsync<Mail>();
+			var mailboxPage = await _queryFactory.Query("Mail").
+				Select("Id","PlayerId","Name","TransmissionDate","ExpireDate", "IsItemReceived").
+				Where("PlayerId", playerId).
+				Where("ExpireDate", ">", "NOW()").
+				Limit(MAILBOX_PAGE_SIZE).Offset(MAILBOX_PAGE_SIZE * (pageNo-1)).
+				OrderByDesc("TransmissionDate").GetAsync<Mail>();
 
+			
 			_logger.ZLogDebug($"[LoadMailboxPage] PlayerId: {playerId}");
 			
 			return (ErrorCode.None, mailboxPage.ToList());
@@ -223,7 +277,7 @@ public class GameDb : IGameDb
 		}
 	}
 
-	public async Task<(ErrorCode, Mail)> LoadMailAsync(int mailId)
+	public async Task<(ErrorCode, Mail)> LoadMailAsync(int mailId)	
 	{
 		try
 		{
@@ -241,7 +295,7 @@ public class GameDb : IGameDb
 		}
 	}
 
-	public async Task<ErrorCode> ReceiveMailItem(int mailId)
+	public async Task<ErrorCode> UpdateMailItemReceivedToTrueAsync(int mailId)
 	{
 		try
 		{
@@ -249,7 +303,7 @@ public class GameDb : IGameDb
 			
 			if (count != 1)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ReceiveMailItem],
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.UpdateMailItemReceived],
 					new {MailId = mailId, ErrorCode = ErrorCode.MailUpdateFail}, "Update Mailbox Failed");
 				return ErrorCode.MailUpdateFail;
 			}
@@ -260,9 +314,29 @@ public class GameDb : IGameDb
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ReceiveMailItem], e,
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.UpdateMailItemReceived], e,
 				new {MailId = mailId, ErrorCode = ErrorCode.MailUpdateFailException}, "Update Mailbox Failed");
 			return ErrorCode.MailUpdateFailException;
 		}
 	}
+	
+	
+	public async Task<(ErrorCode, IList<MailItem>)> LoadMailItemsAsync(int mailId)
+	{
+		try
+		{
+			var mailItems = await _queryFactory.Query("MailItem").Where("MailId", mailId).GetAsync<MailItem>();
+			
+			_logger.ZLogDebug($"[LoadMail] MailId: {mailId}");
+			
+			return (ErrorCode.None, mailItems.ToList());
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.LoadMail], e,
+				new {MailId = mailId, ErrorCode = ErrorCode.MailSelectFailException}, "Select Mailbox Failed");
+			return (ErrorCode.MailSelectFailException, new List<MailItem>());
+		}
+	}
+
 }

@@ -28,14 +28,25 @@ CREATE TABLE IF NOT EXISTS GameDB.`PlayerItem`
 DROP TABLE IF EXISTS GameDB.`Mail`;
 CREATE TABLE IF NOT EXISTS GameDB.`Mail`
 (
-	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
     PlayerId INT NOT NULL COMMENT '메일 소유 플레이어 고유번호',
-    PostName VARCHAR(50) NOT NULL COMMENT '메일 이름',
-    ItemCode INT NOT NULL COMMENT '메일 첨부 아이템 코드',
-    ItemCount INT NOT NULL COMMENT '메일 첨부 아이템 갯수',
-    ExpireDate DateTime NOT NULL COMMENT '아이템 보관 기일',
-    IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부'
+    Name VARCHAR(50) NOT NULL COMMENT '메일 전송메일 이름',
+    TransmissionDate DATETIME NOT NULL COMMENT '메일 전송일',
+    ExpireDate DATETIME NOT NULL COMMENT '아이템 보관 기일',
+    IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부',
+	Content VARCHAR(400) NOT NULL COMMENT '메일 내용'
+    
 ) COMMENT '플레이어 우편함 테이블';
+
+DROP TABLE IF EXISTS GameDB.`MailItem`;
+CREATE TABLE IF NOT EXISTS GameDB.`MailItem`
+(
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 아이템 고유번호',
+	MailId INT NOT NULL COMMENT '메일 고유번호',
+    ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
+    ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
+);
+
 
 DROP TABLE IF EXISTS GameDB.`Bill`;
 CREATE TABLE IF NOT EXISTS GameDB.`Bill`

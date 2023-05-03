@@ -1,4 +1,4 @@
-﻿namespace Com2usEduProject.Services;
+﻿namespace Com2usEduProject.Databases;
 
 
 public interface IAccountDb : IDisposable

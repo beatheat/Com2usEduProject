@@ -8,7 +8,7 @@ using SqlKata.Compilers;
 using SqlKata.Execution;
 using ZLogger;
 
-namespace Com2usEduProject.Services;
+namespace Com2usEduProject.Databases;
 
 public class MasterDb : IMasterDb
 {

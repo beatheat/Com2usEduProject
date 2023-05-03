@@ -11,7 +11,7 @@ using Humanizer;
 using ZLogger;
 
 
-namespace Com2usEduProject.Services;
+namespace Com2usEduProject.Databases;
 
 public class RedisDb : IMemoryDb
 {

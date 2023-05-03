@@ -20,10 +20,12 @@ public enum EventType
 	LoadPlayerData = 3003,
 	InsertPlayerItem = 3004,
 	LoadPlayerItems = 3005,
-	LoadMailboxPageCount = 3006,
-	LoadMailboxPage = 3007,
-	LoadMail = 3008,
-	ReceiveMailItem = 3009,
+	DeletePlayerItem = 3006,
+	LoadMailboxPageCount = 3007,
+	LoadMailboxPage = 3008,
+	LoadMail = 3009,
+	UpdateMailItemReceived = 3010,
+	InsertMail = 3011,
 	
 	// MasterDB 4000 ~
 	MasterDbConnection = 4001,

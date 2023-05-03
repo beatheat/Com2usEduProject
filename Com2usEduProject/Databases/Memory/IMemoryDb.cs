@@ -1,7 +1,7 @@
 ﻿using Com2usEduProject.DBSchema;
 using Com2usEduProject.Authorization;
 
-namespace Com2usEduProject.Services;
+namespace Com2usEduProject.Databases;
 
 public interface IMemoryDb
 {

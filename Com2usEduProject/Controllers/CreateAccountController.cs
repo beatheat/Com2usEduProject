@@ -1,7 +1,7 @@
 ﻿using Com2usEduProject.DBSchema;
 using Com2usEduProject.ReqRes;
 using Microsoft.AspNetCore.Mvc;
-using Com2usEduProject.Services;
+using Com2usEduProject.Databases;
 using Com2usEduProject.Tools;
 using ZLogger;
 
@@ -41,7 +41,7 @@ public class CreateAccount : ControllerBase
 		(errorCode, var playerId) = await _gameDb.CreatePlayerDataAsync(accountId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Data Creation Failed");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Data Creation Failed From GameDB");
 			response.Result = errorCode;
 			
 			// 플레이어 데이터 생성 실패 시 계정정보 삭제해서 롤백
@@ -49,17 +49,21 @@ public class CreateAccount : ControllerBase
 			if (errorCode != ErrorCode.None)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "AccountDB Rollback Failed");
+				response.Result = errorCode;
 			}
 			
 			return response;
 		}
 		
 		// 플레이어 기본 아이템 생성
+		// TODO: 여기서부터도 전부 롤백
 		errorCode = await InsertInitialPlayerItem(playerId);
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Initial Item Creation Failed");
 			response.Result = errorCode;
+			
+			
 			return response;
 		}
 
@@ -99,17 +103,19 @@ public class CreateAccount : ControllerBase
 			Mail mail = new Mail();
 			
 			mail.PlayerId = playerId;
-			mail.PostName = $"테스트 메일 ({i})";
-			mail.ItemCode = random.Next(6); // 랜덤 아이템 삽입
-			mail.ItemCount = mail.ItemCode switch
+			mail.Name = $"테스트 메일 ({i})";
+			mail.ItemCode = new[] { random.Next(6) };
+			mail.ItemCount = new[] {mail.ItemCode[0] switch
 			{
 				1 => random.Next(1000), //돈이면 1000이하 
 				6 => random.Next(20), // 포션이면 6개 이하
 				_ => 1				  // 그외는 장비아이템
-			};
+			}};
 			mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
+			mail.TransmissionDate = DateTime.Now;
+			mail.Content = $"Lorem ipsum~~~{i}";
 			mail.IsItemReceived = false;
-			
+
 			var errorCode = await _gameDb.InsertMailAsync(mail);
 			if (errorCode != ErrorCode.None)
 				return errorCode;

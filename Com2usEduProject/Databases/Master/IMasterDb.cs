@@ -1,6 +1,6 @@
 ﻿using Com2usEduProject.DBSchema;
 
-namespace Com2usEduProject.Services;
+namespace Com2usEduProject.Databases;
 
 public interface IMasterDb
 {

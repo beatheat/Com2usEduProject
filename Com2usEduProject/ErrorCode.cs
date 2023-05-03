@@ -40,14 +40,20 @@ public enum ErrorCode : UInt16
 
     PlayerDataInsertFailException = 3004,
     PlayerDataSelectFailException = 3005,
-    PlayerItemInsertFailException = 3006,
-    PlayerItemSelectFailException = 3007,
     
-    MailSelectFailException = 3008,
-    MailInsertFail = 3009,
-    MailInsertFailException = 3010,
-    MailUpdateFail = 3011,
-    MailUpdateFailException = 3012,
+    PlayerItemInsertFail = 3006,
+    PlayerItemDeleteFail = 3007,
+    PlayerItemInsertFailException = 3008,
+    PlayerItemSelectFailException = 3009,
+    PlayerItemDeleteFailException = 3010,
+    
+    MailSelectFailException = 3011,
+    MailInsertFail = 3012,
+    MailInsertFailException = 3013,
+    MailUpdateFail = 3014,
+    MailUpdateFailException = 3015,
+    MailItemInsertFail = 3016,
+    MailItemInsertFailException = 3017,
 
     //MasterDb 4000~
     UnknownCode = 4001,
@@ -65,5 +71,5 @@ public enum ErrorCode : UInt16
     RedisGetFailed = 5004,
     
     //Controller 6000 ~
-    ReceiveMailAlready = 6001,
+    ReceiveMailItemAlready = 6001,
 }
