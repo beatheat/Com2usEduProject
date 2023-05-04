@@ -28,6 +28,10 @@ public enum EventType
 	APIReceiveAttendanceReward = 10601,
 	APIReceiveAttendanceRewardError = 10602,
 	
+	//ReceiveInAppPurchaseItem 10700~ ---------------------
+	APIReceiveInAppPurchaseItem = 10701,
+	APIReceiveInAppPurchaseItemError = 10702,
+	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
 	AccountDbConnectionError = 20001,
@@ -68,6 +72,12 @@ public enum EventType
 	MailItemSelectCountError = 30412,
 	MailItemDeleteError = 30420,
 	MailItemUpdateError = 30430,
+	
+	//GameDB.BillTable 30500 ~ ---------------------------
+	BillInsertError = 30400,
+	BillSelectError = 30410,
+	BillDeleteError = 30420,
+	BillUpdateError = 30430,
 	
 	// MasterDB 40000~ ===================================
 	MasterDbError = 40000,

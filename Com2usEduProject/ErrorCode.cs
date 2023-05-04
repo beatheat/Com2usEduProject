@@ -13,7 +13,6 @@ public enum ErrorCode : UInt16
     InvalidMasterDataVersion = 10007,
     InvalidClientVersion = 10008,
     
-    
     AuthTokenFailWrongKeyword = 10009,
     AuthTokenFailSetLock = 10010,
     
@@ -31,7 +30,8 @@ public enum ErrorCode : UInt16
     ReceiveAttendanceRewardAlready = 20050,
     // ReceiveMailItem 20060~
     ReceiveMailItemAlready = 20060,
-    // Account 20000 ~
+    // ReceiveInAppPurchaseItem 20070~
+    DuplicatedReceiveInAppPurchaseItemRequest = 20070,
     
     
     // AccountDb 30000 ~ =========================================
@@ -49,6 +49,7 @@ public enum ErrorCode : UInt16
     VerifyAccountFailPasswordNotMatch = 30031,
     
     VerifyAccountFailException = 30032,
+    
     
     //GameDb 40000~ =================================================
     
@@ -84,6 +85,15 @@ public enum ErrorCode : UInt16
     MailItemUpdateFail = 30304,
     MailItemDeleteFailException = 30304,
     MailItemDeleteFail = 30305,
+    
+    //GameDb.BillTable 30500 ~
+    BillInsertFailException = 30401,
+    BillInsertFail = 30402,
+    BillSelectFailException = 30403,
+    BillUpdateFailException = 30404,
+    BillUpdateFail = 30405,
+    BillDeleteFailException = 30406,
+    BillDeleteFail = 30407,
 
 
     //MasterDb 40000~ =====================================================

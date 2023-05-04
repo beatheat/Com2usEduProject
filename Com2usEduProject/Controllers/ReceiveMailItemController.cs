@@ -76,7 +76,11 @@ public class ReceiveMailItemController
 			if (errorCode != ErrorCode.None)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveMailItemError], 
-					new {PlayerId = request.PlayerId, MailItem = mailItem, ErrorCode = errorCode}, 
+					new
+					{
+						PlayerId = request.PlayerId, MailItem = mailItem, ErrorCode = errorCode,
+						ErrorInsertedPlayerItemIds = insertedPlayerItemIds,
+					}, 
 					"Insert Mail Item To Player Failed");
 				
 				await Rollback(insertedPlayerItemIds);

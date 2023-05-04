@@ -108,6 +108,7 @@ public class ReceiveAttendanceReward
 	}
 	
 	
+	
 	public async Task<(ErrorCode,int)> InsertAttendanceRewardMail(int playerId, int day)
 	{
 		var (errorCode, reward) = _masterDb.GetAttendanceReward(day);
@@ -166,6 +167,5 @@ public class ReceiveAttendanceReward
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
 				new {ErrorCode = errorCode, mailId = mailId}, "Rollback - Delete MailItem Failed");
 		}
-
 	}
 }
