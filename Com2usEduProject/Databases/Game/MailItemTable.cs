@@ -46,7 +46,7 @@ public class MailItemTable
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailSelectError], e,
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailItemSelectError], e,
 				new {MailItemId = mailItemId, ErrorCode = ErrorCode.MailItemSelectFailException}, "Insert MailItem Failed");
 			return (ErrorCode.MailItemSelectFailException, new MailItem());
 		}
@@ -65,9 +65,9 @@ public class MailItemTable
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailSelectListError], e,
-				new {MailId = mailId, ErrorCode = ErrorCode.MailSelectFailException}, "Select MailItem Fail");
-			return (ErrorCode.MailSelectFailException, new List<MailItem>());
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailItemSelectListError], e,
+				new {MailId = mailId, ErrorCode = ErrorCode.MailItemSelectFailException}, "Select MailItem Fail");
+			return (ErrorCode.MailItemSelectFailException, new List<MailItem>());
 		}
 	}
 	
@@ -83,9 +83,9 @@ public class MailItemTable
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailDeleteError], e,
-				new {MailId = mailId, ErrorCode = ErrorCode.MailDeleteFailException}, "Delete MailItem Fail");
-			return ErrorCode.MailDeleteFailException;
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MailItemDeleteError], e,
+				new {MailId = mailId, ErrorCode = ErrorCode.MailItemDeleteFailException}, "Delete MailItem Fail");
+			return ErrorCode.MailItemDeleteFailException;
 		}
 	}
 }
