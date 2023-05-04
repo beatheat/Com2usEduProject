@@ -3,7 +3,7 @@ using Com2usEduProject.DBSchema;
 
 namespace Com2usEduProject.ReqRes;
 
-public class ReceiveMailRequest
+public class LoadMailRequest
 {
 	[Required]
 	public int PlayerId { get; set; }
@@ -11,7 +11,10 @@ public class ReceiveMailRequest
 	public int MailId { get; set; }
 }
 
-public class ReceiveMailResponse
+public class LoadMailResponse
 {
 	[Required] public ErrorCode Result { get; set; } = ErrorCode.None;
+
+	public Mail mail { get; set; }
+	public IList<MailItem> mailItems { get; set; }
 }

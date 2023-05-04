@@ -3,9 +3,9 @@
 
 public interface IAccountDb : IDisposable
 {
-	public Task<(ErrorCode,int)> InsertAccountAsync(string id, string password);
+	public Task<(ErrorCode,int)> InsertAccountAsync(string loginId, string password);
     
-	public Task<(ErrorCode, int)> VerifyAccountAsync(string id, string password);
+	public Task<(ErrorCode, int)> VerifyAccountAsync(string loginId, string password);
 
-	public Task<ErrorCode> DeleteAccountAsync(string id);
+	public Task<ErrorCode> DeleteAccountAsync(string loginId);
 }

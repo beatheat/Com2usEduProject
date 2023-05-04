@@ -2,40 +2,84 @@
 
 public enum EventType
 {
-	// Controller 1000 ~
-	CreateAccount = 1001,
-	Login = 1002,
-	OpenMailbox = 1003,
-	ReceiveMail = 1004,
 	
-	// AccountDB 2000 ~
-	AccountDbConnection = 2001,
-	InsertAccount = 2002,
-	VerifyAccount = 2003,
-	DeleteAccount = 2004,
+	// Controller 10000~ ===================================
+	//CreateAccount 10100~ ---------------------------------
+	APICreateAccount = 10101,
+	APICreateAccountError = 10102,
 	
-	// GameDB 3000 ~
-	GameDbConnection = 3001,
-	CreatePlayerData = 3002,
-	LoadPlayerData = 3003,
-	InsertPlayerItem = 3004,
-	LoadPlayerItems = 3005,
-	DeletePlayerItem = 3006,
-	LoadMailboxPageCount = 3007,
-	LoadMailboxPage = 3008,
-	LoadMail = 3009,
-	UpdateMailItemReceived = 3010,
-	InsertMail = 3011,
+	//Login 10200~ -----------------------------------------
+	APILogin = 10201,
+	APILoginError = 10202,
 	
-	// MasterDB 4000 ~
-	MasterDbConnection = 4001,
-	
-	// MemoryDB 5000 ~
-	MemoryDbConnection = 5001,
-	RegisterUser = 5002,
-	GetUser = 5003,
-	SetUserRequestLock = 5004,
-	DelUserRequestLock = 5005,
-	GetNotice = 5006,
+	//LoadMailList 10300~ ----------------------------------
+	APILoadMailList = 10301,
+	APILoadMailListError = 10302,
 
+	//LoadMail 10400~ --------------------------------------
+	APILoadMail = 10401,
+	APILoadMailError = 10402,
+	
+	//ReceiveMailItem 10500~ ------------------------------
+	APIReceiveMailItem = 10501,
+	APIReceiveMailItemError = 10502,
+	
+	//ReceiveAttendanceReward 10600~ ----------------------
+	APIReceiveAttendanceReward = 10601,
+	APIReceiveAttendanceRewardError = 10602,
+	
+	// AccountDB 20000~ ===================================
+	AccountDbError = 20000,
+	AccountDbConnectionError = 20001,
+	
+	InsertAccountError = 20002,
+	VerifyAccountError = 20003,
+	DeleteAccountError = 20004,
+	
+	// GameDB 30000~ =====================================
+	GameDbError = 30000,
+	GameDbConnectionError = 30001,
+	
+	// GameDB.PlayerTable 30100 ~ ------------------------
+	PlayerCreateAndInsertError = 30100,
+	PlayerSelectError = 30110,
+	PlayerSelectByAccountIdError = 30111,
+	PlayerDeleteError = 30120,
+	PlayerUpdateError = 30130,
+	
+	//GameDB.PlayerItemTable 30200 ~ ---------------------
+	PlayerItemInsertError = 30200,
+	PlayerItemSelectError = 30210,
+	PlayerItemDeleteError = 30220,
+	PlayerItemUpdateError = 30230,
+
+	//GameDB.MailTable 30300 ~ ---------------------------
+	MailInsertError = 30300,
+	MailSelectError = 30310,
+	MailSelectListError = 30311,
+	MailSelectCountError = 30312,
+	MailDeleteError = 30320,
+	MailUpdateError = 30330,
+	
+	//GameDB.MailItemTable 30400 ~ -----------------------
+	MailItemInsertError = 30400,
+	MailItemSelectError = 30410,
+	MailItemSelectListError = 30411,
+	MailItemSelectCountError = 30412,
+	MailItemDeleteError = 30420,
+	MailItemUpdateError = 30430,
+	
+	// MasterDB 40000~ ===================================
+	MasterDbError = 40000,
+	MasterDbConnectionError = 40001,
+	
+	// MemoryDB 50000~ ====================================
+	MemoryDbError = 50000,
+	MemoryDbConnectionError = 50001,
+	
+	RegisterUserError = 50002,
+	GetUserError = 50003,
+	SetUserRequestLockError = 50004,
+	DelUserRequestLockError = 50005,
+	GetNoticeError
 }

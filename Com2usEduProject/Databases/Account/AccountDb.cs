@@ -44,7 +44,7 @@ public class AccountDb : IAccountDb
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.AccountDbConnection], e,
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.AccountDbConnectionError], e,
 				new {ConnectionString = _dbConfig.Value.AccountDb}, "AccountDB Connection Failed");
 		}
 	}
@@ -55,15 +55,17 @@ public class AccountDb : IAccountDb
 	}
 
 
-	public async Task<(ErrorCode,int)> InsertAccountAsync(string id, string password)
+	public async Task<(ErrorCode,int)> InsertAccountAsync(string loginId, string password)
 	{
         try
         {
             var saltValue = Security.MakeSaltString();
             var hashingPassword = Security.MakeHashPassWord(saltValue, password);
-            _logger.ZLogDebug($"[CreateAccount] LoginId: {id}, SaltValue : {saltValue}, HashingPassword:{hashingPassword}");
 	        
-            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {LoginId = id, SaltValue = saltValue, HashedPassword = hashingPassword});
+            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {LoginId = loginId, SaltValue = saltValue, HashedPassword = hashingPassword});
+
+            _logger.ZLogDebug($"[InsertAccountAsync] LoginId: {loginId}, SaltValue : {saltValue}, HashingPassword:{hashingPassword}");
+            
 
             return (ErrorCode.None,accountId);
         }
@@ -71,63 +73,72 @@ public class AccountDb : IAccountDb
         {
 	        if (e.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 	        {
-		        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.InsertAccountDuplicate}, "Insert Account Duplicated");
+		        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccountError], e,
+			        new {AccountId = loginId, ErrorCode = ErrorCode.InsertAccountDuplicate}, "Insert Account Duplicate");
 		        return (ErrorCode.InsertAccountDuplicate, -1);
 	        }
-	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccountError], e, 
+		        new {AccountId = loginId, ErrorCode = ErrorCode.
 		        InsertAccountFailException}, "Insert Account Failed");
 	        return (ErrorCode.InsertAccountFailException, -1);
         }
         catch (Exception e)
         {
-	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccount], e, new {AccountId = id, ErrorCode = ErrorCode.InsertAccountFailException}, "Insert Account Failed");
+	        _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.InsertAccountError], e, 
+		        new {AccountId = loginId, ErrorCode = ErrorCode.InsertAccountFailException}, "Insert Account Fail");
 	        return (ErrorCode.InsertAccountFailException, -1);
         }	
 	}
 	
-	public async Task<ErrorCode> DeleteAccountAsync(string id)
+	public async Task<ErrorCode> DeleteAccountAsync(string loginId)
 	{
 		try
 		{
 	        
-			var accountId = await _queryFactory.Query("account").Where("Id", id).DeleteAsync();
-			_logger.ZLogDebug($"[DeleteAccount] LoginId: {id}");
+			var accountId = await _queryFactory.Query("account").Where("LoginId", loginId).DeleteAsync();
+			_logger.ZLogDebug($"[DeleteAccountAsync] LoginId: {loginId}");
 
 			return ErrorCode.None;
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DeleteAccount], e, new {AccountId = id, ErrorCode = ErrorCode.DeleteAccountFailException}, "Delete Account Failed");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DeleteAccountError], e,
+				new {LoginId = loginId, ErrorCode = ErrorCode.DeleteAccountFailException}, "Delete Account Fail");
 			return ErrorCode.DeleteAccountFailException;
 		}	
 	}
 	
-	public async Task<(ErrorCode, int)> VerifyAccountAsync(string id, string password)
+	public async Task<(ErrorCode, int)> VerifyAccountAsync(string loginId, string password)
 	{
 		try
 		{
-			var accountInfo = await _queryFactory.Query("account").Where("LoginId", id).FirstOrDefaultAsync<Account>();
+			var accountInfo = await _queryFactory.Query("account").Where("LoginId", loginId).FirstOrDefaultAsync<Account>();
 
 			if (accountInfo is null || accountInfo.Id == 0)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailUserNotExist}, "Account Id Not Exist");
-				return (ErrorCode.LoginFailUserNotExist, -1);
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccountError], 
+					new {AccountId = loginId, ErrorCode = ErrorCode.VerifyAccountFailAccountNotExist}, "Account Id Not Exist");
+				return (ErrorCode.VerifyAccountFailAccountNotExist, -1);
 			}   
            
 			var hashingPassword = Security.MakeHashPassWord(accountInfo.SaltValue, password);
 			if (accountInfo.HashedPassword != hashingPassword)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], new {AccountId = id, ErrorCode = ErrorCode.LoginFailPwNotMatch}, "Password Not Match");
-				return (ErrorCode.LoginFailPwNotMatch, -1);
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccountError], 
+					new {AccountId = loginId, ErrorCode = ErrorCode.VerifyAccountFailPasswordNotMatch}, "Password Not Match");
+				return (ErrorCode.VerifyAccountFailPasswordNotMatch, -1);
 			}
+			
+			_logger.ZLogDebug($"[VerifyAccountAsync] LoginId: {loginId}");
+
 
 			return (ErrorCode.None, accountInfo.Id);
 		}
 		catch (Exception e)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccount], e,
-				new {AccountId = id, ErrorCode = ErrorCode.LoginFailException}, "Select Account Fail Exception");
-			return (ErrorCode.LoginFailException, -1);
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.VerifyAccountError], e,
+				new {AccountId = loginId, ErrorCode = ErrorCode.VerifyAccountFailException}, "Verify Account Fail Exception");
+			return (ErrorCode.VerifyAccountFailException, -1);
 		}	
 	}
 }

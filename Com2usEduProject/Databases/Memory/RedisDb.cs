@@ -32,7 +32,6 @@ public class RedisDb : IMemoryDb
     RedisConnection _redisConn;
 
     static readonly ILogger<RedisDb> s_logger = LogManager.GetLogger<RedisDb>();
-    private IMemoryDb _memoryDbImplementation;
 
     public void Init(string address)
     {
@@ -59,14 +58,14 @@ public class RedisDb : IMemoryDb
             var redis = new RedisString<AuthUser>(_redisConn, uid, loginTimeSpan);
             if (await redis.SetAsync(user, loginTimeSpan) == false)
             {
-                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUser],
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUserError],
                     new {AuthUser= user, ErrorCode = ErrorCode.RedisSetDuplicateKey}, "Set Redis Key Already Exists");
                 return ErrorCode.RedisSetDuplicateKey;
             }
         }
         catch (Exception e)
         {
-            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUser], e, 
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.RegisterUserError], e, 
                 new {AuthUser = user, ErrorCode = ErrorCode.RedisFailException}, "Set Redis String Failed With Exception");
             return ErrorCode.RedisFailException;
         }
@@ -84,7 +83,7 @@ public class RedisDb : IMemoryDb
             var user = await redis.GetAsync();
             if (!user.HasValue)
             {
-                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUser],
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUserError],
                     new {RedisKey = uid, ErrorCode = ErrorCode.RedisKeyNotFound}, "Get Redis Key Not Exist");
                 return (ErrorCode.RedisKeyNotFound, new AuthUser());
             }
@@ -93,7 +92,7 @@ public class RedisDb : IMemoryDb
         }
         catch(Exception e)
         {
-            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUser], e,
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetUserError], e,
                 new {RedisKey = uid, ErrorCode = ErrorCode.RedisFailException}, "Get Redis String Failed");           
             return (ErrorCode.RedisFailException, new AuthUser());
         }
@@ -110,14 +109,14 @@ public class RedisDb : IMemoryDb
             var redis = new RedisString<AuthUser>(_redisConn, lockId, keyTimeSpan);
             if (await redis.SetAsync(null, keyTimeSpan, StackExchange.Redis.When.NotExists) == false)
             {
-                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLock],
+                s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLockError],
                     new {RedisKey = lockId, ErrorCode = ErrorCode.RedisSetDuplicateKey}, "Set Redis Key Already Exists");  
                 return false;
             }
         }
         catch (Exception e)
         {
-            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLock], e,
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.SetUserRequestLockError], e,
                 new {RedisKey = lockId, ErrorCode = ErrorCode.RedisFailException}, "Set Redis String Failed");  
             return false;
         }
@@ -142,7 +141,7 @@ public class RedisDb : IMemoryDb
         }
         catch (Exception e)
         {
-            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DelUserRequestLock], e,
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.DelUserRequestLockError], e,
                 new {RedisKey = lockId, ErrorCode = ErrorCode.RedisFailException}, "Delete Redis String Failed");      
             return false;
         }
@@ -160,7 +159,7 @@ public class RedisDb : IMemoryDb
         }
         catch(Exception e)
         {
-            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetNotice], e,
+            s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetNoticeError], e,
                 new {ErrorCode = ErrorCode.RedisFailException}, "Get Redis String Failed");           
             return (false, "");
         }

@@ -26,10 +26,14 @@ var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 LogManager.SetLoggerFactory(loggerFactory, "Global");
 
 app.UseMiddleware<CheckUserAuth>();
+app.UseMiddleware<CheckPlayerIdAuth>();
+
 
 app.UseRouting();
 
+#pragma warning disable ASP0014
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+#pragma warning restore ASP0014
 
 
 var redisDb = app.Services.GetRequiredService<IMemoryDb>();

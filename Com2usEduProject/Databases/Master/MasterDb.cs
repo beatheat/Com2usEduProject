@@ -37,7 +37,7 @@ public class MasterDb : IMasterDb
 		}
 		catch (Exception e)
 		{
-			s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MasterDbConnection],e, 
+			s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MasterDbConnectionError],e, 
 				new {ConnectionString = dbConnectionString}, "MasterDB Connection Failed");
 			return;
 		}
@@ -58,7 +58,7 @@ public class MasterDb : IMasterDb
 		}
 		catch (Exception e)
 		{
-			s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MasterDbConnection],e, "MasterDB Load Failed");
+			s_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.MasterDbConnectionError],e, "MasterDB Load Failed");
 		}
 	}
 

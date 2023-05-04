@@ -30,53 +30,52 @@ public class CreateAccount : ControllerBase
 		var response = new CreateAccountRes();
         
 		// 계정 생성
-		var (errorCode,accountId) = await _accountDb.InsertAccountAsync(request.Id, request.Password);
+		var (errorCode,accountId) = await _accountDb.InsertAccountAsync(request.LoginId, request.Password);
 		if (errorCode != ErrorCode.None)
 		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, LoginId = request.LoginId}, 
+				"Insert Account Data Failed");
+			
 			response.Result = errorCode;
 			return response;
 		}
 
 		// 플레이어 기본 데이터 생성
-		(errorCode, var playerId) = await _gameDb.CreatePlayerDataAsync(accountId);
+		(errorCode, var playerId) = await _gameDb.PlayerTable.CreateAndInsertAsync(accountId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Data Creation Failed From GameDB");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, PlayerId = playerId}, 
+				"Create Player Data Failed");
 			response.Result = errorCode;
 			
-			// 플레이어 데이터 생성 실패 시 계정정보 삭제해서 롤백
-			errorCode = await _accountDb.DeleteAccountAsync(request.Id);
-			if (errorCode != ErrorCode.None)
-			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "AccountDB Rollback Failed");
-				response.Result = errorCode;
-			}
+			await Rollback(request.LoginId, playerId);
 			
 			return response;
 		}
 		
 		// 플레이어 기본 아이템 생성
-		// TODO: 여기서부터도 전부 롤백
 		errorCode = await InsertInitialPlayerItem(playerId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Initial Item Creation Failed");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, PlayerId = playerId}, 
+				"Create Player Initial Item Failed");
 			response.Result = errorCode;
 			
-			
+			await Rollback(request.LoginId, playerId);
+
 			return response;
 		}
 
 		// 메일함 테스트용 테스트 메일 삽입
-		errorCode = await InsertTestMails(playerId);
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Test Mail Creation Failed");
-			response.Result = errorCode;
-			return response;
-		}
+		// errorCode = await InsertTestMails(playerId);
+		// if (errorCode != ErrorCode.None)
+		// {
+		// 	_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Test Mail Creation Failed");
+		// 	response.Result = errorCode;
+		// 	return response;
+		// }
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "CreateAccount Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICreateAccount], new {AccountId = accountId}, "CreateAccount Success");
 		return response;
 	}
 
@@ -87,7 +86,7 @@ public class CreateAccount : ControllerBase
 		{
 			var (_,itemData) = _masterDb.GetItem(item.ItemCode);
 			
-			var (errorCode, _) = await _gameDb.InsertPlayerItemAsync(playerId, itemData, item.ItemCount);
+			var (errorCode, _) = await _gameDb.PlayerItemTable.InsertAsync(playerId, itemData, item.ItemCount);
 			
 			if (errorCode != ErrorCode.None)
 				return errorCode;
@@ -95,32 +94,58 @@ public class CreateAccount : ControllerBase
 		return ErrorCode.None;
 	}
 
-	private async Task<ErrorCode> InsertTestMails(int playerId)
-	{
-		Random random = new Random();
-		for (int i = 0; i < 1000; i++)
-		{
-			Mail mail = new Mail();
-			
-			mail.PlayerId = playerId;
-			mail.Name = $"테스트 메일 ({i})";
-			mail.ItemCode = new[] { random.Next(6) };
-			mail.ItemCount = new[] {mail.ItemCode[0] switch
-			{
-				1 => random.Next(1000), //돈이면 1000이하 
-				6 => random.Next(20), // 포션이면 6개 이하
-				_ => 1				  // 그외는 장비아이템
-			}};
-			mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
-			mail.TransmissionDate = DateTime.Now;
-			mail.Content = $"Lorem ipsum~~~{i}";
-			mail.IsItemReceived = false;
+	// private async Task<ErrorCode> InsertTestMails(int playerId)
+	// {
+	// 	Random random = new Random();
+	// 	for (int i = 0; i < 1000; i++)
+	// 	{
+	// 		Mail mail = new Mail();
+	// 		
+	// 		mail.PlayerId = playerId;
+	// 		mail.Name = $"테스트 메일 ({i})";
+	// 		mail.ItemCode = new[] { random.Next(6) };
+	// 		mail.ItemCount = new[] {mail.ItemCode[0] switch
+	// 		{
+	// 			1 => random.Next(1000), //돈이면 1000이하 
+	// 			6 => random.Next(20), // 포션이면 6개 이하
+	// 			_ => 1				  // 그외는 장비아이템
+	// 		}};
+	// 		mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
+	// 		mail.TransmissionDate = DateTime.Now;
+	// 		mail.Content = $"Lorem ipsum~~~{i}";
+	// 		mail.IsItemReceived = false;
+	//
+	// 		var errorCode = await _gameDb.InsertMailAsync(mail);
+	// 		if (errorCode != ErrorCode.None)
+	// 			return errorCode;
+	// 	}
+	//
+	// 	return ErrorCode.None;
+	// }
 
-			var errorCode = await _gameDb.InsertMailAsync(mail);
-			if (errorCode != ErrorCode.None)
-				return errorCode;
+	private async Task Rollback(string loginId, int playerId)
+	{
+		// 플레이어 데이터 생성 실패 시 계정정보 삭제해서 롤백
+		var errorCode = await _accountDb.DeleteAccountAsync(loginId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], 
+				new {ErrorCode = errorCode, LoginId = loginId}, "Rollback - Delete Account Failed");
+		}
+		
+		errorCode = await _gameDb.PlayerTable.DeleteAsync(playerId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError],
+				new {ErrorCode = errorCode, PlayerId = playerId}, "Rollback - Delete Player Failed");
 		}
 
-		return ErrorCode.None;
+		errorCode = await _gameDb.PlayerItemTable.DeleteAllAsync(playerId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError],
+				new {ErrorCode = errorCode, PlayerId = playerId}, "Rollback - Delete PlayerItem Failed");
+		}
+
 	}
 }

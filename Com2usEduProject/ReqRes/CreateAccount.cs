@@ -7,7 +7,7 @@ public class CreateAccountReq
 	[Required]
 	[MinLength(1, ErrorMessage = "ID CANNOT BE EMPTY")]
 	[StringLength(50, ErrorMessage = "ID IS TOO LONG")]
-	public string Id { get; set; }
+	public string LoginId { get; set; }
 
 	[Required]
 	[MinLength(1, ErrorMessage = "PASSWORD CANNOT BE EMPTY")]

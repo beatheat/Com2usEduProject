@@ -29,7 +29,7 @@ public class Login : ControllerBase
 		var response = new LoginResponse();
 
 		// ID, PW 검증
-		var (errorCode, accountId) = await _accountDb.VerifyAccountAsync(request.Id, request.Password);
+		var (errorCode, accountId) = await _accountDb.VerifyAccountAsync(request.LoginId, request.Password);
 		if (errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;
@@ -38,25 +38,34 @@ public class Login : ControllerBase
 		
 		// Auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
-		errorCode = await _memoryDb.RegisterUserAsync(request.Id, authToken, accountId);
+		errorCode = await _memoryDb.RegisterUserAsync(request.LoginId, authToken, accountId);
 		if(errorCode != ErrorCode.None)
 		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
+				"Register User Auth Failed");
+			
 			response.Result = errorCode;
 			return response;
 		}
 
 		// 플레이어 데이터 로드
-		(errorCode, response.PlayerData) = await _gameDb.LoadPlayerDataAsync(accountId);
+		(errorCode, response.PlayerData) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
 		if(errorCode != ErrorCode.None)
 		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
+				"Load Player Data Failed");
+			
 			response.Result = errorCode;
 			return response;
 		}
 		
 		// 플레이어 아이템 데이터 로드
-		(errorCode, response.PlayerItems) = await _gameDb.LoadPlayerItemsAsync(response.PlayerData.Id);
+		(errorCode, response.PlayerItems) = await _gameDb.PlayerItemTable.SelectAsync(response.PlayerData.Id);
 		if(errorCode != ErrorCode.None)
 		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, PlayerId = response.PlayerData.Id}, 
+				"Load Player Item Failed");
+			
 			response.Result = errorCode;
 			return response;
 		}
@@ -68,11 +77,10 @@ public class Login : ControllerBase
 			response.Notice = null;
 		}
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.Login], new { Id = request.Id, AuthToken = authToken, AccountId = accountId }, "Login Success"); 
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILogin], new { LoginId = request.LoginId, AuthToken = authToken }, "Login Success"); 
         
 		response.AuthToken = authToken; 
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.Login], new {AccountId = accountId}, "Login Success");
 		return response;
 	}
 }

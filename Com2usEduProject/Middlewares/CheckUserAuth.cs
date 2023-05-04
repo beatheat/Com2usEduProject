@@ -99,7 +99,7 @@ public class CheckUserAuth
         await _memoryDb.DelUserRequestLockAsync(id);
     }
 
-    private async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, string id)
+    async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, string id)
     {
         if (await _memoryDb.SetUserRequestLockAsync(id))
         {
@@ -109,14 +109,14 @@ public class CheckUserAuth
         
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
         {
-            result = ErrorCode.AuthTokenFailSetNx
+            result = ErrorCode.AuthTokenFailSetLock
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
         return true;
     }
 
-    private static async Task<bool> IsInvalidUserAuthTokenThenSendError(HttpContext context, AuthUser userInfo, string authToken)
+    async Task<bool> IsInvalidUserAuthTokenThenSendError(HttpContext context, AuthUser userInfo, string authToken)
     {
         if (string.CompareOrdinal(userInfo.AuthToken, authToken) == 0)
         {
@@ -166,7 +166,6 @@ public class CheckUserAuth
         return true;
     }
     
-        
     async Task<bool> IsInvalidClientVersionThenSendError(HttpContext context, JsonDocument document)
     {
 
@@ -202,9 +201,7 @@ public class CheckUserAuth
         return true;
     }
     
-
-
-    private bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out string id, out string authToken)
+    bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out string id, out string authToken)
     {
         try
         {

@@ -5,71 +5,100 @@ public enum ErrorCode : UInt16
 {
     None = 0,
 
-    // Common 1000 ~
-    UnhandledException = 1001,
-    InValidRequestHttpBody = 1004,
-    AuthTokenFailWrongAuthToken = 1006,
+    // Common 10000 ~ ===========================================
+    UnhandledException = 10001,
+    InValidRequestHttpBody = 10004,
+    AuthTokenFailWrongAuthToken = 10006,
     
-    InvalidMasterDataVersion = 1007,
-    InvalidClientVersion = 1008,
+    InvalidMasterDataVersion = 10007,
+    InvalidClientVersion = 10008,
+    
+    
+    AuthTokenFailWrongKeyword = 10009,
+    AuthTokenFailSetLock = 10010,
+    
+    UnAuthorizedPlayerId = 10011,
+
+    // Controller 20000 ~ =======================================
+    // CreateAccount 20010~
+    // LoadMail 20020~
+    LoadMailRequestFromNonOwnerPlayer = 20020,
+    ReceiveMailItemRequestFromNonOwnerPlayer = 20021,
+    // LoadMailList 20030~
+    LoadMailListRequestFromNonOwnerPlayer = 20030,
+    // Login 20040~
+    // ReceiveAttendanceReward 20050~
+    ReceiveAttendanceRewardAlready = 20050,
+    // ReceiveMailItem 20060~
+    ReceiveMailItemAlready = 20060,
+    // Account 20000 ~
+    
+    
+    // AccountDb 30000 ~ =========================================
+    AccountDbConnectionFail = 30001,
+    
+    // InsertAccount 30010 ~
+    InsertAccountFailException = 30010,    
+    InsertAccountDuplicate = 30011,
+
+    // DeleteAccount 30020 ~ 
+    DeleteAccountFailException = 30020,
+
+    //VerifyAccount 30030 ~
+    VerifyAccountFailAccountNotExist = 30030,
+    VerifyAccountFailPasswordNotMatch = 30031,
+    
+    VerifyAccountFailException = 30032,
+    
+    //GameDb 40000~ =================================================
+    
+    GameDbConnectionFail = 40001,
     
 
-    // Account 2000 ~
-    InsertAccountFailException = 2001,    
-    LoginFailException = 2002,
-    LoginFailUserNotExist = 2003,
-    LoginFailPwNotMatch = 2004,
-    LoginFailSetAuthToken = 2005,
-    AuthTokenMismatch = 2006,
-    AuthTokenNotFound = 2007,
-    AuthTokenFailWrongKeyword = 2008,
-    AuthTokenFailSetNx = 2009,
-    AccountIdMismatch = 2010,
-    DuplicatedLogin = 2011,
-    CreateAccountFailInsert = 2012,
-    InsertAccountDuplicate = 2013,
-    LoginFailAddRedis = 2014,
-    LoginFailConnectRedis = 2015,
-    DeleteAccountFailException = 2016,
+    // GameDb.PlayerTable 30100 ~ 
+    PlayerInsertFailException = 30101,
+    PlayerSelectFailException = 30102,
+    PlayerDeleteFailException = 30103,
+    PlayerDeleteFail = 30104,
+    PlayerUpdateFailException = 30105,
+    PlayerUpdateFail = 30106,
+    
+    //GameDb.PlayerItemTable 30200 ~
+    PlayerItemInsertFailException = 30201,
+    PlayerItemSelectFailException = 30202,
+    PlayerItemDeleteFailException = 30203,
+    PlayerItemDeleteFail = 30204,
+    
+    //GameDb.MailTable 30300 ~
+    MailInsertFailException = 30301,
+    MailSelectFailException = 30302,
+    MailUpdateFailException = 30303,
+    MailUpdateFail = 30304,
+    MailDeleteFailException = 30304,
+    MailDeleteFail = 30305,
+    
+    //GameDb.MailItemTable 30400 ~ 
+    MailItemInsertFailException = 30301,
+    MailItemSelectFailException = 30302,
+    MailItemUpdateFailException = 30303,
+    MailItemUpdateFail = 30304,
+    MailItemDeleteFailException = 30304,
+    MailItemDeleteFail = 30305,
+
+
+    //MasterDb 40000~ =====================================================
+    UnknownCode = 40001,
+    UnknownItemCode = 40002,
+    UnknownAttendanceRewardDay = 40003,
+    UnknownShopItemCode = 40004,
+    UnknownStageItemCode = 40005,
+    UnknownStageNpcCode = 40006,
     
 
-    //GameDb 3000~ 
-    GetGameDbConnectionFail = 3002,
-    
-    NotRegisteredPlayerId = 3003,
-
-    PlayerDataInsertFailException = 3004,
-    PlayerDataSelectFailException = 3005,
-    
-    PlayerItemInsertFail = 3006,
-    PlayerItemDeleteFail = 3007,
-    PlayerItemInsertFailException = 3008,
-    PlayerItemSelectFailException = 3009,
-    PlayerItemDeleteFailException = 3010,
-    
-    MailSelectFailException = 3011,
-    MailInsertFail = 3012,
-    MailInsertFailException = 3013,
-    MailUpdateFail = 3014,
-    MailUpdateFailException = 3015,
-    MailItemInsertFail = 3016,
-    MailItemInsertFailException = 3017,
-
-    //MasterDb 4000~
-    UnknownCode = 4001,
-    UnknownItemCode = 4002,
-    UnknownAttendanceRewardDay = 4003,
-    UnknownShopItemCode = 4004,
-    UnknownStageItemCode = 4005,
-    UnknownStageNpcCode = 4006,
-    
-
-    //RedisDb 5000 ~
+    //RedisDb 50000 ~ ======================================================
     RedisFailException = 5001,
     RedisKeyNotFound = 5002,
     RedisSetDuplicateKey = 5003,
     RedisGetFailed = 5004,
-    
-    //Controller 6000 ~
-    ReceiveMailItemAlready = 6001,
+
 }
