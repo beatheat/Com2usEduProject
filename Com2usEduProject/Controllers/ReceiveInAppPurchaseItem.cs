@@ -45,6 +45,18 @@ public class ReceiveInAppPurchaseItem
 			response.Result = ErrorCode.DuplicatedReceiveInAppPurchaseItemRequest;
 			return response;
 		}
+		
+		// 이미 사용한 영수증 등록
+		(errorCode, var billId) = await _gameDb.BillTalble.InsertAsync(new Bill {PlayerId = request.PlayerId, Token = request.BillToken});
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
+				new {PlayerId = request.PlayerId,Token = request.BillToken, ShopCode = request.ShopCode, ErrorCode = errorCode}, 
+				"Insert Bill Fail");
+			
+			response.Result = errorCode;
+			return response;
+		}
 
 		// 상품 코드로부터 상품아이템 로드
 		(errorCode, var shopItems) = _masterDb.GetShopItem(request.ShopCode);
@@ -74,7 +86,7 @@ public class ReceiveInAppPurchaseItem
 					}, 
 					"Insert Player Item Fail");
 				
-				await Rollback(insertedPlayerItemIds);
+				await Rollback(billId, insertedPlayerItemIds);
 				response.Result = errorCode;
 				return response;
 			}
@@ -82,17 +94,7 @@ public class ReceiveInAppPurchaseItem
 			insertedPlayerItemIds.Add(playerItemId);
 		}
 		
-		// 이미 사용한 영수증 등록
-		errorCode = await _gameDb.BillTalble.InsertAsync(new Bill {PlayerId = request.PlayerId, Token = request.BillToken});
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
-				new {PlayerId = request.PlayerId,Token = request.BillToken, ShopCode = request.ShopCode, ErrorCode = errorCode}, 
-				"Insert Bill Fail");
-			
-			response.Result = errorCode;
-			return response;
-		}
+
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
 			new {PlayerId = request.PlayerId, ShopCode = request.ShopCode},
@@ -125,17 +127,26 @@ public class ReceiveInAppPurchaseItem
 	}
 
 	
-	public async Task Rollback(IList<int> errorInsertedItemIds)
+	public async Task Rollback(int billId, IList<int> errorInsertedItemIds)
 	{
+		var errorCode = ErrorCode.None;
 		foreach (var errorItemId in errorInsertedItemIds)
 		{
-			var errorCode = await _gameDb.PlayerItemTable.DeleteAsync(errorItemId);
+			errorCode = await _gameDb.PlayerItemTable.DeleteAsync(errorItemId);
 			if (errorCode != ErrorCode.None)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
 					new {PlayerItemId = errorItemId, ErrorCode = errorCode}, 
 					"Rollback - Delete Player Item Failed");
 			}
+		}
+		
+		errorCode = await _gameDb.BillTalble.DeleteAsync(billId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
+				new {BillId = billId, ErrorCode = errorCode}, 
+				"Rollback - Delete Bill Failed");
 		}
 	}
 }

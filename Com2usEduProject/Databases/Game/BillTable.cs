@@ -35,27 +35,44 @@ public class BillTable
 		}
 	}
 	
-	public async Task<ErrorCode> InsertAsync(Bill bill)
+	public async Task<(ErrorCode, int)> InsertAsync(Bill bill)
 	{
 		try
 		{
-			var count = await _queryFactory.Query("Bill").InsertAsync(bill);
-
-			if (count != -1)
-			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.BillInsertError],
-					new {Bill = bill, ErrorCode = ErrorCode.BillInsertFail}, "Insert Bill Failed");
-				return ErrorCode.BillInsertFail;
-			}
+			var billId = await _queryFactory.Query("Bill").InsertGetIdAsync<int>(bill);
 			
 			_logger.ZLogDebug($"[SelectAsync] PlayerId : {bill.PlayerId}, BillToken : {bill.Token}");
-			return ErrorCode.None;
+			return (ErrorCode.None, billId);
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.BillInsertError], e,
 				new {Bill = bill, ErrorCode = ErrorCode.BillInsertFailException}, "Insert Bill Failed");
-			return ErrorCode.BillInsertFailException;
+			return (ErrorCode.BillInsertFailException, -1);
+		}
+	}
+
+	public async Task<ErrorCode> DeleteAsync(int billId)
+	{
+		try
+		{
+			var count = await _queryFactory.Query("Bill").Where("Id",billId).DeleteAsync();
+
+			if (count != -1)
+			{
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.BillDeleteError],
+					new {BillId = billId, ErrorCode = ErrorCode.BillDeleteFail}, "Delete Bill Failed");
+				return ErrorCode.BillDeleteFail;
+			}
+			
+			_logger.ZLogDebug($"[DeleteAsync] BillId : {billId}");
+			return ErrorCode.None;
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.BillDeleteError], e,
+				new {BillId = billId, ErrorCode = ErrorCode.BillDeleteFailException}, "Delete Bill Failed");
+			return ErrorCode.BillDeleteFailException;
 		}
 	}
 
