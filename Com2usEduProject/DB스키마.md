@@ -103,10 +103,10 @@ CREATE TABLE MasterDB.`StageNpc`
 ```sql
 CREATE TABLE GameDB.`Player`
 (
-	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
     AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
-    ContinuousAttendanceDays INT NOT NULL COMMENT '연속출석일수',
-    LastAttendanceDate DATE NOT NULL COMMENT '마지막출석일'
+    ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
+    LastAttendanceDate DATE DEFAULT NULL COMMENT '마지막출석일'
 ) COMMENT '플레이어 기본 데이터 테이블';
 ```
 
