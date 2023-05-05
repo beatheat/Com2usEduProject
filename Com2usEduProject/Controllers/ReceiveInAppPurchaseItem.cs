@@ -22,12 +22,6 @@ public class ReceiveInAppPurchaseItem
 		_gameDb = gameDb;
 		_masterDb = masterDb;
 	}
-
-	public int Test(int a, out int b)
-	{
-		b = 3;
-		return 1;
-	}
 	
 	[HttpPost]
 	public async Task<ReceiveInAppPurchaseItemResponse> Post(ReceiveInAppPurchaseItemRequest request)
