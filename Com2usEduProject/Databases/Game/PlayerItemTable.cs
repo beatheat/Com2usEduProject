@@ -37,6 +37,12 @@ public class PlayerItemTable
 
 	public async Task<(ErrorCode, int)> InsertAsync(int playerId, Item item, int count)
 	{
+		// 돈일 경우에
+		if (item.Attribute == ItemAttribute.MONEY)
+		{
+			return (await new PlayerTable(_queryFactory, _logger).UpdateAddMoneyAsync(playerId, count), -1);
+		}
+		
 		try
 		{
 			PlayerItem playerItem = new PlayerItem
@@ -63,15 +69,32 @@ public class PlayerItemTable
 			return (ErrorCode.PlayerItemInsertFailException, -1);
 		}
 	}
+
+	public async Task<(ErrorCode, PlayerItem)> SelectAsync(int playerItemId)
+	{
+		try
+		{
+			var playerItem = await _queryFactory.Query("PlayerItem").Where("Id", playerItemId).FirstAsync<PlayerItem>();
+
+			_logger.ZLogDebug($"[SelectPlayerItem] PlayerItemId: {playerItemId}");
+			
+			return (ErrorCode.None, playerItem);
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerItemSelectError], e,
+				new {PlayerItemId = playerItemId, ErrorCode = ErrorCode.PlayerItemSelectFailException}, "Select PlayerItem Fail");
+			return (ErrorCode.PlayerItemSelectFailException, new PlayerItem());
+		}
+	}
 	
-	
-	public async Task<(ErrorCode, IList<PlayerItem>)> SelectAsync(int playerId)
+	public async Task<(ErrorCode, IList<PlayerItem>)> SelectListAsync(int playerId)
 	{
 		try
 		{
 			var playerItems = await _queryFactory.Query("PlayerItem").Where("PlayerId", playerId).GetAsync<PlayerItem>();
 
-			_logger.ZLogDebug($"[LoadPlayerItems] PlayerId: {playerId}");
+			_logger.ZLogDebug($"[SelectPlayerItemList] PlayerId: {playerId}");
 			
 			return (ErrorCode.None, playerItems.ToList());
 		}
@@ -80,6 +103,30 @@ public class PlayerItemTable
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerItemSelectError], e,
 				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerItemSelectFailException}, "Select PlayerItem Fail");
 			return (ErrorCode.PlayerItemSelectFailException, new List<PlayerItem>());
+		}
+	}
+	
+	public async Task<ErrorCode> UpdateAsync(PlayerItem playerItem)
+	{
+		try
+		{
+			var count = await _queryFactory.Query("PlayerItem").Where("Id", playerItem.Id).UpdateAsync(playerItem);
+
+			if (count != 1)
+			{
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 
+					new {PlayerItem = playerItem, ErrorCode = ErrorCode.PlayerItemUpdateFail}, "Update PlayerItem Fail");
+			}
+			
+			_logger.ZLogDebug($"[UpdatePlayerItem] PlayerId : {playerItem.PlayerId}, PlayerItemId: {playerItem.Id}");
+			
+			return ErrorCode.None;
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerItemUpdateError], e,
+				new {PlayerItem = playerItem, ErrorCode = ErrorCode.PlayerItemUpdateFailException}, "Update PlayerItem Fail");
+			return ErrorCode.PlayerItemUpdateFailException;
 		}
 	}
 

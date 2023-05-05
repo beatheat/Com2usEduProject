@@ -20,10 +20,11 @@ public class GameDb : IGameDb
 	IDbConnection _dbConnection;
 
 
-	public PlayerTable PlayerTable => new PlayerTable(_queryFactory, _logger);
-	public PlayerItemTable PlayerItemTable => new PlayerItemTable(_queryFactory, _logger);
-	public MailTable MailTable => new MailTable(_queryFactory, _logger);
-	public MailItemTable MailItemTable => new MailItemTable(_queryFactory, _logger);
+	public PlayerTable PlayerTable => new (_queryFactory, _logger);
+	public PlayerItemTable PlayerItemTable => new (_queryFactory, _logger);
+	public MailTable MailTable => new (_queryFactory, _logger);
+	public MailItemTable MailItemTable => new (_queryFactory, _logger);
+	public BillTable BillTable => new (_queryFactory, _logger);
 
 	public GameDb(ILogger<GameDb> logger, IOptions<DbConnectionConfig> dbConfig)
 	{

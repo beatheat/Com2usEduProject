@@ -34,7 +34,7 @@ public class ReceiveAttendanceReward
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], new {ErrorCode = errorCode, PlayerId = request.PlayerId}, 
-				"Player Data Loading Failed");
+				"Select Player Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -45,17 +45,18 @@ public class ReceiveAttendanceReward
 			// 이미 보상을 받은 경우
 			if (DateTime.Today - player.LastAttendanceDate == TimeSpan.Zero)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-					new {ErrorCode = ErrorCode.ReceiveAttendanceRewardAlready, PlayerId = request.PlayerId}, 
+				_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
+					new {ErrorCode = ErrorCode.ReceiveAttendanceRewardAlready, Player = player}, 
 					"Player Already Received Attendance Reward");
+				
 				response.Result = ErrorCode.ReceiveAttendanceRewardAlready;
 				return response;
 			}
 			// 연속 출석이 아닐 경우
 			if (DateTime.Today - player.LastAttendanceDate > TimeSpan.FromDays(1))
 			{
-				_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError],
-					new {PlayerData = player}, 
+				_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
+					new {Player = player}, 
 					"Player Attendance Date Initialized By Absent");
 
 				player.ContinuousAttendanceDays = 0;
@@ -65,8 +66,8 @@ public class ReceiveAttendanceReward
 		// 모든 보상 수령했을 시
 		if (player.ContinuousAttendanceDays == 30)
 		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError],
-				new {PlayerData = player}, 
+			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
+				new {Player = player}, 
 				"Player Attendance Date Initialized By Received All Rewards");
 			
 			player.ContinuousAttendanceDays = 0;
@@ -77,24 +78,23 @@ public class ReceiveAttendanceReward
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, }, "Player Already Received Attendance Reward");
+				new {ErrorCode = errorCode, Player = player}, "Insert Attendance Reward Mail To Player Fail");
 		
 			await Rollback(mailId);
 			response.Result = errorCode;
 			return response;
 		}
 
+		//출석일수 갱신
 		player.ContinuousAttendanceDays += 1;
 		player.LastAttendanceDate = DateTime.Today;
 
-		//출석일수 갱신
 		errorCode = await _gameDb.PlayerTable.UpdateAsync(player);
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, PlayerData = player }, "Update Player Data Failed");
+				new {ErrorCode = errorCode, Player = player }, "Update Player Data Fail");
 
-			
 			await Rollback(mailId);
 			response.Result = errorCode;
 			return response;
@@ -111,6 +111,7 @@ public class ReceiveAttendanceReward
 	
 	public async Task<(ErrorCode,int)> InsertAttendanceRewardMail(int playerId, int day)
 	{
+		// 출석보상 로드
 		var (errorCode, reward) = _masterDb.GetAttendanceReward(day);
 		if (errorCode != ErrorCode.None)
 		{
@@ -119,6 +120,7 @@ public class ReceiveAttendanceReward
 			return (errorCode, -1);
 		}
 
+		// 출석보상 메일 생성
 		Mail mail = new Mail {
 			PlayerId = playerId, 
 			Name = $"{day}일차 출석보상", 
@@ -126,6 +128,8 @@ public class ReceiveAttendanceReward
 			TransmissionDate = DateTime.Now,
 			ExpireDate = DateTime.Now + TimeSpan.FromDays(30)
 		};
+		
+		// 출석보상 메일 삽입
 		(errorCode, var mailId) = await _gameDb.MailTable.InsertAsync(mail);
 		if (errorCode != ErrorCode.None)
 		{
@@ -134,6 +138,7 @@ public class ReceiveAttendanceReward
 			return (errorCode, -1);
 		}
 
+		// 출석보상 메일 아이템 생성
 		MailItem mailItem = new MailItem
 		{
 			MailId = mailId,
@@ -141,6 +146,7 @@ public class ReceiveAttendanceReward
 			ItemCount = reward.ItemCount
 		};
 		
+		// 출석보상 메일 아이템 삽입
 		(errorCode, _) = await _gameDb.MailItemTable.InsertAsync(mailItem);
 		if (errorCode != ErrorCode.None)
 		{

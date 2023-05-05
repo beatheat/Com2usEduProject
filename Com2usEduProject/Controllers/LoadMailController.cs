@@ -30,7 +30,7 @@ public class LoadMail
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
 				new {ErrorCode = errorCode, PlayerId = request.PlayerId, MailId = request.MailId},
-				"Load Mail Failed");
+				"Select Mail Failed");
 			response.Result = errorCode;
 			return response;
 		}
@@ -38,9 +38,9 @@ public class LoadMail
 		// 메일 소유주와 요청자가 다르다면 요청 무시
 		if (mail.PlayerId != request.PlayerId)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
+			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail],
 				new {ErrorCode = errorCode, PlayerId = request.PlayerId, Mail = mail},
-				"Load Mail From Non Owner Player");
+				"Mail Request From Non Owner Player");
 			response.Result = ErrorCode.LoadMailRequestFromNonOwnerPlayer;
 			return response;
 		}
@@ -54,7 +54,7 @@ public class LoadMail
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
 				new {ErrorCode = errorCode, PlayerId = request.PlayerId, Mail = mail},
-				"Load Mail Item Failed");
+				"Select Mail Item List Fail");
 			response.Result = errorCode;
 			return response;
 		}

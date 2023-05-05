@@ -34,7 +34,7 @@ public class CreateAccount : ControllerBase
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, LoginId = request.LoginId}, 
-				"Insert Account Data Failed");
+				"Insert Account Fail");
 			
 			response.Result = errorCode;
 			return response;
@@ -45,7 +45,7 @@ public class CreateAccount : ControllerBase
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, PlayerId = playerId}, 
-				"Create Player Data Failed");
+				"CreateAndInsert Player Fail");
 			response.Result = errorCode;
 			
 			await Rollback(request.LoginId, playerId);
@@ -58,7 +58,7 @@ public class CreateAccount : ControllerBase
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {ErrorCode = errorCode, PlayerId = playerId}, 
-				"Create Player Initial Item Failed");
+				"Create Player Initial Item Fail");
 			response.Result = errorCode;
 			
 			await Rollback(request.LoginId, playerId);

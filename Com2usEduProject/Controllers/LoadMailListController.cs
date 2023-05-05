@@ -34,7 +34,7 @@ public class LoadMailList : ControllerBase
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError], new {ErrorCode = errorCode, PlayerId = request.PlayerId},
-				"Load Mail Count Failed");
+				"Select Mail Count Fail");
 
 			response.Result = errorCode;
 			return response;
@@ -45,13 +45,14 @@ public class LoadMailList : ControllerBase
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError], new {ErrorCode = errorCode, PlayerId = request.PlayerId},
-				"Load Mail List Failed");
+				"Select Mail List Fail");
 			
 			response.Result = errorCode;
 			return response;
 		}
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail], new {PlayerId = request.PlayerId, PageNo = request.PageNo}, "LoadMailList Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail], new {PlayerId = request.PlayerId, PageNo = request.PageNo},
+			"LoadMailList Success");
 		return response;
 	}
 }

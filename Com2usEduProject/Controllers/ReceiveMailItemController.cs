@@ -49,7 +49,7 @@ public class ReceiveMailItemController
 		// 요청자와 메일의 소유주가 다르다면 요청 무시
 		if (mail.PlayerId != request.PlayerId)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveMailItemError], 
+			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveMailItemError], 
 				new {ErrorCode = ErrorCode.ReceiveMailItemRequestFromNonOwnerPlayer, PlayerId = request.PlayerId, Mail = mail}, 
 				"Receive MailItem Request From Non Owner Player");
 			
@@ -63,7 +63,7 @@ public class ReceiveMailItemController
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveMailItemError], 
 				new {PlayerId = request.PlayerId, MailId = request.MailId, ErrorCode = errorCode}, 
-				"Load Mail Item List Failed");
+				"Select Mail Item List Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -81,7 +81,7 @@ public class ReceiveMailItemController
 						PlayerId = request.PlayerId, MailItem = mailItem, ErrorCode = errorCode,
 						ErrorInsertedPlayerItemIds = insertedPlayerItemIds,
 					}, 
-					"Insert Mail Item To Player Failed");
+					"Insert Mail Item To Player Fail");
 				
 				await Rollback(insertedPlayerItemIds);
 				response.Result = errorCode;
@@ -97,7 +97,7 @@ public class ReceiveMailItemController
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveMailItemError], 
 				new {PlayerId = request.PlayerId, Mail = mail, ErrorCode = errorCode}, 
-				"Insert Mail Item To Player Failed");
+				"Insert Mail Item To Player Fail");
 				
 			await Rollback(insertedPlayerItemIds);
 			response.Result = errorCode;

@@ -42,7 +42,7 @@ public class Login : ControllerBase
 		if(errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
-				"Register User Auth Failed");
+				"Register User Auth Fail");
 			
 			response.Result = errorCode;
 			return response;
@@ -53,18 +53,18 @@ public class Login : ControllerBase
 		if(errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
-				"Load Player Data Failed");
+				"Select Player Fail");
 			
 			response.Result = errorCode;
 			return response;
 		}
 		
 		// 플레이어 아이템 데이터 로드
-		(errorCode, response.PlayerItems) = await _gameDb.PlayerItemTable.SelectAsync(response.PlayerData.Id);
+		(errorCode, response.PlayerItems) = await _gameDb.PlayerItemTable.SelectListAsync(response.PlayerData.Id);
 		if(errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, PlayerId = response.PlayerData.Id}, 
-				"Load Player Item Failed");
+				"Select Player Item List Fail");
 			
 			response.Result = errorCode;
 			return response;

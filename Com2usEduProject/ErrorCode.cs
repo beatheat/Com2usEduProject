@@ -26,12 +26,18 @@ public enum ErrorCode : UInt16
     // LoadMailList 20030~
     LoadMailListRequestFromNonOwnerPlayer = 20030,
     // Login 20040~
+    
     // ReceiveAttendanceReward 20050~
     ReceiveAttendanceRewardAlready = 20050,
     // ReceiveMailItem 20060~
     ReceiveMailItemAlready = 20060,
     // ReceiveInAppPurchaseItem 20070~
     DuplicatedReceiveInAppPurchaseItemRequest = 20070,
+    // ShowPlayerItem 20080 ~
+    
+    // EnforcePlayerItem 20090 ~
+    EnforcePlayerItemRequestFromNonOwnerPlayer = 20090,
+    
     
     
     // AccountDb 30000 ~ =========================================
@@ -67,8 +73,10 @@ public enum ErrorCode : UInt16
     //GameDb.PlayerItemTable 30200 ~
     PlayerItemInsertFailException = 30201,
     PlayerItemSelectFailException = 30202,
-    PlayerItemDeleteFailException = 30203,
-    PlayerItemDeleteFail = 30204,
+    PlayerItemUpdateFailException = 30203,
+    PlayerItemUpdateFail = 30204,
+    PlayerItemDeleteFailException = 30205,
+    PlayerItemDeleteFail = 30206,
     
     //GameDb.MailTable 30300 ~
     MailInsertFailException = 30301,

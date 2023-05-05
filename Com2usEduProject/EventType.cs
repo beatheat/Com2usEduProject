@@ -32,6 +32,14 @@ public enum EventType
 	APIReceiveInAppPurchaseItem = 10701,
 	APIReceiveInAppPurchaseItemError = 10702,
 	
+	//ShowPlayerItem 10800~ -------------------------------
+	APIShowPlayerItem = 10801,
+	APIShowPlayerItemError = 10802,
+	
+	//EnforceItem 10900~ ---------------------------------
+	APIEnforcePlayerItem = 10901,
+	APIEnforcePlayerItemError = 10902,
+	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
 	AccountDbConnectionError = 20001,

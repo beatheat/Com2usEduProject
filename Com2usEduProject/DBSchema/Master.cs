@@ -4,7 +4,7 @@ public class Item
 {
 	public int Code { get; set; }
 	public string Name { get; set; }
-	public short Attribute { get; set; }
+	public ItemAttribute Attribute { get; set; }
 	public int Sell { get; set; }
 	public int Buy { get; set; }
 	public int UseLevel { get; set; }
@@ -15,7 +15,7 @@ public class Item
 	public bool Consumable { get; set; }
 }
 
-public enum ItemType
+public enum ItemAttribute
 {
 	WEAPON      = 1,
 	ARMOR       = 2,

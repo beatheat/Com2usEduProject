@@ -1,5 +1,7 @@
-﻿using Com2usEduProject.DBSchema;
+﻿using System.Linq.Expressions;
+using Com2usEduProject.DBSchema;
 using Com2usEduProject.Tools;
+using SqlKata;
 using SqlKata.Execution;
 using ZLogger;
 
@@ -32,7 +34,7 @@ public class PlayerTable
 		catch  (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerCreateAndInsertError], e,
-				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerInsertFailException}, "Insert PlayerData Failed");
+				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerInsertFailException}, "Insert Player Failed");
 			return (ErrorCode.PlayerInsertFailException, -1);
 		}
 	}
@@ -49,8 +51,28 @@ public class PlayerTable
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerSelectByAccountIdError], e,
-				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select PlayerData Failed");		
+				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Failed");		
 			return (ErrorCode.PlayerSelectFailException, new Player());
+		}
+	}
+
+	public async Task<ErrorCode> UpdateAddMoneyAsync(int playerId, int money)
+	{
+		try
+		{
+			var playerData = await _queryFactory.Query("Player").Where("PlayerId", playerId).UpdateAsync(new
+			{
+				Money = Expressions.UnsafeLiteral($"\"Money+{money}\"")
+			});
+			_logger.ZLogDebug($"[UpdateAddMoneyAsync] PlayerId: {playerId}, Money : {money}");
+
+			return ErrorCode.None;
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Failed");		
+			return ErrorCode.PlayerUpdateFailException;
 		}
 	}
 
@@ -66,7 +88,7 @@ public class PlayerTable
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerSelectError], e,
-				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select PlayerData Failed");		
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Failed");		
 			return (ErrorCode.PlayerSelectFailException, new Player());
 		}
 	}
@@ -114,7 +136,7 @@ public class PlayerTable
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
-				new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update PlayerData Failed");		
+				new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Failed");		
 			return ErrorCode.PlayerUpdateFailException;
 		}	
 	}

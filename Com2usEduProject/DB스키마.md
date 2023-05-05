@@ -106,7 +106,8 @@ CREATE TABLE GameDB.`Player`
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
     AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
     ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
-    LastAttendanceDate DATE DEFAULT NULL COMMENT '마지막출석일'
+    LastAttendanceDate DATE DEFAULT NULL COMMENT '마지막출석일',
+    Money INT NOT NULL DEFAULT 1000 COMMENT '소지금'
 ) COMMENT '플레이어 기본 데이터 테이블';
 ```
 

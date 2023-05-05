@@ -9,5 +9,5 @@ public interface IGameDb
 	public PlayerItemTable PlayerItemTable { get; }
 	public MailTable MailTable { get; }
 	public MailItemTable MailItemTable { get; }
-	public BillTable BillTalble { get; }
+	public BillTable BillTable { get; }
 }

@@ -35,7 +35,7 @@ public class ReceiveInAppPurchaseItem
 		var response = new ReceiveInAppPurchaseItemResponse();
 
 		// 중복되는 영수증인지 검증
-		var (errorCode, _) = await _gameDb.BillTalble.SelectAsync(request.BillToken);
+		var (errorCode, _) = await _gameDb.BillTable.SelectAsync(request.BillToken);
 		if (errorCode == ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
@@ -47,7 +47,7 @@ public class ReceiveInAppPurchaseItem
 		}
 		
 		// 이미 사용한 영수증 등록
-		(errorCode, var billId) = await _gameDb.BillTalble.InsertAsync(new Bill {PlayerId = request.PlayerId, Token = request.BillToken});
+		(errorCode, var billId) = await _gameDb.BillTable.InsertAsync(new Bill {PlayerId = request.PlayerId, Token = request.BillToken});
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
@@ -94,7 +94,6 @@ public class ReceiveInAppPurchaseItem
 			insertedPlayerItemIds.Add(playerItemId);
 		}
 		
-
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
 			new {PlayerId = request.PlayerId, ShopCode = request.ShopCode},
@@ -106,9 +105,9 @@ public class ReceiveInAppPurchaseItem
 	
 	private async Task<(ErrorCode, int)> InsertShopItem(int playerId, ShopItem shopItem)
 	{
-
 		var errorCode = ErrorCode.None;
-
+		
+		// 아이템 마스터 데이터 로드
 		(errorCode, var item) = _masterDb.GetItem(shopItem.ItemCode);
 		if (errorCode != ErrorCode.None)
 		{
@@ -122,6 +121,7 @@ public class ReceiveInAppPurchaseItem
 			return (errorCode, -1);
 		}
 			
+		// 구매한 상품, 플레이어 아이템 테이블에 삽입
 		(errorCode, var playerItemId) = await _gameDb.PlayerItemTable.InsertAsync(playerId, item, shopItem.ItemCount);
 		return (errorCode, playerItemId);
 	}
@@ -141,7 +141,7 @@ public class ReceiveInAppPurchaseItem
 			}
 		}
 		
-		errorCode = await _gameDb.BillTalble.DeleteAsync(billId);
+		errorCode = await _gameDb.BillTable.DeleteAsync(billId);
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
