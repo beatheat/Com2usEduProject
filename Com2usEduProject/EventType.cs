@@ -82,10 +82,10 @@ public enum EventType
 	MailItemUpdateError = 30430,
 	
 	//GameDB.BillTable 30500 ~ ---------------------------
-	BillInsertError = 30400,
-	BillSelectError = 30410,
-	BillDeleteError = 30420,
-	BillUpdateError = 30430,
+	BillInsertError = 30500,
+	BillSelectError = 30510,
+	BillDeleteError = 30520,
+	BillUpdateError = 30530,
 	
 	// MasterDB 40000~ ===================================
 	MasterDbError = 40000,
@@ -99,5 +99,5 @@ public enum EventType
 	GetUserError = 50003,
 	SetUserRequestLockError = 50004,
 	DelUserRequestLockError = 50005,
-	GetNoticeError
+	GetNoticeError = 50006,
 }

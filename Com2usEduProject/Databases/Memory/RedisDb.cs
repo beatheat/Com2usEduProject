@@ -40,17 +40,16 @@ public class RedisDb : IMemoryDb
         s_logger.ZLogDebug($"userDbAddress:{address}");
     }
     
-    public async Task<ErrorCode> RegisterUserAsync(string id, string authToken, int accountId)
+    public async Task<ErrorCode> RegisterUserAsync(int accountId, string authToken)
     {
-        var uid = UID + id;
+        var uid = UID + accountId;
         //TODO: 로그인 키 갱신 필요
         var loginTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.LoginKeyExpireMin);
         
         var user = new AuthUser
         {
-            Id = id,
+            AccountId = accountId,
             AuthToken = authToken,
-            AccountId = accountId, 
         };
         
         try
@@ -73,9 +72,9 @@ public class RedisDb : IMemoryDb
         return ErrorCode.None;    
     }
 
-    public async Task<(ErrorCode, AuthUser)> GetUserAsync(string id)
+    public async Task<(ErrorCode, AuthUser)> GetUserAsync(int accountId)
     {
-        var uid = UID + id;
+        var uid = UID + accountId;
 
         try
         {

@@ -29,8 +29,8 @@ public class CheckUserAuth
         
         context.Request.EnableBuffering();
 
+        int accountId;
         string authToken;
-        string id;
 
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
         {
@@ -64,13 +64,13 @@ public class CheckUserAuth
             }
                         
             // id와 authToken이 존재하는지 검증
-            if (IsInvalidJsonFormatThenSendError(context, document, out id, out authToken))
+            if (IsInvalidJsonFormatThenSendError(context, document, out accountId, out authToken))
             {
                 return;
             }
 
             //redis에서 AuthUser 획득
-            var (isOk, userInfo) = await _memoryDb.GetUserAsync(id);
+            var (isOk, userInfo) = await _memoryDb.GetUserAsync(accountId);
             if (isOk != ErrorCode.None)
             {
                 return;
@@ -83,7 +83,7 @@ public class CheckUserAuth
             }
 
             // 트랜잭션 설정
-            if (await SetLockAndIsFailThenSendError(context, id))
+            if (await SetLockAndIsFailThenSendError(context, accountId))
             {
                 return;
             }
@@ -96,12 +96,12 @@ public class CheckUserAuth
         await _next(context);
 
         // 트랜잭션 해제(Redis 동기화 해제)
-        await _memoryDb.DelUserRequestLockAsync(id);
+        await _memoryDb.DelUserRequestLockAsync(accountId.ToString());
     }
 
-    async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, string id)
+    async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, int accountId)
     {
-        if (await _memoryDb.SetUserRequestLockAsync(id))
+        if (await _memoryDb.SetUserRequestLockAsync(accountId.ToString()))
         {
             return false;
         }
@@ -201,17 +201,18 @@ public class CheckUserAuth
         return true;
     }
     
-    bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out string id, out string authToken)
+    bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out int accountId, out string authToken)
     {
         try
         {
-            id = document.RootElement.GetProperty("Id").GetString();
+            accountId = document.RootElement.GetProperty("AccountId").GetInt32();
             authToken = document.RootElement.GetProperty("AuthToken").GetString();
             return false;
         }
         catch
         {
-            id = authToken = "";
+            accountId = -1;
+            authToken = "";
 
             var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
             {

@@ -18,7 +18,7 @@ public class CheckPlayerIdAuth
 	public async Task Invoke(HttpContext context)
 	{
 		var formString = context.Request.Path.Value;
-		if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0 && 
+		if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0 || 
 		    string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0)
 		{
 			await _next(context);
@@ -50,7 +50,7 @@ public class CheckPlayerIdAuth
 			}
 
 			//gameDB에서 플레이어 데이터를 로드
-			var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(accountId);
+			var (errorCode, player) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
 			if (errorCode != ErrorCode.None)
 			{
 				var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse

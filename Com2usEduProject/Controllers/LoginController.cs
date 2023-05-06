@@ -38,10 +38,10 @@ public class Login : ControllerBase
 		
 		// Auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
-		errorCode = await _memoryDb.RegisterUserAsync(request.LoginId, authToken, accountId);
+		errorCode = await _memoryDb.RegisterUserAsync(accountId, authToken);
 		if(errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, LoginId = accountId}, 
 				"Register User Auth Fail");
 			
 			response.Result = errorCode;
@@ -49,7 +49,7 @@ public class Login : ControllerBase
 		}
 
 		// 플레이어 데이터 로드
-		(errorCode, response.PlayerData) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
+		(errorCode, response.Player) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
 		if(errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
@@ -59,17 +59,6 @@ public class Login : ControllerBase
 			return response;
 		}
 		
-		// 플레이어 아이템 데이터 로드
-		(errorCode, response.PlayerItems) = await _gameDb.PlayerItemTable.SelectListAsync(response.PlayerData.Id);
-		if(errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, PlayerId = response.PlayerData.Id}, 
-				"Select Player Item List Fail");
-			
-			response.Result = errorCode;
-			return response;
-		}
-
 		// 공지사항 로드
 		(var isNoticeExist, response.Notice) = await _memoryDb.GetNoticeAsync();
 		if (!isNoticeExist)
@@ -77,8 +66,9 @@ public class Login : ControllerBase
 			response.Notice = null;
 		}
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILogin], new { LoginId = request.LoginId, AuthToken = authToken }, "Login Success"); 
-        
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILogin], new { LoginId = request.LoginId, AuthToken = authToken }, "Login Success");
+
+		response.AccountId = accountId;
 		response.AuthToken = authToken; 
 		
 		return response;

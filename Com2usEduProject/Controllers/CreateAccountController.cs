@@ -25,9 +25,9 @@ public class CreateAccount : ControllerBase
 	}
 	
 	[HttpPost]
-	public async Task<CreateAccountRes> Post(CreateAccountReq request)
+	public async Task<CreateAccountResponse> Post(CreateAccountRequest request)
 	{
-		var response = new CreateAccountRes();
+		var response = new CreateAccountResponse();
         
 		// 계정 생성
 		var (errorCode,accountId) = await _accountDb.InsertAccountAsync(request.LoginId, request.Password);
@@ -67,15 +67,15 @@ public class CreateAccount : ControllerBase
 		}
 
 		// 메일함 테스트용 테스트 메일 삽입
-		// errorCode = await InsertTestMails(playerId);
-		// if (errorCode != ErrorCode.None)
-		// {
-		// 	_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.CreateAccount], new {AccountId = accountId}, "Player Test Mail Creation Failed");
-		// 	response.Result = errorCode;
-		// 	return response;
-		// }
+		errorCode = await InsertTestMails(playerId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APICreateAccountError], new {AccountId = accountId}, "Player Test Mail Creation Failed");
+			response.Result = errorCode;
+			return response;
+		}
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICreateAccount], new {AccountId = accountId}, "CreateAccount Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICreateAccount], new {LoginId = request.LoginId}, "CreateAccount Success");
 		return response;
 	}
 
@@ -94,34 +94,44 @@ public class CreateAccount : ControllerBase
 		return ErrorCode.None;
 	}
 
-	// private async Task<ErrorCode> InsertTestMails(int playerId)
-	// {
-	// 	Random random = new Random();
-	// 	for (int i = 0; i < 1000; i++)
-	// 	{
-	// 		Mail mail = new Mail();
-	// 		
-	// 		mail.PlayerId = playerId;
-	// 		mail.Name = $"테스트 메일 ({i})";
-	// 		mail.ItemCode = new[] { random.Next(6) };
-	// 		mail.ItemCount = new[] {mail.ItemCode[0] switch
-	// 		{
-	// 			1 => random.Next(1000), //돈이면 1000이하 
-	// 			6 => random.Next(20), // 포션이면 6개 이하
-	// 			_ => 1				  // 그외는 장비아이템
-	// 		}};
-	// 		mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
-	// 		mail.TransmissionDate = DateTime.Now;
-	// 		mail.Content = $"Lorem ipsum~~~{i}";
-	// 		mail.IsItemReceived = false;
-	//
-	// 		var errorCode = await _gameDb.InsertMailAsync(mail);
-	// 		if (errorCode != ErrorCode.None)
-	// 			return errorCode;
-	// 	}
-	//
-	// 	return ErrorCode.None;
-	// }
+	private async Task<ErrorCode> InsertTestMails(int playerId)
+	{
+		Random random = new Random();
+		for (int i = 0; i < 1000; i++)
+		{
+			Mail mail = new Mail();
+			
+			mail.PlayerId = playerId;
+			mail.Name = $"테스트 메일 ({i})";
+			mail.ExpireDate = DateTime.Now + TimeSpan.FromDays(7);
+			mail.TransmissionDate = DateTime.Now;
+			mail.Content = $"Lorem ipsum~~~{i}";
+			mail.IsItemReceived = false;
+	
+			var (errorCode,mailId) = await _gameDb.MailTable.InsertAsync(mail);
+			if (errorCode != ErrorCode.None)
+				return errorCode;
+			for (int j = 0; j < random.Next(4); j++)
+			{
+				MailItem item = new MailItem();
+				item.MailId = mailId;
+				item.ItemCode = random.Next(6);
+				if (item.ItemCode == 0)
+					break;
+				item.ItemCount = item.ItemCode switch
+				{
+					1 => random.Next(1000),
+					6 => random.Next(10),
+					_ => 1
+				};
+				(errorCode, _) = await _gameDb.MailItemTable.InsertAsync(item);
+				if (errorCode != ErrorCode.None)
+					return errorCode;			
+			}
+		}
+	
+		return ErrorCode.None;
+	}
 
 	private async Task Rollback(string loginId, int playerId)
 	{

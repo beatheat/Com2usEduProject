@@ -2,7 +2,7 @@
 
 namespace Com2usEduProject.ReqRes;
 
-public class CreateAccountReq
+public class CreateAccountRequest
 {
 	[Required]
 	[MinLength(1, ErrorMessage = "ID CANNOT BE EMPTY")]
@@ -16,7 +16,7 @@ public class CreateAccountReq
 	public string Password { get; set; }
 }
 
-public class CreateAccountRes
+public class CreateAccountResponse
 {
 	public ErrorCode Result { get; set; } = ErrorCode.None;
 }

@@ -41,7 +41,7 @@ public class LoadMailList : ControllerBase
 		}
 		
 		// 원하는 페이지의 메일 로드
-		(errorCode, response.MailList) = await _gameDb.MailTable.SelectList(request.PlayerId, PAGE_SIZE, PAGE_SIZE * request.PageNo);
+		(errorCode, response.MailList) = await _gameDb.MailTable.SelectList(request.PlayerId, PAGE_SIZE, PAGE_SIZE * (request.PageNo-1));
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError], new {ErrorCode = errorCode, PlayerId = request.PlayerId},

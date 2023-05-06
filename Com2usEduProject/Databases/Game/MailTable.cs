@@ -60,7 +60,7 @@ public class MailTable
 		try
 		{
 			var count = await _queryFactory.Query("Mail").Where("PlayerId", playerId).
-				Where("ExpireDate",">","NOW()").CountAsync<int>();
+				Where("ExpireDate",">",DateTime.Now).CountAsync<int>();
 
 			_logger.ZLogDebug($"[LoadMailboxPageCount] PlayerId: {playerId}, MailCount : {count}");
 			
@@ -82,9 +82,9 @@ public class MailTable
 			var mailboxPage = await _queryFactory.Query("Mail").
 				Select("Id","PlayerId","Name","TransmissionDate","ExpireDate", "IsItemReceived").
 				Where("PlayerId", playerId).
-				Where("ExpireDate", ">", "NOW()").
-				Limit(size).Offset(size * offset).
-				OrderByDesc("TransmissionDate").GetAsync<Mail>();
+				Where("ExpireDate", ">", DateTime.Now).
+				OrderByDesc("Id","TransmissionDate").
+				Limit(size).Offset(offset).GetAsync<Mail>();
 
 			
 			_logger.ZLogDebug($"[SelectList] PlayerId: {playerId} size : {size}, offset : {offset}");
