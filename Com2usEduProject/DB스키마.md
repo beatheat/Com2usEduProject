@@ -53,7 +53,7 @@ CREATE TABLE MasterDB.`Item`
 ```sql
 CREATE TABLE MasterDB.`AttendanceReward`
 (
-    Code INT NOT NULL PRIMARY KEY COMMENT '날짜',
+    Day INT NOT NULL PRIMARY KEY COMMENT '날짜',
     ItemCode INT NOT NULL COMMENT '아이템 코드',
     ItemCount INT NOT NULL COMMENT  '아이템 개수'
 ) COMMENT '출석 보상 테이블';
@@ -65,7 +65,7 @@ CREATE TABLE MasterDB.`AttendanceReward`
 ```sql
 CREATE TABLE MasterDB.`ShopItem`
 (
-    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품고유번호',
+    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품테이블 고유번호',
     Code INT NOT NULL COMMENT '상품번호',
     ItemCode INT NOT NULL COMMENT '아이템코드',
     ItemCount INT NOT NULL COMMENT '아이템 개수'
@@ -78,7 +78,7 @@ CREATE TABLE MasterDB.`ShopItem`
 CREATE TABLE MasterDB.`StageItem`
 (
     UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
-    StageCode INT NOT NULL COMMENT '상품번호',
+    StageCode INT NOT NULL COMMENT '스테이지 번호',
     ItemCode INT NOT NULL COMMENT '아이템코드'
 ) COMMENT '스테이지 아이템 테이블';
 ```
@@ -117,8 +117,8 @@ CREATE TABLE GameDB.`Player`
 ```sql
 CREATE TABLE GameDB.`PlayerItem`
 (
-	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
-	PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
+    PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
     ItemCode INT NOT NULL COMMENT '아이템 코드',
     Attack INT NOT NULL COMMENT '아이템 공격력',
     Defence INT NOT NULL COMMENT '아이템 방어력',
@@ -136,19 +136,23 @@ CREATE TABLE GameDB.`Mail`
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 고유번호',
     PlayerId INT NOT NULL COMMENT '메일 소유 플레이어 고유번호',
     Name VARCHAR(50) NOT NULL COMMENT '메일 전송메일 이름',
-    Content VARCHAR(400) NOT NULL COMMENT '메일 내용',
     TransmissionDate DATETIME NOT NULL COMMENT '메일 전송일',
     ExpireDate DATETIME NOT NULL COMMENT '아이템 보관 기일',
     IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부',
-    ItemCode1 INT NOT NULL COMMENT '메일 첨부 아이템 코드1',
-    ItemCount1 INT NOT NULL COMMENT '메일 첨부 아이템 갯수1',
-    ItemCode2 INT NOT NULL COMMENT '메일 첨부 아이템 코드2',
-    ItemCount2 INT NOT NULL COMMENT '메일 첨부 아이템 갯수2',
-    ItemCode3 INT NOT NULL COMMENT '메일 첨부 아이템 코드3',
-    ItemCount3 INT NOT NULL COMMENT '메일 첨부 아이템 갯수3',
-    ItemCode4 INT NOT NULL COMMENT '메일 첨부 아이템 코드4',
-    ItemCount4 INT NOT NULL COMMENT '메일 첨부 아이템갯수4'
+    Content VARCHAR(400) NOT NULL COMMENT '메일 내용'
 ) COMMENT '플레이어 우편함 테이블';
+```
+
+## MailItem 테이블
+메일에 포함된 아이템 데이터를 가진 테이블 
+```sql
+CREATE TABLE GameDB.`MailItem`
+(
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 아이템 고유번호',
+	MailId INT NOT NULL COMMENT '메일 고유번호',
+    ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
+    ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
+) COMMENT '플레이어 아이템 테이블';
 ```
 
 ## Bill 테이블

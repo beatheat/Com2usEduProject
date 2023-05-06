@@ -56,7 +56,7 @@ public class StageNpc
 
 public class InitialPlayerItem
 {
-	public int UniqueNo { get; set; }
+	public int Code { get; set; }
 	public int ItemCode { get; set; }
 	public int ItemCount { get; set; }
 }

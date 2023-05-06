@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS GameDB.`MailItem`
 	MailId INT NOT NULL COMMENT '메일 고유번호',
     ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
     ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
-);
+) COMMENT '플레이어 아이템 테이블';
 
 
 DROP TABLE IF EXISTS GameDB.`Bill`;
