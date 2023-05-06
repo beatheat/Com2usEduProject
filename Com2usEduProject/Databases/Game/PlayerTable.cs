@@ -60,10 +60,8 @@ public class PlayerTable
 	{
 		try
 		{
-			var playerData = await _queryFactory.Query("Player").Where("PlayerId", playerId).UpdateAsync(new
-			{
-				Money = Expressions.UnsafeLiteral($"\"Money+{money}\"")
-			});
+			var playerData = await _queryFactory.StatementAsync($"UPDATE Player SET MONEY = MONEY + {money} WHERE Id = {playerId}");
+			
 			_logger.ZLogDebug($"[UpdateAddMoneyAsync] PlayerId: {playerId}, Money : {money}");
 
 			return ErrorCode.None;
@@ -80,7 +78,7 @@ public class PlayerTable
 	{
 		try
 		{
-			var playerData = await _queryFactory.Query("Player").Where("PlayerId", playerId).FirstAsync<Player>();
+			var playerData = await _queryFactory.Query("Player").Where("Id", playerId).FirstAsync<Player>();
 			_logger.ZLogDebug($"[SelectAsync] PlayerId: {playerId}");
 			
 			return (ErrorCode.None, playerData);
@@ -97,7 +95,7 @@ public class PlayerTable
 	{
 		try
 		{
-			var count = await _queryFactory.Query("Player").Where("PlayerId", playerId).DeleteAsync();
+			var count = await _queryFactory.Query("Player").Where("Id", playerId).DeleteAsync();
 
 			if (count != 1)
 			{
@@ -122,7 +120,7 @@ public class PlayerTable
 	{
 		try
 		{
-			var count = await _queryFactory.Query("Player").Where("PlayerId", player.Id).UpdateAsync(player);
+			var count = await _queryFactory.Query("Player").Where("Id", player.Id).UpdateAsync(player);
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 

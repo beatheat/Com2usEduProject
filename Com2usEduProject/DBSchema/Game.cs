@@ -6,6 +6,7 @@ public class Player
 	public int AccountId { get; set; }
 	public int ContinuousAttendanceDays { get; set; }
 	public DateTime? LastAttendanceDate { get; set; }
+	public int Money { get; set; }
 }
 
 public class PlayerItem

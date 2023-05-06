@@ -25,5 +25,6 @@ public class EnforcePlayerItemResponse
 {
 	[Required] public ErrorCode Result { get; set; } = ErrorCode.None; 
 	public EnforceState EnforceState { get; set; }
+	public PlayerItem EnforcedItem { get; set; }
 
 }

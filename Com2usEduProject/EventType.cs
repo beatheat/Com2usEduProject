@@ -4,41 +4,45 @@ public enum EventType
 {
 	
 	// Controller 10000~ ===================================
-	//CreateAccount 10100~ ---------------------------------
-	APICreateAccount = 10101,
-	APICreateAccountError = 10102,
+	//CreateAccount 10010~ ---------------------------------
+	APICreateAccount = 10011,
+	APICreateAccountError = 10012,
 	
-	//Login 10200~ -----------------------------------------
-	APILogin = 10201,
-	APILoginError = 10202,
+	//Login 10020~ -----------------------------------------
+	APILogin = 10021,
+	APILoginError = 10022,
 	
-	//LoadMailList 10300~ ----------------------------------
-	APILoadMailList = 10301,
-	APILoadMailListError = 10302,
+	//LoadMailList 10030~ ----------------------------------
+	APILoadMailList = 10031,
+	APILoadMailListError = 10032,
 
-	//LoadMail 10400~ --------------------------------------
-	APILoadMail = 10401,
-	APILoadMailError = 10402,
+	//LoadMail 10040~ --------------------------------------
+	APILoadMail = 10041,
+	APILoadMailError = 10042,
 	
-	//ReceiveMailItem 10500~ ------------------------------
-	APIReceiveMailItem = 10501,
-	APIReceiveMailItemError = 10502,
+	//ReceiveMailItem 10050~ ------------------------------
+	APIReceiveMailItem = 10051,
+	APIReceiveMailItemError = 10052,
 	
-	//ReceiveAttendanceReward 10600~ ----------------------
-	APIReceiveAttendanceReward = 10601,
-	APIReceiveAttendanceRewardError = 10602,
+	//ReceiveAttendanceReward 10060~ ----------------------
+	APIReceiveAttendanceReward = 10061,
+	APIReceiveAttendanceRewardError = 10062,
 	
-	//ReceiveInAppPurchaseItem 10700~ ---------------------
-	APIReceiveInAppPurchaseItem = 10701,
-	APIReceiveInAppPurchaseItemError = 10702,
+	//ReceiveInAppPurchaseItem 10070~ ---------------------
+	APIReceiveInAppPurchaseItem = 10071,
+	APIReceiveInAppPurchaseItemError = 10072,
 	
-	//ShowPlayerItem 10800~ -------------------------------
-	APIShowPlayerItem = 10801,
-	APIShowPlayerItemError = 10802,
+	//LoadPlayerItem 10080~ -------------------------------
+	APILoadPlayerItem = 10081,
+	APILoadPlayerItemError = 10082,
 	
-	//EnforceItem 10900~ ---------------------------------
-	APIEnforcePlayerItem = 10901,
-	APIEnforcePlayerItemError = 10902,
+	//EnforceItem 10090~ ---------------------------------
+	APIEnforcePlayerItem = 10091,
+	APIEnforcePlayerItemError = 10092,
+	
+	//LoadPlayer 10100 ~ 
+	APILoadPlayer = 10101,
+	APILoadPlayerError = 10102,
 	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,

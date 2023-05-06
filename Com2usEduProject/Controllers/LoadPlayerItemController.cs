@@ -6,27 +6,29 @@ using ZLogger;
 
 namespace Com2usEduProject.Controllers;
 
-public class ShowPlayerItem
+[ApiController]
+[Route("[controller]")]
+public class LoadPlayerItem
 {
 	readonly IGameDb _gameDb;
-	readonly ILogger<ShowPlayerItem> _logger;
+	readonly ILogger<LoadPlayerItem> _logger;
 	
-	public ShowPlayerItem(ILogger<ShowPlayerItem> logger, IGameDb gameDb)
+	public LoadPlayerItem(ILogger<LoadPlayerItem> logger, IGameDb gameDb)
 	{
 		_logger = logger;
 		_gameDb = gameDb;
 	}
 
 	[HttpPost]
-	public async Task<ShowPlayerItemResponse> Post(ShowPlayerItemRequest request)
+	public async Task<LoadPlayerItemResponse> Post(LoadPlayerItemRequest request)
 	{
-		var response = new ShowPlayerItemResponse();
+		var response = new LoadPlayerItemResponse();
  
 		var (errorCode, playerItems) = await _gameDb.PlayerItemTable.SelectListAsync(request.PlayerId);
 
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIShowPlayerItemError], 
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadPlayerItemError], 
 				new {PlayerId = request.PlayerId, ErrorCode = errorCode}, 
 				"PlayerItem Table Select Fail");
 			
@@ -36,8 +38,8 @@ public class ShowPlayerItem
 
 		response.PlayerItems = playerItems;
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIShowPlayerItem], 
-			new {PlayerId = request.PlayerId}, "Show Player Item Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadPlayerItem], 
+			new {PlayerId = request.PlayerId}, "Load Player Item Success");
 
 		return response;
 	}

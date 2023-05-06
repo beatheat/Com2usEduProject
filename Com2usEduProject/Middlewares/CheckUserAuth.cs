@@ -187,7 +187,7 @@ public class CheckUserAuth
             return true;
         }
         
-        if (string.CompareOrdinal(_masterDb.GetVersion(), clientAppVersion) == 0)
+        if (string.CompareOrdinal(_masterDb.GetClientVersion(), clientAppVersion) == 0)
         {
             return false;
         }

@@ -65,29 +65,21 @@ public class ReceiveInAppPurchaseItem
 		}
 
 		// 상품코드를 통해 아이템을  플레이어 아이템 테이블에 삽입
-		var insertedPlayerItemIds = new List<int>();
-		foreach (var shopItem in shopItems)
+		(errorCode, var mailId) = await InsertShopItemMail(request.PlayerId,request.ShopCode, shopItems);
+		if (errorCode != ErrorCode.None)
 		{
-			(errorCode, var playerItemId) = await InsertShopItem(request.PlayerId, shopItem);
-			
-			if (errorCode != ErrorCode.None)
-			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
-					new
-					{
-						PlayerId = request.PlayerId, ShopCode = request.ShopCode, ErrorCode = errorCode, 
-						ErrorInsertedPlayerItemIds = insertedPlayerItemIds,
-					}, 
-					"Insert Player Item Fail");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
+				new
+				{
+					PlayerId = request.PlayerId, ShopCode = request.ShopCode, ErrorCode = errorCode, 
+				}, 
+				"Insert Shop Item Mail Fail");
 				
-				await Rollback(billId, insertedPlayerItemIds);
-				response.Result = errorCode;
-				return response;
-			}
-			
-			insertedPlayerItemIds.Add(playerItemId);
+			await Rollback(mailId);
+			response.Result = errorCode;
+			return response;
 		}
-		
+
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
 			new {PlayerId = request.PlayerId, ShopCode = request.ShopCode},
@@ -97,50 +89,63 @@ public class ReceiveInAppPurchaseItem
 	}
 	
 	
-	private async Task<(ErrorCode, int)> InsertShopItem(int playerId, ShopItem shopItem)
+	private async Task<(ErrorCode, int)> InsertShopItemMail(int playerId, int shopCode, IList<ShopItem> shopItems)
 	{
 		var errorCode = ErrorCode.None;
-		
-		// 아이템 마스터 데이터 로드
-		(errorCode, var item) = _masterDb.GetItem(shopItem.ItemCode);
+		var mail = new Mail
+		{
+			PlayerId = playerId, 
+			Content = $"상품({shopCode}) 가 전달되었습니다!", 
+			Name = $"상품({shopCode})",
+			ExpireDate = DateTime.Now + TimeSpan.FromDays(3650),
+			TransmissionDate = DateTime.Now,
+			IsItemReceived = false,
+		};
+
+		(errorCode,var mailId) = await _gameDb.MailTable.InsertAsync(mail);
 		if (errorCode != ErrorCode.None)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
-				new
-				{
-					PlayerId = playerId, ItemCode = shopItem.ItemCode, ErrorCode = errorCode
-				}, 
-				"Unknown Item Code");
-
+				new {ErrorCode = errorCode, Mail  = mail}, "InsertShopItemMail - Insert Mail Failed");
 			return (errorCode, -1);
 		}
-			
-		// 구매한 상품, 플레이어 아이템 테이블에 삽입
-		(errorCode, var playerItemId) = await _gameDb.PlayerItemTable.InsertAsync(playerId, item, shopItem.ItemCount);
-		return (errorCode, playerItemId);
-	}
 
-	
-	public async Task Rollback(int billId, IList<int> errorInsertedItemIds)
-	{
-		var errorCode = ErrorCode.None;
-		foreach (var errorItemId in errorInsertedItemIds)
+		foreach (var item in shopItems)
 		{
-			errorCode = await _gameDb.PlayerItemTable.DeleteAsync(errorItemId);
+			var mailItem = new MailItem
+			{
+				ItemCode = item.ItemCode,
+				ItemCount = item.ItemCount,
+				MailId = mailId
+			};
+
+			(errorCode, _) = await _gameDb.MailItemTable.InsertAsync(mailItem);
 			if (errorCode != ErrorCode.None)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
-					new {PlayerItemId = errorItemId, ErrorCode = errorCode}, 
-					"Rollback - Delete Player Item Failed");
+					new {ErrorCode = errorCode, Mail  = mail}, "InsertShopItemMail - Insert MailItem Failed");
 			}
 		}
 		
-		errorCode = await _gameDb.BillTable.DeleteAsync(billId);
+		return (errorCode, mailId);
+	}
+
+	
+	public async Task Rollback(int mailId)
+	{
+		var errorCode = await _gameDb.MailTable.DeleteAsync(mailId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveInAppPurchaseItemError], 
-				new {BillId = billId, ErrorCode = errorCode}, 
-				"Rollback - Delete Bill Failed");
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
+				new {ErrorCode = errorCode, mailId = mailId}, "Rollback - Delete Mail Failed");
+		}
+		
+		errorCode = await _gameDb.MailItemTable.DeleteAllAsync(mailId);
+		if (errorCode != ErrorCode.None)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
+				new {ErrorCode = errorCode, mailId = mailId}, "Rollback - Delete MailItem Failed");
 		}
 	}
+	
 }

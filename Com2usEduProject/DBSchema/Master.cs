@@ -11,7 +11,7 @@ public class Item
 	public int Attack { get; set; }
 	public int Defence { get; set; }
 	public int Magic { get; set; }		
-	public int EnhanceMaxCount { get; set; }
+	public int MaxEnhanceCount { get; set; }
 	public bool Consumable { get; set; }
 }
 

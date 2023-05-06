@@ -33,11 +33,12 @@ public enum ErrorCode : UInt16
     ReceiveMailItemAlready = 20060,
     // ReceiveInAppPurchaseItem 20070~
     DuplicatedReceiveInAppPurchaseItemRequest = 20070,
-    // ShowPlayerItem 20080 ~
+    // LoadPlayerItem 20080 ~
     
     // EnforcePlayerItem 20090 ~
     EnforcePlayerItemRequestFromNonOwnerPlayer = 20090,
     
+    // LoadPlayer 20100 ~
     
     
     // AccountDb 30000 ~ =========================================

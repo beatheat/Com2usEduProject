@@ -45,7 +45,8 @@ public class LoadMail
 			return response;
 		}
 		
-		// 로드한 메일을 응답에 포함
+		// 로드한 메일을 응답에
+		// 2포함
 		response.Mail = mail;
 
 		// 메일아이템 로드

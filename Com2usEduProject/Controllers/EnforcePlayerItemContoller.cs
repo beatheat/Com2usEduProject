@@ -70,6 +70,8 @@ public class EnforcePlayerItem
 			return response;
 		}
 
+		response.EnforcedItem = playerItem;
+
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItem], 
 			new {PlayerId = request.PlayerId, PlayerItemId = request.PlayerItemId, EnforceState = response.EnforceState}, "Enforce Player Item Success");
 
@@ -98,7 +100,7 @@ public class EnforcePlayerItem
 		}
 		
 		// 강화횟수가 남아 있어야 강화 가능
-		if (playerItem.EnhanceCount >= itemMasterData.EnhanceMaxCount)
+		if (playerItem.EnhanceCount >= itemMasterData.MaxEnhanceCount)
 		{
 			return (ErrorCode.None, EnforceState.Disable);
 		}

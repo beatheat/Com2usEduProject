@@ -3,16 +3,16 @@ using Com2usEduProject.DBSchema;
 
 namespace Com2usEduProject.ReqRes;
 
-public class ShowPlayerItemRequest
+
+public class LoadPlayerRequest
 {
 	[Required]
 	public int PlayerId { get; set; }
-
 }
 
-public class ShowPlayerItemResponse
+public class LoadPlayerResponse
 {
 	[Required] public ErrorCode Result { get; set; } = ErrorCode.None;
 
-	public IList<PlayerItem> PlayerItems { get; set; }
+	public Player Player { get; set; }
 }

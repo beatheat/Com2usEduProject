@@ -44,13 +44,13 @@ public class MasterDb : IMasterDb
 		
 		try
 		{
-			_itemList = queryFactory.Query("Item").Select("*").Get<Item>().ToList();
-			_attendanceRewards = queryFactory.Query("AttendanceReward").Get<AttendanceReward>().ToList();
-			_shopItemList = queryFactory.Query("ShopItem").Get<ShopItem>().ToList();
-			_stageItemList = queryFactory.Query("StageItem").Get<StageItem>().ToList();
-			_stageNpcList = queryFactory.Query("StageNpc").Get<StageNpc>().ToList();
+			_itemList = queryFactory.Query("Item").OrderBy("Code").Get<Item>().ToList();
+			_attendanceRewards = queryFactory.Query("AttendanceReward").OrderBy("Day").Get<AttendanceReward>().ToList();
+			_shopItemList = queryFactory.Query("ShopItem").OrderBy("Code").Get<ShopItem>().ToList();
+			_stageItemList = queryFactory.Query("StageItem").OrderBy("StageCode").Get<StageItem>().ToList();
+			_stageNpcList = queryFactory.Query("StageNpc").OrderBy("StageCode").Get<StageNpc>().ToList();
 
-			_initialItemList = queryFactory.Query("InitialPlayerItem").Get<InitialPlayerItem>().ToList();
+			_initialItemList = queryFactory.Query("InitialPlayerItem").OrderBy("Code").Get<InitialPlayerItem>().ToList();
 			
 			_version = queryFactory.Query("Version").Select("version").First<string>();
 			_clientVersion = queryFactory.Query("Version").Select("clientVersion").First<string>();
@@ -64,9 +64,9 @@ public class MasterDb : IMasterDb
 
 	public (ErrorCode, Item) GetItem(int itemCode)
 	{
-		if (itemCode > 0 && itemCode < _itemList.Count)
+		if (itemCode > 0 && itemCode <= _itemList.Count)
 		{
-			return (ErrorCode.None, _itemList[itemCode]);
+			return (ErrorCode.None, _itemList[itemCode-1]);
 		}
 		
 		return (ErrorCode.UnknownItemCode, new Item());
@@ -74,9 +74,9 @@ public class MasterDb : IMasterDb
 
 	public (ErrorCode, AttendanceReward) GetAttendanceReward(int day)
 	{
-		if(day > 0 && day < _attendanceRewards.Count)
+		if(day > 0 && day <= _attendanceRewards.Count)
 		{
-			return (ErrorCode.None, _attendanceRewards[day]);
+			return (ErrorCode.None, _attendanceRewards[day-1]);
 		}
 		
 		return (ErrorCode.UnknownAttendanceRewardDay, new AttendanceReward());
@@ -84,7 +84,7 @@ public class MasterDb : IMasterDb
 
 	public (ErrorCode, IList<ShopItem>) GetShopItem(int shopItemCode)
 	{
-		var selectedShopItems = _shopItemList.Where(x => x.ItemCode == shopItemCode).ToList();
+		var selectedShopItems = _shopItemList.Where(x => x.Code == shopItemCode).ToList();
 
 		if(selectedShopItems.Count  == 0)
 		{
