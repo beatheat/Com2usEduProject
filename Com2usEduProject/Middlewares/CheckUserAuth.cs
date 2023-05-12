@@ -30,6 +30,7 @@ public class CheckUserAuth
         context.Request.EnableBuffering();
 
         int accountId;
+        int playerId;
         string authToken;
 
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
@@ -64,7 +65,7 @@ public class CheckUserAuth
             }
                         
             // id와 authToken이 존재하는지 검증
-            if (IsInvalidJsonFormatThenSendError(context, document, out accountId, out authToken))
+            if (IsInvalidJsonFormatThenSendError(context, document, out accountId, out authToken, out playerId))
             {
                 return;
             }
@@ -77,7 +78,7 @@ public class CheckUserAuth
             }
 
             // 사용자가 보낸 authToken과 저장된 authToken비교
-            if (await IsInvalidUserAuthTokenThenSendError(context, userInfo, authToken))
+            if (await IsInvalidUserAuthTokenThenSendError(context, userInfo, authToken, playerId))
             {
                 return;
             }
@@ -116,13 +117,13 @@ public class CheckUserAuth
         return true;
     }
 
-    async Task<bool> IsInvalidUserAuthTokenThenSendError(HttpContext context, AuthUser userInfo, string authToken)
+    async Task<bool> IsInvalidUserAuthTokenThenSendError(HttpContext context, AuthUser userInfo, string authToken, int playerId)
     {
-        if (string.CompareOrdinal(userInfo.AuthToken, authToken) == 0)
+        if (string.CompareOrdinal(userInfo.AuthToken, authToken) == 0 && userInfo.PlayerId == playerId)
         {
             return false;
         }
-        
+
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
         {
             result = ErrorCode.AuthTokenFailWrongAuthToken
@@ -201,18 +202,21 @@ public class CheckUserAuth
         return true;
     }
     
-    bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out int accountId, out string authToken)
+    bool IsInvalidJsonFormatThenSendError(HttpContext context, JsonDocument document, out int accountId, out string authToken, out int playerId)
     {
         try
         {
             accountId = document.RootElement.GetProperty("AccountId").GetInt32();
             authToken = document.RootElement.GetProperty("AuthToken").GetString();
+            playerId = document.RootElement.GetProperty("PlayerId").GetInt32();
+
             return false;
         }
         catch
         {
             accountId = -1;
             authToken = "";
+            playerId = -1;
 
             var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
             {

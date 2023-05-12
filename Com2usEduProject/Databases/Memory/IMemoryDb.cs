@@ -7,7 +7,7 @@ public interface IMemoryDb
 {
 	public void Init(string address);
     
-	public Task<ErrorCode> RegisterUserAsync(int accountId, string authToken);
+	public Task<ErrorCode> RegisterUserAsync(int accountId, string authToken, int playerId);
 	
 	public Task<(ErrorCode, AuthUser)> GetUserAsync(int accountId);
 

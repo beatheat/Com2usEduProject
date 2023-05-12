@@ -10,7 +10,7 @@ CREATE TABLE AccountDB.`Account`
     LoginId VARCHAR(50) NOT NULL UNIQUE COMMENT '계정',
     SaltValue VARCHAR(100) NOT NULL COMMENT  '암호화 값',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성 날짜'
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT '생성 날짜'
 ) COMMENT '계정 정보 테이블';
 ```   
 

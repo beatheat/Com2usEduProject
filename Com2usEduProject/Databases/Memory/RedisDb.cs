@@ -40,7 +40,7 @@ public class RedisDb : IMemoryDb
         s_logger.ZLogDebug($"userDbAddress:{address}");
     }
     
-    public async Task<ErrorCode> RegisterUserAsync(int accountId, string authToken)
+    public async Task<ErrorCode> RegisterUserAsync(int accountId, string authToken, int playerId)
     {
         var uid = UID + accountId;
         //TODO: 로그인 키 갱신 필요
@@ -50,6 +50,7 @@ public class RedisDb : IMemoryDb
         {
             AccountId = accountId,
             AuthToken = authToken,
+            PlayerId = playerId
         };
         
         try

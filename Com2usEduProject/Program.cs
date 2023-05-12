@@ -26,7 +26,6 @@ var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 LogManager.SetLoggerFactory(loggerFactory, "Global");
 
 app.UseMiddleware<CheckUserAuth>();
-app.UseMiddleware<CheckPlayerIdAuth>();
 
 
 app.UseRouting();
