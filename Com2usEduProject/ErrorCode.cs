@@ -74,10 +74,11 @@ public enum ErrorCode : UInt16
     //GameDb.PlayerItemTable 30200 ~
     PlayerItemInsertFailException = 30201,
     PlayerItemSelectFailException = 30202,
-    PlayerItemUpdateFailException = 30203,
-    PlayerItemUpdateFail = 30204,
-    PlayerItemDeleteFailException = 30205,
-    PlayerItemDeleteFail = 30206,
+    PlayerItemSelectNotExist = 30203,
+    PlayerItemUpdateFailException = 30204,
+    PlayerItemUpdateFail = 30205,
+    PlayerItemDeleteFailException = 30206,
+    PlayerItemDeleteFail = 30207,
     
     //GameDb.MailTable 30300 ~
     MailInsertFailException = 30301,

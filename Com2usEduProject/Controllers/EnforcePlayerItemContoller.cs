@@ -1,4 +1,5 @@
-﻿using Com2usEduProject.Databases;
+﻿using System.Security.Cryptography;
+using Com2usEduProject.Databases;
 using Com2usEduProject.DBSchema;
 using Com2usEduProject.ReqRes;
 using Com2usEduProject.Tools;
@@ -31,8 +32,7 @@ public class EnforcePlayerItem
 		var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(request.PlayerId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-				"Select Player Fail");
+			LogError(errorCode, request, "Select Player Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -41,9 +41,7 @@ public class EnforcePlayerItem
 		(errorCode,var playerItem) = await _gameDb.PlayerItemTable.SelectAsync(request.PlayerItemId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-				"Select PlayerItem Fail");
-			
+			LogError(errorCode, request, "Select PlayerItem Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -51,25 +49,22 @@ public class EnforcePlayerItem
 		// 플레이어가 다른 플레이어의 아이템을 강화할 경우
 		if (player.Id != playerItem.PlayerId)
 		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItem], 
-				new {ErrorCode = errorCode, Player = player, PlayerItem = playerItem}, 
-				"Enforce PlayerItem Request From Non Owner Player");
-			
-			response.Result = ErrorCode.EnforcePlayerItemRequestFromNonOwnerPlayer;
-			return response;
-		}
-
-		// 아이템 강화
-		(errorCode, response.EnforceState) = await EnforceItem(playerItem);
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-				"Select PlayerItem Fail");
-			
+			errorCode = ErrorCode.EnforcePlayerItemRequestFromNonOwnerPlayer;
+			LogError(errorCode, request, "Enforce PlayerItem Request From Non Owner Player");
 			response.Result = errorCode;
 			return response;
 		}
 
+		// 아이템 강화
+		(errorCode, var enforceState) = await EnforceItem(playerItem);
+		if (errorCode != ErrorCode.None)
+		{
+			LogError(errorCode, request, "Enforce PlayerItem Fail");
+			response.Result = errorCode;
+			return response;
+		}
+
+		response.EnforceState = enforceState;
 		response.EnforcedItem = playerItem;
 
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItem], 
@@ -87,16 +82,14 @@ public class EnforcePlayerItem
 		(errorCode, var itemMasterData) = _masterDb.GetItem(playerItem.ItemCode);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-				"Account Insert Fail");
-			
+			LogError(errorCode, new {PlayerItem = playerItem}, "EnforceItem - Account Insert Fail");
 			return (errorCode, EnforceState.Error);
 		}
 
 		// 방어구나 무기일 경우만 강화 가능
 		if (itemMasterData.Attribute is not (ItemAttribute.ARMOR or ItemAttribute.WEAPON))
 		{
-			return (errorCode, EnforceState.Disable);
+			return (ErrorCode.None, EnforceState.Disable);
 		}
 		
 		// 강화횟수가 남아 있어야 강화 가능
@@ -110,7 +103,7 @@ public class EnforcePlayerItem
 		{
 			if(itemMasterData.Attribute == ItemAttribute.WEAPON)
 				playerItem.Attack = (int)(playerItem.Attack * 1.1);
-			if (itemMasterData.Attribute == ItemAttribute.ARMOR)
+			else if (itemMasterData.Attribute == ItemAttribute.ARMOR)
 				playerItem.Defence = (int) (playerItem.Defence * 1.1);
 
 			playerItem.EnhanceCount++;
@@ -118,9 +111,7 @@ public class EnforcePlayerItem
 			errorCode = await _gameDb.PlayerItemTable.UpdateAsync(playerItem);
 			if (errorCode != ErrorCode.None)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-					"PlayerItem Update Fail");
-
+				LogError(errorCode, new {PlayerItem = playerItem}, "EnforceItem - PlayerItem Update Fail");
 				return (errorCode, EnforceState.Error);
 			}
 			
@@ -131,11 +122,16 @@ public class EnforcePlayerItem
 		errorCode = await _gameDb.PlayerItemTable.DeleteAsync(playerItem.Id);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError], new {ErrorCode = errorCode}, 
-				"PlayerItem Delete Fail");
-
+			LogError(errorCode, new {PlayerItem = playerItem}, "EnforceItem - PlayerItem Delete Fail");
 			return (errorCode, EnforceState.Error);
 		}
 		return (ErrorCode.None, EnforceState.Fail);
+	}
+
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnforcePlayerItemError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

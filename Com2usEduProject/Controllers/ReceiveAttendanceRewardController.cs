@@ -33,8 +33,7 @@ public class ReceiveAttendanceReward
 		var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(request.PlayerId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], new {ErrorCode = errorCode, PlayerId = request.PlayerId}, 
-				"Select Player Fail");
+			LogError(errorCode, request, "Select Player Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -42,55 +41,34 @@ public class ReceiveAttendanceReward
 		// 이미 보상을 받은 경우
 		if (DateTime.Today - player.LastAttendanceDate == TimeSpan.Zero)
 		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
-				new {ErrorCode = ErrorCode.ReceiveAttendanceRewardAlready, Player = player}, 
-				"Player Already Received Attendance Reward");
-				
-			response.Result = ErrorCode.ReceiveAttendanceRewardAlready;
+			errorCode = ErrorCode.ReceiveAttendanceRewardAlready;
+			LogError(errorCode, request, "Player Already Received Attendance Reward");
+			response.Result = errorCode;
 			return response;
 		}
 		// 연속 출석이 아닐 경우
 		if (DateTime.Today - player.LastAttendanceDate > TimeSpan.FromDays(1))
 		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
-				new {Player = player}, 
-				"Player Attendance Date Initialized By Absent");
-
-			player.ContinuousAttendanceDays = 0;
-		}
-		
-		// 모든 보상 수령했을 시
-		if (player.ContinuousAttendanceDays == 30)
-		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
-				new {Player = player}, 
-				"Player Attendance Date Initialized By Received All Rewards");
-			
 			player.ContinuousAttendanceDays = 0;
 		}
 		
 		// 연속출석보상 우편함에 추가
-		(errorCode, var mailId) = await InsertAttendanceRewardMail(request.PlayerId, player.ContinuousAttendanceDays+1);
+		(errorCode, var mailId) = await InsertAttendanceRewardItemToMail(request.PlayerId, player.ContinuousAttendanceDays+1);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, Player = player}, "Insert Attendance Reward Mail To Player Fail");
-		
-			await Rollback(mailId);
+			LogError(errorCode, request, "Insert Attendance Reward Item To Player Mail");
 			response.Result = errorCode;
 			return response;
 		}
 
 		//출석일수 갱신
-		player.ContinuousAttendanceDays += 1;
+		player.ContinuousAttendanceDays = (player.ContinuousAttendanceDays + 1) % 30;
 		player.LastAttendanceDate = DateTime.Today;
 
 		errorCode = await _gameDb.PlayerTable.UpdateAsync(player);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, Player = player }, "Update Player Data Fail");
-
+			LogError(errorCode, player, "Update Player Fail");
 			await Rollback(mailId);
 			response.Result = errorCode;
 			return response;
@@ -105,14 +83,13 @@ public class ReceiveAttendanceReward
 	
 	
 	
-	public async Task<(ErrorCode,int)> InsertAttendanceRewardMail(int playerId, int day)
+	public async Task<(ErrorCode,int)> InsertAttendanceRewardItemToMail(int playerId, int day)
 	{
 		// 출석보상 로드
 		var (errorCode, reward) = _masterDb.GetAttendanceReward(day);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, Day  = day}, "InsertAttendanceRewardMail - GetAttendanceReward Failed");
+			LogError(errorCode, new {Day = day}, "InsertAttendanceRewardMail - GetAttendanceReward Fail");
 			return (errorCode, -1);
 		}
 
@@ -125,29 +102,13 @@ public class ReceiveAttendanceReward
 			ExpireDate = DateTime.Now + TimeSpan.FromDays(30)
 		};
 		
+		mail.AddItem(reward.ItemCode, reward.ItemCount);
+		
 		// 출석보상 메일 삽입
 		(errorCode, var mailId) = await _gameDb.MailTable.InsertAsync(mail);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, Mail  = mail}, "InsertAttendanceRewardMail - Insert Mail Failed");
-			return (errorCode, -1);
-		}
-
-		// 출석보상 메일 아이템 생성
-		MailItem mailItem = new MailItem
-		{
-			MailId = mailId,
-			ItemCode = reward.ItemCode,
-			ItemCount = reward.ItemCount
-		};
-		
-		// 출석보상 메일 아이템 삽입
-		(errorCode, _) = await _gameDb.MailItemTable.InsertAsync(mailItem);
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, Mail  = mail}, "InsertAttendanceRewardMail - Insert MailItem Failed");
+			LogError(errorCode, new {Mail = mail}, "InsertAttendanceRewardMail - Insert Mail Fail" );
 			return (errorCode, -1);
 		}
 		
@@ -159,15 +120,14 @@ public class ReceiveAttendanceReward
 		var errorCode = await _gameDb.MailTable.DeleteAsync(mailId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, mailId = mailId}, "Rollback - Delete Mail Failed");
+			LogError(errorCode, new {MailId = mailId}, "Rollback - Delete Mail Failed");
 		}
-		
-		errorCode = await _gameDb.MailItemTable.DeleteAllAsync(mailId);
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError], 
-				new {ErrorCode = errorCode, mailId = mailId}, "Rollback - Delete MailItem Failed");
-		}
+	}
+	
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceRewardError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

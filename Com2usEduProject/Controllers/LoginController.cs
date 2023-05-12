@@ -32,48 +32,51 @@ public class Login : ControllerBase
 		var (errorCode, accountId) = await _accountDb.VerifyAccountAsync(request.LoginId, request.Password);
 		if (errorCode != ErrorCode.None)
 		{
+			LogError(errorCode, request, "Verify Account Fail");
 			response.Result = errorCode;
 			return response;
 		}
 		
 		// 플레이어 데이터 로드
-		(errorCode, response.Player) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
+		(errorCode, var player) = await _gameDb.PlayerTable.SelectByAccountIdAsync(accountId);
 		if(errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, AccountId = accountId}, 
-				"Select Player Fail");
-			
+			LogError(errorCode, request, "Select Player Fail");
 			response.Result = errorCode;
 			return response;
 		}
 
 		// Auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
-		errorCode = await _memoryDb.RegisterUserAsync(accountId, authToken, response.Player.Id);
+		errorCode = await _memoryDb.RegisterUserAsync(accountId, authToken, player.Id);
 		if(errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError], new {ErrorCode = errorCode, LoginId = accountId}, 
-				"Register User Auth Fail");
-			
+			LogError(errorCode, request, "Register User Auth Fail");
 			response.Result = errorCode;
 			return response;
 		}
-
-
+		
 		// 공지사항 로드
-		(var isNoticeExist, response.Notice) = await _memoryDb.GetNoticeAsync();
+		var (isNoticeExist, notice) = await _memoryDb.GetNoticeAsync();
 		if (!isNoticeExist)
 		{
-			response.Notice = null;
+			notice = null;
 		}
 		
-		
+		response.AccountId = accountId;
+		response.AuthToken = authToken;
+		response.Player = player;
+		response.Notice = notice;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILogin], new { LoginId = request.LoginId, AuthToken = authToken }, "Login Success");
-
-		response.AccountId = accountId;
-		response.AuthToken = authToken; 
 		
 		return response;
+	}
+	
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoginError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

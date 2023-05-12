@@ -16,5 +16,4 @@ public class LoadMailResponse
 	[Required] public ErrorCode Result { get; set; } = ErrorCode.None;
 
 	public Mail Mail { get; set; }
-	public IList<MailItem> MailItems { get; set; }
 }

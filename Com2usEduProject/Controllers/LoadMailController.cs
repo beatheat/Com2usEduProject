@@ -28,9 +28,7 @@ public class LoadMail
 		var (errorCode, mail) = await _gameDb.MailTable.SelectAsync(request.MailId);
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
-				new {ErrorCode = errorCode, PlayerId = request.PlayerId, MailId = request.MailId},
-				"Select Mail Failed");
+			LogError(errorCode, request, "Select Mail Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -38,29 +36,23 @@ public class LoadMail
 		// 메일 소유주와 요청자가 다르다면 요청 무시
 		if (mail.PlayerId != request.PlayerId)
 		{
-			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail],
-				new {ErrorCode = errorCode, PlayerId = request.PlayerId, Mail = mail},
-				"Mail Request From Non Owner Player");
-			response.Result = ErrorCode.LoadMailRequestFromNonOwnerPlayer;
-			return response;
-		}
-		
-		// 로드한 메일을 응답에
-		response.Mail = mail;
-
-		// 메일아이템 로드
-		(errorCode, response.MailItems) = await _gameDb.MailItemTable.SelectListAsync(mail.Id);
-		if (errorCode != ErrorCode.None)
-		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
-				new {ErrorCode = errorCode, PlayerId = request.PlayerId, Mail = mail},
-				"Select Mail Item List Fail");
+			errorCode = ErrorCode.LoadMailRequestFromNonOwnerPlayer;
+			LogError(errorCode, request, "Mail Request From Non Owner Player");
 			response.Result = errorCode;
 			return response;
 		}
 		
+		response.Mail = mail;
+
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail], 
 			new {PlayerId = request.PlayerId, Mail = request.MailId}, "LoadMail Success");
 		return response;
+	}
+	
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

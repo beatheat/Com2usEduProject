@@ -29,30 +29,36 @@ public class LoadMailList : ControllerBase
 		var response = new LoadMailListResponse();
 
 		// 메일함의 총 메일 갯수를 로드해, 총 페이지 수를 구함
-		(var errorCode, response.TotalPageCount) = await _gameDb.MailTable.SelectCountAsync(request.PlayerId);
+		var (errorCode, totalPageCount) = await _gameDb.MailTable.SelectCountAsync(request.PlayerId);
 		response.TotalPageCount /= PAGE_SIZE;
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError], new {ErrorCode = errorCode, PlayerId = request.PlayerId},
-				"Select Mail Count Fail");
-
+			LogError(errorCode, request, "Select Mail Count Fail");
 			response.Result = errorCode;
 			return response;
 		}
 		
 		// 원하는 페이지의 메일 로드
-		(errorCode, response.MailList) = await _gameDb.MailTable.SelectList(request.PlayerId, PAGE_SIZE, PAGE_SIZE * (request.PageNo-1));
+		(errorCode, var mailList) = await _gameDb.MailTable.SelectList(request.PlayerId, PAGE_SIZE, PAGE_SIZE * (request.PageNo-1));
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError], new {ErrorCode = errorCode, PlayerId = request.PlayerId},
-				"Select Mail List Fail");
-			
+			LogError(errorCode, request, "Select Mail List Fail");
 			response.Result = errorCode;
 			return response;
 		}
+
+		response.TotalPageCount = totalPageCount;
+		response.MailList = mailList;
 		
-		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMail], new {PlayerId = request.PlayerId, PageNo = request.PageNo},
-			"LoadMailList Success");
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadMailList],
+			new {PlayerId = request.PlayerId, PageNo = request.PageNo}, "LoadMailList Success");
 		return response;
+	}
+	
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadMailListError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

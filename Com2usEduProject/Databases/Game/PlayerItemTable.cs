@@ -1,5 +1,6 @@
 ﻿using Com2usEduProject.DBSchema;
 using Com2usEduProject.Tools;
+using MySqlConnector;
 using SqlKata.Execution;
 using ZLogger;
 
@@ -16,6 +17,8 @@ public class PlayerItemTable
 		_logger = logger;
 	}
 	
+
+
 	
 	public async Task<(ErrorCode, int)> InsertAsync(PlayerItem item)
 	{
@@ -34,7 +37,7 @@ public class PlayerItemTable
 			return (ErrorCode.PlayerItemInsertFailException, -1);
 		}
 	}
-
+	
 	public async Task<(ErrorCode, int)> InsertAsync(int playerId, Item item, int count)
 	{
 		// 돈일 경우에
@@ -45,6 +48,9 @@ public class PlayerItemTable
 		
 		try
 		{
+			if (item.Consumable)
+			{
+			}
 			PlayerItem playerItem = new PlayerItem
 			{
 				PlayerId = playerId,
@@ -106,6 +112,32 @@ public class PlayerItemTable
 		}
 	}
 	
+	public async Task<(ErrorCode, PlayerItem)> SelectByItemCodeAsync(int itemCode)
+	{
+		try
+		{
+			var query = _queryFactory.Query("PlayerItem").Where("ItemCode", itemCode);
+			
+			if (await query.ExistsAsync() == false)
+			{
+				return (ErrorCode.PlayerItemSelectNotExist, new PlayerItem());
+			}
+			
+			var playerItem = await query.FirstAsync<PlayerItem>();
+				
+			_logger.ZLogDebug($"[SelectByItemCode] PlayerId: {playerItem.PlayerId}");
+
+			return (ErrorCode.None, playerItem);		
+		}
+
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerItemSelectError], e,
+				new {ItemCode = itemCode, ErrorCode = ErrorCode.PlayerItemSelectFailException}, "Select PlayerItem Fail");
+			return (ErrorCode.PlayerItemSelectFailException, new PlayerItem());
+		}
+	}
+	
 	public async Task<ErrorCode> UpdateAsync(PlayerItem playerItem)
 	{
 		try
@@ -129,7 +161,7 @@ public class PlayerItemTable
 			return ErrorCode.PlayerItemUpdateFailException;
 		}
 	}
-
+	
 	public async Task<ErrorCode> DeleteAsync(int playerItemId)
 	{
 		try

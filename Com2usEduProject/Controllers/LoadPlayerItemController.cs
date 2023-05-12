@@ -28,10 +28,7 @@ public class LoadPlayerItem
 
 		if (errorCode != ErrorCode.None)
 		{
-			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadPlayerItemError], 
-				new {PlayerId = request.PlayerId, ErrorCode = errorCode}, 
-				"PlayerItem Table Select Fail");
-			
+			LogError(errorCode, request, "Select PlayerItem Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -42,5 +39,12 @@ public class LoadPlayerItem
 			new {PlayerId = request.PlayerId}, "Load Player Item Success");
 
 		return response;
+	}
+	
+	private void LogError(ErrorCode errorCode, object payload, string message)
+	{
+		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadPlayerItemError],
+			new {ErrorCode = errorCode, Payload = payload}, 
+			message);
 	}
 }

@@ -35,18 +35,26 @@ CREATE TABLE IF NOT EXISTS GameDB.`Mail`
     TransmissionDate DATETIME NOT NULL COMMENT '메일 전송일',
     ExpireDate DATETIME NOT NULL COMMENT '아이템 보관 기일',
     IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부',
-	Content VARCHAR(400) NOT NULL COMMENT '메일 내용'
+	Content VARCHAR(400) NOT NULL COMMENT '메일 내용',
     
+    ItemCode1 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
+    ItemCount1 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
+	ItemCode2 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
+    ItemCount2 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
+	ItemCode3 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
+    ItemCount3 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
+	ItemCode4 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
+    ItemCount4 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수'
 ) COMMENT '플레이어 우편함 테이블';
 
-DROP TABLE IF EXISTS GameDB.`MailItem`;
-CREATE TABLE IF NOT EXISTS GameDB.`MailItem`
-(
-	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 아이템 고유번호',
-	MailId INT NOT NULL COMMENT '메일 고유번호',
-    ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
-    ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
-) COMMENT '플레이어 아이템 테이블';
+-- DROP TABLE IF EXISTS GameDB.`MailItem`;
+-- CREATE TABLE IF NOT EXISTS GameDB.`MailItem`
+-- (
+-- 	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 아이템 고유번호',
+-- 	MailId INT NOT NULL COMMENT '메일 고유번호',
+--     ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
+--     ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
+-- ) COMMENT '플레이어 아이템 테이블';
 
 
 DROP TABLE IF EXISTS GameDB.`Bill`;
