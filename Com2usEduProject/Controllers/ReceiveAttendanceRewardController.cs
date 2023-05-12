@@ -39,30 +39,26 @@ public class ReceiveAttendanceReward
 			return response;
 		}
 		
-		// 최초 출석이 아닐 경우
-		if (player.LastAttendanceDate != null)
+		// 이미 보상을 받은 경우
+		if (DateTime.Today - player.LastAttendanceDate == TimeSpan.Zero)
 		{
-			// 이미 보상을 받은 경우
-			if (DateTime.Today - player.LastAttendanceDate == TimeSpan.Zero)
-			{
-				_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
-					new {ErrorCode = ErrorCode.ReceiveAttendanceRewardAlready, Player = player}, 
-					"Player Already Received Attendance Reward");
+			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward], 
+				new {ErrorCode = ErrorCode.ReceiveAttendanceRewardAlready, Player = player}, 
+				"Player Already Received Attendance Reward");
 				
-				response.Result = ErrorCode.ReceiveAttendanceRewardAlready;
-				return response;
-			}
-			// 연속 출석이 아닐 경우
-			if (DateTime.Today - player.LastAttendanceDate > TimeSpan.FromDays(1))
-			{
-				_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
-					new {Player = player}, 
-					"Player Attendance Date Initialized By Absent");
-
-				player.ContinuousAttendanceDays = 0;
-			}
+			response.Result = ErrorCode.ReceiveAttendanceRewardAlready;
+			return response;
 		}
+		// 연속 출석이 아닐 경우
+		if (DateTime.Today - player.LastAttendanceDate > TimeSpan.FromDays(1))
+		{
+			_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReceiveAttendanceReward],
+				new {Player = player}, 
+				"Player Attendance Date Initialized By Absent");
 
+			player.ContinuousAttendanceDays = 0;
+		}
+		
 		// 모든 보상 수령했을 시
 		if (player.ContinuousAttendanceDays == 30)
 		{
