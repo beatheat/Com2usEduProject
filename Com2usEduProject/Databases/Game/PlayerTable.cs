@@ -18,13 +18,14 @@ public class PlayerTable
 		_logger = logger;
 	}
 	
-	public async Task<(ErrorCode, int)> CreateAndInsertAsync(int accountId)
+	public async Task<(ErrorCode, int)> CreateAndInsertAsync(int accountId, string nickname)
 	{
 		try
 		{
 			var playerId = await _queryFactory.Query("Player").InsertGetIdAsync<int>(new Player
 			{
 				AccountId = accountId,
+				Nickname = nickname,
 			});
 			_logger.ZLogDebug($"[CreateAndInsertAsync] AccountId: {accountId}");
 

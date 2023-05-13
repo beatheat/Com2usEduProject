@@ -48,7 +48,7 @@ public class Login : ControllerBase
 
 		// Auth 생성 및 등록
 		var authToken = Security.CreateAuthToken();
-		errorCode = await _memoryDb.RegisterUserAsync(accountId, authToken, player.Id);
+		errorCode = await _memoryDb.AuthManager.RegisterUserAsync(accountId, authToken, player.Id);
 		if(errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Register User Auth Fail");
@@ -57,7 +57,7 @@ public class Login : ControllerBase
 		}
 		
 		// 공지사항 로드
-		var (isNoticeExist, notice) = await _memoryDb.GetNoticeAsync();
+		var (isNoticeExist, notice) = await _memoryDb.NoticeManager.GetNoticeAsync();
 		if (!isNoticeExist)
 		{
 			notice = null;

@@ -39,7 +39,7 @@ public class CreateAccount : ControllerBase
 		}
 
 		// 플레이어 기본 데이터 생성
-		(errorCode, var playerId) = await _gameDb.PlayerTable.CreateAndInsertAsync(accountId);
+		(errorCode, var playerId) = await _gameDb.PlayerTable.CreateAndInsertAsync(accountId, request.LoginId);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"CreateAndInsert Player Fail");

@@ -1,5 +1,6 @@
 ﻿using Com2usEduProject.DBSchema;
 using Com2usEduProject.Authorization;
+using Com2usEduProject.Chatting;
 
 namespace Com2usEduProject.Databases;
 
@@ -7,14 +8,8 @@ public interface IMemoryDb
 {
 	public void Init(string address);
     
-	public Task<ErrorCode> RegisterUserAsync(int accountId, string authToken, int playerId);
-	
-	public Task<(ErrorCode, AuthUser)> GetUserAsync(int accountId);
-
-	public Task<bool> SetUserRequestLockAsync(string lockName);
-	
-	public Task<bool> DelUserRequestLockAsync(string lockName);
-
-	public Task<(bool, string)> GetNoticeAsync();
+	public AuthManager AuthManager { get; }
+	public NoticeManager NoticeManager { get; }
+	public ChatManager ChatManager { get; }
 }
 

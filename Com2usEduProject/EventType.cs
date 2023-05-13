@@ -40,9 +40,21 @@ public enum EventType
 	APIEnforcePlayerItem = 10091,
 	APIEnforcePlayerItemError = 10092,
 	
-	//LoadPlayer 10100 ~ 
+	//LoadPlayer 10100 ~ ----------------------------------
 	APILoadPlayer = 10101,
 	APILoadPlayerError = 10102,
+	
+	//EnterChatLobby 10110~ ------------------------------
+	APIEnterChatLobby = 10111,
+	APIEnterChatLobbyError = 10112,
+	
+	//ReadChat 10120 ~ -----------------------------------
+	APIReadChat = 10121,
+	APIReadChatError = 10122,
+	
+	//WriteCaht 10130 ~ ----------------------------------
+	APIWriteChat = 10131,
+	APIWriteChatError = 10132,
 	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
@@ -104,4 +116,9 @@ public enum EventType
 	SetUserRequestLockError = 50004,
 	DelUserRequestLockError = 50005,
 	GetNoticeError = 50006,
+	
+	//ChatManager 50100~ ---------------------------------
+	LoadChatHistoryError = 50101,
+	LoadChatFromIndexError = 50102,
+	WriteChatError = 50103,
 }

@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS GameDB.`Player`;
 CREATE TABLE IF NOT EXISTS GameDB.`Player`
 (
 	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
+    Nickname VARCHAR(20) NOT NULL COMMENT '플레이어 이름',
     AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
     ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
     LastAttendanceDate DATE NOT NULL DEFAULT "1985-01-01" COMMENT '마지막출석일',

@@ -116,9 +116,14 @@ public enum ErrorCode : UInt16
     
 
     //RedisDb 50000 ~ ======================================================
-    RedisFailException = 5001,
-    RedisKeyNotFound = 5002,
-    RedisSetDuplicateKey = 5003,
-    RedisGetFailed = 5004,
+    RedisFailException = 50001,
+    RedisKeyNotFound = 50002,
+    RedisSetDuplicateKey = 50003,
+    RedisGetFailed = 50004,
+    //AuthManager 50100 ~ --------------------------------------------------
 
+    //NoticeManager 50200 ~ ------------------------------------------------
+    NoticeManager = 50201,
+    //ChatManager 50300 ~ --------------------------------------------------
+    ChatLobbyOutOfIndex = 50301,
 }
