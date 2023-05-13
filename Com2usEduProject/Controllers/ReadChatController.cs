@@ -24,7 +24,7 @@ public class ReadChat
 	{
 		var response = new ReadChatResponse();
 
-		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatFromIndex(request.LobbyNumber, request.ChatIndex);
+		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatFromIndex(request.LobbyNumber, request.LastChatIndex+1);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Load Chat From Index Fail");
@@ -35,7 +35,7 @@ public class ReadChat
 		response.Chats = chatList;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIReadChat],
-			new {PlayerId = request.PlayerId}, "Read Chat Success");
+			new {Request = request, Response = response}, "Read Chat Success");
 		return response;
 	}
 	

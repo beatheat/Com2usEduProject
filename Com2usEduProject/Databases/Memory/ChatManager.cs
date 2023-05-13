@@ -1,4 +1,5 @@
-﻿using CloudStructures;
+﻿using System.Diagnostics;
+using CloudStructures;
 using CloudStructures.Structures;
 using Com2usEduProject.Chatting;
 using Com2usEduProject.Tools;
@@ -10,9 +11,12 @@ public class ChatManager
 {
 	readonly RedisConnection _redisConnection;
 	readonly ILogger<RedisDb> _logger;
+    
 	
 	const string CHAT_LOBBY = "ChatLobby_";
-	
+
+    private const int CHAT_HISTORY_SIZE = 50;
+    
 	public ChatManager(RedisConnection redisConnection, ILogger<RedisDb> logger)
 	{
 		_redisConnection = redisConnection;
@@ -34,7 +38,7 @@ public class ChatManager
         {
             var redis = new RedisList<Chat>(_redisConnection, CHAT_LOBBY + lobbyNumber, null);
             var len = await redis.LengthAsync();
-            var chatList = await redis.RangeAsync(len - 50, 50);
+            var chatList = await redis.RangeAsync(-CHAT_HISTORY_SIZE, -1);
             return (ErrorCode.None, chatList);
         }
         catch (Exception e)
@@ -45,8 +49,9 @@ public class ChatManager
         }
     }
     
-    public async Task<(ErrorCode,IList<Chat>)> LoadChatFromIndex(int lobbyNumber, int index)
+    public async Task<(ErrorCode,IList<Chat>)> LoadChatFromIndex(int lobbyNumber, long index)
     {
+        Console.WriteLine("?");
         if (lobbyNumber is < 1 or > 100)
         {
             return (ErrorCode.ChatLobbyOutOfIndex, Array.Empty<Chat>());
@@ -54,8 +59,7 @@ public class ChatManager
         try
         {
             var redis = new RedisList<Chat>(_redisConnection, CHAT_LOBBY + lobbyNumber, null);
-            var len = await redis.LengthAsync();
-            var chatList = await redis.RangeAsync(index, len - index);
+            var chatList = await redis.RangeAsync(index, -1);
             return (ErrorCode.None, chatList);
         }
         catch (Exception e)

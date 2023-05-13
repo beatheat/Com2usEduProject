@@ -6,6 +6,8 @@ using ZLogger;
 
 namespace Com2usEduProject.Controllers;
 
+[ApiController]
+[Route("[controller]")]
 public class EnterChatLobby
 {
 	readonly IMemoryDb _memoryDb;

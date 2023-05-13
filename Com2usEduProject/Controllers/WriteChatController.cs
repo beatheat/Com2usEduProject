@@ -11,9 +11,9 @@ namespace Com2usEduProject.Controllers;
 public class WriteChat
 {
 	readonly IMemoryDb _memoryDb;
-	readonly ILogger<LoadMail> _logger;
+	readonly ILogger<WriteChat> _logger;
 	
-	public WriteChat(ILogger<LoadMail> logger, IMemoryDb memoryDb)
+	public WriteChat(ILogger<WriteChat> logger, IMemoryDb memoryDb)
 	{
 		_logger = logger;
 		_memoryDb = memoryDb;

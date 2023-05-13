@@ -71,7 +71,7 @@ public class CheckUserAuth
             }
 
             //redis에서 AuthUser 획득
-            var (isOk, userInfo) = await _memoryDb.GetUserAsync(accountId);
+            var (isOk, userInfo) = await _memoryDb.AuthManager.GetUserAsync(accountId);
             if (isOk != ErrorCode.None)
             {
                 return;
@@ -97,12 +97,12 @@ public class CheckUserAuth
         await _next(context);
 
         // 트랜잭션 해제(Redis 동기화 해제)
-        await _memoryDb.DelUserRequestLockAsync(accountId.ToString());
+        await _memoryDb.AuthManager.DelUserRequestLockAsync(accountId.ToString());
     }
 
     async Task<bool> SetLockAndIsFailThenSendError(HttpContext context, int accountId)
     {
-        if (await _memoryDb.SetUserRequestLockAsync(accountId.ToString()))
+        if (await _memoryDb.AuthManager.SetUserRequestLockAsync(accountId.ToString()))
         {
             return false;
         }
