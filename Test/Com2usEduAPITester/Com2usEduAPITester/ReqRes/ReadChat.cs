@@ -10,7 +10,7 @@ public class ReadChatRequest
 	[Required] 
 	public int LobbyNumber { get; set; }
 	[Required]
-	public int ChatIndex { get; set; }
+	public long LastChatIndex { get; set; }
 }
 
 public class ReadChatResponse

@@ -24,7 +24,7 @@ namespace Com2usEduAPITester.TabControls
             InitializeComponent();
         }
 
-        public void Refresh()
+        public void RefreshData()
         {
             LoadEnforceItemList();
         }

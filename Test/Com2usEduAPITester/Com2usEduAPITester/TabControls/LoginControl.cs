@@ -19,12 +19,16 @@ namespace Com2usEduAPITester
         private TextBox tbPlayerId;
         private TextBox tbAccountId;
         private TextBox tbAuthToken;
-        public LoginControl(TextBox tbPlayerId, TextBox tbAccountId, TextBox tbAuthToken)
+        private Action showTabs;
+        public string Nickname { get; private set; } = "";
+
+        public LoginControl(TextBox tbPlayerId, TextBox tbAccountId, TextBox tbAuthToken, Action showTabs)
         {
             InitializeComponent();
             this.tbPlayerId = tbPlayerId;
             this.tbAccountId = tbAccountId;
             this.tbAuthToken = tbAuthToken;
+            this.showTabs = showTabs;
         }
 
 
@@ -71,6 +75,10 @@ namespace Com2usEduAPITester
             tbPlayerId.Text = loginResponse.Player.Id.ToString();
             tbAccountId.Text = loginResponse.AccountId.ToString();
             tbAuthToken.Text = loginResponse.AuthToken;
+
+            Nickname = tbID.Text;
+
+            showTabs();
         }
     }
 }

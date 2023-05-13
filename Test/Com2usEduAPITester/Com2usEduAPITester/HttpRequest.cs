@@ -35,7 +35,7 @@ internal class HttpRequest
 
     public class CommonResponse
     {
-        public ErrorCode Result { get; }
+        public ErrorCode Result { get; set; }
     }
 
     public static void Init(string masterDataVersion, string clientVersion, TextBox tbRequest, TextBox tbResponse)
@@ -107,7 +107,7 @@ internal class HttpRequest
             }
             else
             {
-                s_tbResponse.Text = response.StatusCode.ToString();
+                s_tbResponse.Text = "Http Fail Status : "+ response.StatusCode.ToString();
                 return null;
             }
         }
