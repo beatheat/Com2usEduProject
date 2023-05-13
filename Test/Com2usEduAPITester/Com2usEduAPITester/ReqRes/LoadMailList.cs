@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
 using Com2usEduAPITester.Game;
 
 namespace Com2usEduAPITester.ReqRes;

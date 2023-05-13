@@ -1,8 +1,8 @@
-﻿using Com2usEduAPITester.Game;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Com2usEduAPITester;
+using Com2usEduAPITester.Game;
 
 namespace Com2usEduAPITester.ReqRes;
-
 
 public enum EnforceState
 {
@@ -14,18 +14,17 @@ public enum EnforceState
 
 public class EnforcePlayerItemRequest
 {
-    [Required]
-    public int PlayerId { get; set; }
-    [Required]
-    public int PlayerItemId { get; set; }
-
+	[Required]
+	public int PlayerId { get; set; }
+	[Required]
+	public int PlayerItemId { get; set; }
+	
 }
 
 public class EnforcePlayerItemResponse
 {
-	public ErrorCode Result { get; set; } = ErrorCode.None; 
+	[Required] public ErrorCode Result { get; set; } = ErrorCode.None; 
 	public EnforceState EnforceState { get; set; }
-
 	public PlayerItem EnforcedItem { get; set; }
 
 }

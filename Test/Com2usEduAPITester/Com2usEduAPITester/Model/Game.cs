@@ -33,15 +33,17 @@ public class Mail
 
     // 메일 내부 정보
     public string Content { get; set; }
+
+    public int ItemCode1 { get; set; }
+    public int ItemCount1 { get; set; }
+    public int ItemCode2 { get; set; } 
+    public int ItemCount2 { get; set; }
+    public int ItemCode3 { get; set; } 
+    public int ItemCount3 { get; set; } 
+    public int ItemCode4 { get; set; } 
+    public int ItemCount4 { get; set; }
 }
 
-public class MailItem
-{
-    public int Id { get; set; }
-    public int MailId { get; set; }
-    public int ItemCode { get; set; }
-    public int ItemCount { get; set; }
-}
 
 public class Bill
 {
