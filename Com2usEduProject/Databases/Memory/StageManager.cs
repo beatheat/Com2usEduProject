@@ -57,7 +57,7 @@ public class StageManager
 		try
 		{
 			var redis = new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, keyTimeSpan);
-			if (await redis.SetAsync(stageInfo, keyTimeSpan/*, When.Exists*/) == false)
+			if (await redis.SetAsync(stageInfo, keyTimeSpan, When.Exists) == false)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError],
 					new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = stageInfo},
@@ -99,20 +99,25 @@ public class StageManager
 		}
 	}
 	
-	public async Task<ErrorCode> ExitStageAsync(int playerId)
+	public async Task<(ErrorCode,PlayerStageInfo)> ExitAndGetStageInfoAsync(int playerId)
 	{
 		var keyTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.StageKeyExpireMin);
 		try
 		{
 			var redis = new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, null);
+			var stageInfo = await redis.GetAsync();
 			await redis.DeleteAsync();
-			return ErrorCode.None;
+			if (!stageInfo.HasValue)
+			{
+				return (ErrorCode.RedisKeyNotFound, new PlayerStageInfo());
+			}
+			return (ErrorCode.None, stageInfo.Value);
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ExitStageError], e,
-				new {ErrorCode = ErrorCode.RedisFailException}, $"Redis Delete Fail");           
-			return ErrorCode.RedisFailException;
+				new {ErrorCode = ErrorCode.RedisFailException}, $"Redis Get/Delete Fail");           
+			return (ErrorCode.RedisFailException, new PlayerStageInfo());
 		}
 	}
 

@@ -30,11 +30,11 @@ public class CompleteStage
 	{
 		var response = new CompleteStageResponse();
 
-		// 플레이어 스테이지 정보 로드
-		var (errorCode, stageInfo) = await _memoryDb.StageManager.GetPlayerStageInfoAsync(request.PlayerId);
+		// 플레이어 스테이지 정보 로드 및 종료
+		var (errorCode,stageInfo) = await _memoryDb.StageManager.ExitAndGetStageInfoAsync(request.PlayerId);
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Get Player Stage Info Fail");
+			LogError(errorCode, request, "Exit Stage Fail");
 			response.Result = errorCode;
 			return response;
 		}
@@ -52,7 +52,7 @@ public class CompleteStage
 			}
 		}
 
-		// 스테이지 완료 정보 삽입
+		// 플레이어가 완료한 스테이지 추가
 		errorCode = await _gameDb.PlayerCompletedStageTable.InsertAsync(request.PlayerId, stageInfo.StageCode);
 		if (errorCode is not ErrorCode.PlayerCompletedStageInsertDuplicate and not ErrorCode.None)
 		{
@@ -60,19 +60,10 @@ public class CompleteStage
 			response.Result = errorCode;
 			return response;
 		}
-		
-		// 스테이지 종료
-		errorCode = await _memoryDb.StageManager.ExitStageAsync(request.PlayerId);
-		if (errorCode != ErrorCode.None)
-		{
-			LogError(errorCode, request, "Exit Stage Fail");
-			response.Result = errorCode;
-			return response;
-		}
-		
+
 
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICompleteStage], 
-			new {PlayerId = request.PlayerId}, "Complete Stage Success");
+			new {PlayerId = request.PlayerId, IsStageClear = response.IsStageCleared}, "Complete Stage Success");
 		return response;
 	}
 
@@ -101,11 +92,20 @@ public class CompleteStage
 
 	private List<ItemBundle> CreateRewardItemList(PlayerStageInfo stageInfo)
 	{
+		var (_, stageItems) = _masterDb.GetStageItem(stageInfo.StageCode);
 		var itemBundles = new List<ItemBundle>();
 		foreach (var farmedItem in stageInfo.FarmedStageItemCounts)
 		{
 			var itemCode = farmedItem.Key;
 			var itemCount = farmedItem.Value;
+			if (itemCount == 0) 
+				continue;
+			// 아이템 수량이 최대치를 넘어설 경우 최대치값으로 고정(정책)
+			var itemInfo = stageItems.Find(x => x.ItemCode == itemCode);
+			if (itemCount > itemInfo.MaxItemCount)
+			{
+				itemCount = itemInfo.MaxItemCount;
+			}
 			itemBundles.Add(new ItemBundle {ItemCode = itemCode, ItemCount = itemCount});
 		}
 		return itemBundles;

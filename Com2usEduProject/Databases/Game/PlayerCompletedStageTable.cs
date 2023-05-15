@@ -39,8 +39,6 @@ public class PlayerCompletedStageTable
 		{
 			if (e.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 			{
-				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerCompletedStageSelectError], e,
-					new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerCompletedStageInsertDuplicate}, "Insert Player CompletedStage Duplicate");
 				return ErrorCode.PlayerCompletedStageInsertDuplicate;
 			}
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerCompletedStageInsertError], e,

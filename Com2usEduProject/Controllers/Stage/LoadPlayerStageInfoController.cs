@@ -48,8 +48,13 @@ public class LoadPlayerStageInfo
 	{
 		List<int> accessibleStages = new List<int>();
 		int latestClearStage = 0;
+		
 		if (completedStages.Count > 0)
 			latestClearStage = completedStages.Max();
+		
+		if (latestClearStage == MAX_STAGE_CODE)
+			latestClearStage = MAX_STAGE_CODE - 1;
+		
 		for (int i = 1; i <= latestClearStage + 1; i++)
 		{
 			accessibleStages.Add(i);

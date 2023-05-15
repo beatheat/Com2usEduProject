@@ -45,7 +45,7 @@ public class FarmStageItem
 		}
 
 		// 파밍한 아이템 스테이지 정보에 추가
-		playerStageInfo.FarmedStageItemCounts[request.ItemCode]++;
+		playerStageInfo.FarmedStageItemCounts[request.ItemCode] += request.ItemCount;
 		errorCode = await _memoryDb.StageManager.UpdatePlayerStageInfoAsync(request.PlayerId, playerStageInfo);
 		if (errorCode != ErrorCode.None)
 		{
