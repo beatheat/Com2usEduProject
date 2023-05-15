@@ -3,7 +3,7 @@ using Com2usEduProject.ModelDB;
 
 namespace Com2usEduProject.Databases;
 
-public interface IGameDb
+public interface IGameDb : IDisposable
 {
 	public PlayerTable PlayerTable { get; }
 	public PlayerAttendanceTable PlayerAttendanceTable { get; }
