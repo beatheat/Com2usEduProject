@@ -18,10 +18,9 @@ public class PlayerAttendanceTable
 	
 	public async Task<(ErrorCode, int)> CreateAsync(int playerId)
 	{
-		var attendance = new PlayerAttendance {PlayerId = playerId};
 		try
 		{
-			var playerAttendanceId = await _queryFactory.Query("PlayerAttendance").InsertGetIdAsync<int>(attendance);
+			var playerAttendanceId = await _queryFactory.Query("PlayerAttendance").InsertGetIdAsync<int>(new {PlayerId = playerId});
 			return (ErrorCode.None, playerAttendanceId);
 		}
 		catch (Exception e)

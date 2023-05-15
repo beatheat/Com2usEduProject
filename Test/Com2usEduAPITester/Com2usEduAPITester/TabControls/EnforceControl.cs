@@ -39,22 +39,21 @@ namespace Com2usEduAPITester.TabControls
                 PlayerItemId = itemId
             };
 
-            var response = await HttpRequest.PostAuth("EnforcePlayerItem", request);
+            var response = await HttpRequest.PostAuth<EnforcePlayerItemResponse>("EnforcePlayerItem", request);
 
             if (response == null) return;
 
-            var enforcePlayerItemResponse = JsonSerializer.Deserialize<EnforcePlayerItemResponse>(response);
 
-            if (enforcePlayerItemResponse.Result != ErrorCode.None)
+            if (response.Result != ErrorCode.None)
             {
                 MessageBox.Show("에러!");
             }
             else
             {
-                var enforceState = enforcePlayerItemResponse.EnforceState;
+                var enforceState = response.EnforceState;
                 if (enforceState == EnforceState.Success)
                 {
-                    var item = enforcePlayerItemResponse.EnforcedItem;
+                    var item = response.EnforcedItem;
 
                     tbEnforceResult.Text += item.Id + "\r\n";
                     tbEnforceResult.Text += $"이름: {MasterData.ItemName[item.ItemCode]}\r\n";
@@ -83,11 +82,10 @@ namespace Com2usEduAPITester.TabControls
         {
             var request = new LoadPlayerItemRequest();
 
-            var response = await HttpRequest.PostAuth("LoadPlayerItem", request);
+            var response = await HttpRequest.PostAuth<LoadPlayerItemResponse>("LoadPlayerItem", request);
             if (response == null) return;
 
-            var loadPlayerItemResponse = JsonSerializer.Deserialize<LoadPlayerItemResponse>(response);
-            var playerItems = loadPlayerItemResponse.PlayerItems;
+            var playerItems = response.PlayerItems;
 
             tbEnforceDetail.Text = "";
             tbEnforceResult.Text = "";

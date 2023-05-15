@@ -43,12 +43,11 @@ namespace Com2usEduAPITester.TabControls
                 ShopCode = shopCode
             };
 
-            var response = await HttpRequest.PostAuth("ReceiveInAppPurchaseItem", request);
+            var response = await HttpRequest.PostAuth<ReceiveAttendanceRewardResponse>("ReceiveInAppPurchaseItem", request);
             if (response == null) return;
 
-            var receiveInAppPurchaseItemResponse = JsonSerializer.Deserialize<ReceiveInAppPurchaseItemResponse>(response);
 
-            if (receiveInAppPurchaseItemResponse.Result == ErrorCode.None)
+            if (response.Result == ErrorCode.None)
             {
                 MessageBox.Show("구매완료! 우편함에서 아이템을 확인하세요");
             }

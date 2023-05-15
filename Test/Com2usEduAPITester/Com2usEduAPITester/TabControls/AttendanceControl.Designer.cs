@@ -29,11 +29,14 @@
         private void InitializeComponent()
         {
             this.btnAttend = new System.Windows.Forms.Button();
+            this.lbxAttendanceReward = new System.Windows.Forms.ListBox();
+            this.lbLastAttendanceDateIndicator = new System.Windows.Forms.Label();
+            this.lbLastAttendanceDate = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnAttend
             // 
-            this.btnAttend.Location = new System.Drawing.Point(542, 16);
+            this.btnAttend.Location = new System.Drawing.Point(886, 14);
             this.btnAttend.Name = "btnAttend";
             this.btnAttend.Size = new System.Drawing.Size(94, 29);
             this.btnAttend.TabIndex = 1;
@@ -41,19 +44,53 @@
             this.btnAttend.UseVisualStyleBackColor = true;
             this.btnAttend.Click += new System.EventHandler(this.btnAttend_Click);
             // 
+            // lbxAttendanceReward
+            // 
+            this.lbxAttendanceReward.FormattingEnabled = true;
+            this.lbxAttendanceReward.ItemHeight = 20;
+            this.lbxAttendanceReward.Location = new System.Drawing.Point(17, 14);
+            this.lbxAttendanceReward.Name = "lbxAttendanceReward";
+            this.lbxAttendanceReward.Size = new System.Drawing.Size(847, 304);
+            this.lbxAttendanceReward.TabIndex = 2;
+            // 
+            // lbLastAttendanceDateIndicator
+            // 
+            this.lbLastAttendanceDateIndicator.AutoSize = true;
+            this.lbLastAttendanceDateIndicator.Location = new System.Drawing.Point(876, 70);
+            this.lbLastAttendanceDateIndicator.Name = "lbLastAttendanceDateIndicator";
+            this.lbLastAttendanceDateIndicator.Size = new System.Drawing.Size(104, 20);
+            this.lbLastAttendanceDateIndicator.TabIndex = 3;
+            this.lbLastAttendanceDateIndicator.Text = "마지막 출석일";
+            // 
+            // lbLastAttendanceDate
+            // 
+            this.lbLastAttendanceDate.AutoSize = true;
+            this.lbLastAttendanceDate.Location = new System.Drawing.Point(876, 102);
+            this.lbLastAttendanceDate.Name = "lbLastAttendanceDate";
+            this.lbLastAttendanceDate.Size = new System.Drawing.Size(15, 20);
+            this.lbLastAttendanceDate.TabIndex = 4;
+            this.lbLastAttendanceDate.Text = "-";
+            // 
             // AttendanceControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lbLastAttendanceDate);
+            this.Controls.Add(this.lbLastAttendanceDateIndicator);
+            this.Controls.Add(this.lbxAttendanceReward);
             this.Controls.Add(this.btnAttend);
             this.Name = "AttendanceControl";
             this.Size = new System.Drawing.Size(998, 330);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private Button btnAttend;
+        private ListBox lbxAttendanceReward;
+        private Label lbLastAttendanceDateIndicator;
+        private Label lbLastAttendanceDate;
     }
 }

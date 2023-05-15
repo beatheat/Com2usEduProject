@@ -19,14 +19,13 @@ public class PlayerCompletedStageTable
 
 	public async Task<ErrorCode> InsertAsync(int playerId, int stageCode)
 	{
-		var playerCompletedStage = new PlayerCompletedStage
-		{
-			PlayerId = playerId,
-			StageCode = stageCode
-		};
 		try
 		{
-			var count = await _queryFactory.Query("PlayerCompletedStage").InsertAsync(playerCompletedStage);
+			var count = await _queryFactory.Query("PlayerCompletedStage").InsertAsync(new
+			{
+				PlayerId = playerId,
+				StageCode = stageCode
+			});
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerCompletedStageInsertError], 

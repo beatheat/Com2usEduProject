@@ -61,13 +61,12 @@ namespace Com2usEduAPITester
                 MailId = mailId
             };
 
-            var response = await HttpRequest.PostAuth("ReceiveMailItem", request);
+            var response = await HttpRequest.PostAuth<ReceiveAttendanceRewardResponse>("ReceiveMailItem", request);
 
             if (response == null)
                 return;
 
-            var receiveMailItemResponse = JsonSerializer.Deserialize<ReceiveMailItemResponse>(response);
-            if (receiveMailItemResponse.Result == ErrorCode.None)
+            if (response.Result == ErrorCode.None)
             {
                 MessageBox.Show("수령완료");
             }
@@ -85,14 +84,12 @@ namespace Com2usEduAPITester
             {
                 MailId = mailId
             };
-            var response = await HttpRequest.PostAuth("LoadMail", request);
+            var response = await HttpRequest.PostAuth<LoadMailResponse>("LoadMail", request);
 
             if (response == null)
                 return;
 
-            var loadMailResponse = JsonSerializer.Deserialize<LoadMailResponse>(response);
-
-            var mail = loadMailResponse.Mail;
+            var mail = response.Mail;
 
             tbMailDetail.Text = mailId + "\r\n";
             tbMailDetail.Text += "제목 : " + mail.Name + "\r\n";
@@ -114,19 +111,18 @@ namespace Com2usEduAPITester
             {
                 PageNo = pageNo
             };
-            var response = await HttpRequest.PostAuth("LoadMailList", request);
+            var response = await HttpRequest.PostAuth<LoadMailListResponse>("LoadMailList", request);
             if (response == null)
             {
                 return;
             }
 
-            var mailListResponse = JsonSerializer.Deserialize<LoadMailListResponse>(response);
 
-            _maxMailBoxPageNo = mailListResponse.TotalPageCount;
-            lbMailBoxPageNo.Text = pageNo + " / " + mailListResponse.TotalPageCount.ToString();
+            _maxMailBoxPageNo = response.TotalPageCount;
+            lbMailBoxPageNo.Text = pageNo + " / " + response.TotalPageCount.ToString();
 
             lbxMailBox.Items.Clear();
-            foreach (var mail in mailListResponse.MailList)
+            foreach (var mail in response.MailList)
             {
                 var item = "";
                 item += mail.Id + ":\t";

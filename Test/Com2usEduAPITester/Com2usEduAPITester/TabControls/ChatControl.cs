@@ -48,19 +48,18 @@ namespace Com2usEduAPITester.TabControls
             {
                 LobbyNumber = int.Parse(cbChannel.SelectedItem.ToString())
             };
-            var response = await HttpRequest.PostAuth("EnterChatLobby", request);
+            var response = await HttpRequest.PostAuth<EnterChatLobbyResponse>("EnterChatLobby", request);
 
             if (response == null) return;
 
-            var enterChatLobbyReponse = JsonSerializer.Deserialize<EnterChatLobbyResponse>(response);
-
+  
             tbChatViewer.Text = "";
-            foreach(var chat in enterChatLobbyReponse.ChatHistory)
+            foreach(var chat in response.ChatHistory)
             {
                 ShowChat(chat);
             }
-            if (enterChatLobbyReponse.ChatHistory.Count != 0)
-                lastChatIndex = enterChatLobbyReponse.ChatHistory.Last().Index;
+            if (response.ChatHistory.Count != 0)
+                lastChatIndex = response.ChatHistory.Last().Index;
             else
                 lastChatIndex = -1;
         }
@@ -81,7 +80,7 @@ namespace Com2usEduAPITester.TabControls
                 Chat = tbUserChat.Text
             };
             tbUserChat.Text = "";
-            var response = await HttpRequest.PostAuth("WriteChat", request);
+            var response = await HttpRequest.PostAuth<WriteChatResponse>("WriteChat", request);
             ReadChat();
         }
 
@@ -113,18 +112,16 @@ namespace Com2usEduAPITester.TabControls
                 LobbyNumber = int.Parse(cbChannel.SelectedItem.ToString()),
                 LastChatIndex = lastChatIndex
             };
-            var response = await HttpRequest.PostAuth("ReadChat", request);
+            var response = await HttpRequest.PostAuth<ReadChatResponse>("ReadChat", request);
 
             if (response == null) return;
 
-            var readChatResponse = JsonSerializer.Deserialize<ReadChatResponse>(response);
-
-            foreach (var chat in readChatResponse.Chats)
+            foreach (var chat in response.Chats)
             {
                 ShowChat(chat);
             }
-            if (readChatResponse.Chats.Count != 0)
-                lastChatIndex = readChatResponse.Chats.Last().Index;
+            if (response.Chats.Count != 0)
+                lastChatIndex = response.Chats.Last().Index;
         }
 
         private void cbChannel_SelectionChangeCommitted(object sender, EventArgs e)

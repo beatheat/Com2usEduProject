@@ -36,11 +36,10 @@ namespace Com2usEduAPITester.TabControls
         {
             var loadPlayerRequest = new LoadPlayerRequest();
 
-            var response = await HttpRequest.PostAuth("LoadPlayer", loadPlayerRequest);
-            if (response == null) return;
+            var responsePlayer = await HttpRequest.PostAuth<LoadPlayerResponse>("LoadPlayer", loadPlayerRequest);
+            if (responsePlayer == null) return;
 
-            var loadPlayerResponse = JsonSerializer.Deserialize<LoadPlayerResponse>(response);
-            var player = loadPlayerResponse.Player;
+            var player = responsePlayer.Player;
 
             tbPlayerInfo.Text = "";
 
@@ -55,11 +54,10 @@ namespace Com2usEduAPITester.TabControls
 
             var loadPlayerItemRequest = new LoadPlayerItemRequest();
 
-            response = await HttpRequest.PostAuth("LoadPlayerItem", loadPlayerItemRequest);
-            if (response == null) return;
+            var responsePlayerItem = await HttpRequest.PostAuth<LoadPlayerItemResponse>("LoadPlayerItem", loadPlayerItemRequest);
+            if (responsePlayerItem == null) return;
 
-            var loadPlayerItemResponse = JsonSerializer.Deserialize<LoadPlayerItemResponse>(response);
-            var playerItems = loadPlayerItemResponse.PlayerItems;
+            var playerItems = responsePlayerItem.PlayerItems;
 
             tbPlayerItemInfo.Text = "";
             foreach (var item in playerItems)

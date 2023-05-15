@@ -34,12 +34,11 @@ namespace Com2usEduAPITester.TabControls
         private async void LoadPlayerStageInfo()
         {
             var request = new LoadPlayerStageInfoRequest();
-            var response = await HttpRequest.PostAuth("LoadPlayerStageInfo", request);
+            var response = await HttpRequest.PostAuth<LoadPlayerStageInfoResponse>("LoadPlayerStageInfo", request);
             if (response == null) return;
-            var loadPlayerStageInfoResponse = JsonSerializer.Deserialize<LoadPlayerStageInfoResponse>(response);
-            var maxStageCode = loadPlayerStageInfoResponse.MaxStageCode;
-            var completedStages = loadPlayerStageInfoResponse.CompletedStages.ToList();
-            _accessibleStages = loadPlayerStageInfoResponse.AccessibleStages.ToList();
+            var maxStageCode = response.MaxStageCode;
+            var completedStages = response.CompletedStages.ToList();
+            _accessibleStages = response.AccessibleStages.ToList();
 
             lbxStageList.Items.Clear();
 
@@ -77,28 +76,26 @@ namespace Com2usEduAPITester.TabControls
             {
                 StageCode = _selectedStageCode
             };
-            var response = await HttpRequest.PostAuth("EnterStage", enterStageRequest);
-            if (response == null)
+            var responseEnter = await HttpRequest.PostAuth<EnterStageResponse>("EnterStage", enterStageRequest);
+            if (responseEnter == null)
             {
                 btnAutoGame.Enabled = true;
                 return;
             }
-            var enterStageResponse = JsonSerializer.Deserialize<EnterStageResponse>(response);
            
 
-            var (itemString, expString) = await Game(enterStageResponse.StageItems, enterStageResponse.StageNpcs);
+            var (itemString, expString) = await Game(responseEnter.StageItems, responseEnter.StageNpcs);
 
             var completeStageRequest = new CompleteStageRequest();
-            response = await HttpRequest.PostAuth("CompleteStage", enterStageRequest);
-            if (response == null)
+            var responseComplete = await HttpRequest.PostAuth<CompleteStageResponse>("CompleteStage", enterStageRequest);
+            if (responseComplete == null)
             {
                 btnAutoGame.Enabled = true;
                 return;
             }
-            var completeStageResponse = JsonSerializer.Deserialize<CompleteStageResponse>(response);
 
-            string message = completeStageResponse.IsStageCleared ? "스테이지 성공\r\n" : "스테이지 실패\r\n";
-            if(completeStageResponse.IsStageCleared)
+            string message = responseComplete.IsStageCleared ? "스테이지 성공\r\n" : "스테이지 실패\r\n";
+            if(responseComplete.IsStageCleared)
             {
                 message += "--획득 경험치--\r\n";
                 message += expString + "\r\n";
@@ -130,10 +127,9 @@ namespace Com2usEduAPITester.TabControls
                         ItemCode = farmItem.ItemCode,
                         ItemCount = farmItem.ItemCount
                     };
-                    var response = await HttpRequest.PostAuth("FarmStageItem", request);
+                    var response = await HttpRequest.PostAuth<FarmStageItemResponse>("FarmStageItem", request);
                     if (response == null)
                     {
-                        MessageBox.Show(farmItem.ItemCode + ", " + farmItem.ItemCount);
                         return;
                     }
                     lock (this)
@@ -157,7 +153,7 @@ namespace Com2usEduAPITester.TabControls
                         {
                             NpcCode = farmNpc.Code
                         };
-                        var response = await HttpRequest.PostAuth("FarmStageNpc", request);
+                        var response = await HttpRequest.PostAuth<FarmStageItemResponse>("FarmStageNpc", request);
                         if (response == null)
                             return;
                         lock (this)

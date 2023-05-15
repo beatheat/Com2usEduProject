@@ -100,7 +100,7 @@ internal class HttpRequest
                 if (commonResponse.Result != ErrorCode.None)
                 {
                     s_tbResponse.Text = "ErrorCode : " + commonResponse.Result.ToString();
-                    return null;
+                    return responseString;
                 }
 
                 return responseString;
@@ -114,7 +114,7 @@ internal class HttpRequest
 
 
     }
-    public static async Task<string?> PostAuth(string apiName, object jsonBody)
+    public static async Task<T?> PostAuth<T>(string apiName, object jsonBody)
     {
 
         var jsonString = JsonSerializer.Serialize(jsonBody);
@@ -133,8 +133,12 @@ internal class HttpRequest
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(encoderSettings),
             WriteIndented = true,
         });
-
-        return await Post(apiName, jsonString);
-
+        jsonString = await Post(apiName, jsonString);
+        if (jsonString == null)
+            return default(T);
+        
+        var response = JsonSerializer.Deserialize<T>(jsonString);
+        return response;
     }
+
 }

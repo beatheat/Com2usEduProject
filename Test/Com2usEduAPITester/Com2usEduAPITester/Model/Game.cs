@@ -26,6 +26,14 @@ public class PlayerItem
     public int Count { get; set; }
 }
 
+public class PlayerAttendance
+{
+    public int PlayerId { get; set; }
+    public int ContinuousAttendanceDays { get; set; }
+    public DateTime LastAttendanceDate { get; set; }
+}
+
+
 public class Mail
 {
     // 메일 외부 정보

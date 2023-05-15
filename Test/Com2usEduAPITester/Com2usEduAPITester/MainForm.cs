@@ -100,6 +100,9 @@ namespace Com2usEduAPITester
                 case "플레이어 정보":
                     _playerInfoControl.RefreshData();
                     break;
+                case "출석부":
+                    _attendanceControl.RefreshData();
+                    break;
                 case "강화":
                     _enforceControl.RefreshData();
                     break;

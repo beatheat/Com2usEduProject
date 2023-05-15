@@ -76,6 +76,10 @@ public enum EventType
 	APILoadCompletedStageList = 10181,
 	APILoadCompletedStageListError = 10182,
 	
+	//LoadAttendanceInfoController 10190 ~ ---------------
+	APILoadAttendanceInfo = 10901,
+	APILoadAttendanceInfoError = 10902,
+	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
 	AccountDbConnectionError = 20001,
