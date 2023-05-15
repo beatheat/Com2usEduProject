@@ -40,6 +40,19 @@ public enum ErrorCode : UInt16
     
     // LoadPlayer 20100 ~
     
+    //CompleteStage 20110 ~
+    
+    //FarmStageNpc 20120 ~
+    FarmStageNpcInfoNotExist = 20120,
+    FarmStageNpcInvalidNpc = 20121,
+    //EnterStage 20130 ~
+    EnterStageDuplicate = 20130,
+    UnknownStageCode = 20131,
+    //FarmStage 20140 ~
+    FarmStageItemInfoUpdateFail = 20140,
+    FarmStageItemInvalidItem = 20141,
+    //LoadCompleteStageList 20150 ~ 
+    
     
     // AccountDb 30000 ~ =========================================
     AccountDbConnectionFail = 30001,
@@ -105,7 +118,25 @@ public enum ErrorCode : UInt16
     BillDeleteFailException = 30406,
     BillDeleteFail = 30407,
 
-
+    //GameDb.PlayerAttendanceTable 30600 ~
+    PlayerAttendanceInsertFailException = 30601,
+    PlayerAttendanceInsertFail = 30602,
+    PlayerAttendanceSelectFailException = 30603,
+    PlayerAttendanceUpdateFailException = 30604,
+    PlayerAttendanceUpdateFail = 30605,
+    PlayerAttendanceDeleteFailException = 30606,
+    PlayerAttendanceDeleteFail = 30607,
+    
+    //GameDb.PlayerCompletedStageTable 30700 ~
+    PlayerCompletedStageInsertFailException = 30701,
+    PlayerCompletedStageInsertFail = 30702,
+    PlayerCompletedStageSelectFailException = 30703,
+    PlayerCompletedStageUpdateFailException = 30704,
+    PlayerCompletedStageUpdateFail = 30705,
+    PlayerCompletedStageDeleteFailException = 30706,
+    PlayerCompletedStageDeleteFail = 30707,
+    PlayerCompletedStageInsertDuplicate = 30710,
+    
     //MasterDb 40000~ =====================================================
     UnknownCode = 40001,
     UnknownItemCode = 40002,
@@ -126,4 +157,6 @@ public enum ErrorCode : UInt16
     NoticeManager = 50201,
     //ChatManager 50300 ~ --------------------------------------------------
     ChatLobbyOutOfIndex = 50301,
+    //StageManager 50400 ~ -------------------------------------------------
+    
 }

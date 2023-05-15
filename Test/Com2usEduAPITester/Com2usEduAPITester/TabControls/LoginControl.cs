@@ -69,10 +69,10 @@ namespace Com2usEduAPITester
 
             tbNotice.Text = loginResponse.Notice;
 
-            HttpRequest.SetAuth(loginResponse.AccountId, loginResponse.Player.Id, loginResponse.AuthToken);
+            HttpRequest.SetAuth(loginResponse.AccountId, loginResponse.PlayerId, loginResponse.AuthToken);
 
 
-            tbPlayerId.Text = loginResponse.Player.Id.ToString();
+            tbPlayerId.Text = loginResponse.PlayerId.ToString();
             tbAccountId.Text = loginResponse.AccountId.ToString();
             tbAuthToken.Text = loginResponse.AuthToken;
 

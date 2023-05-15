@@ -11,7 +11,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using static Com2usEduAPITester.MasterData.MasterData;
 
 namespace Com2usEduAPITester.TabControls
 {
@@ -58,7 +57,7 @@ namespace Com2usEduAPITester.TabControls
                     var item = enforcePlayerItemResponse.EnforcedItem;
 
                     tbEnforceResult.Text += item.Id + "\r\n";
-                    tbEnforceResult.Text += $"이름: {ItemName[item.ItemCode]}\r\n";
+                    tbEnforceResult.Text += $"이름: {MasterData.ItemName[item.ItemCode]}\r\n";
                     tbEnforceResult.Text += $"수량: {item.Count}\r\n";
                     tbEnforceResult.Text += $"공격력: {item.Attack}\r\n";
                     tbEnforceResult.Text += $"방어력: {item.Defence}\r\n";
@@ -95,7 +94,7 @@ namespace Com2usEduAPITester.TabControls
             foreach (var item in playerItems)
             {
                 _enforceItemList.Add(item);
-                lbxEnforcePlayerItem.Items.Add($"{item.Id}: " + ItemName[item.ItemCode]);
+                lbxEnforcePlayerItem.Items.Add($"{item.Id}: " + MasterData.ItemName[item.ItemCode]);
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using CloudStructures;
 using CloudStructures.Structures;
-using Com2usEduProject.DBSchema;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using MySqlConnector;
 using SqlKata.Compilers;
@@ -82,7 +82,7 @@ public class MasterDb : IMasterDb
 		return (ErrorCode.UnknownAttendanceRewardDay, new AttendanceReward());
 	}
 
-	public (ErrorCode, IList<ShopItem>) GetShopItem(int shopItemCode)
+	public (ErrorCode, List<ShopItem>) GetShopItem(int shopItemCode)
 	{
 		var selectedShopItems = _shopItemList.Where(x => x.Code == shopItemCode).ToList();
 
@@ -94,7 +94,7 @@ public class MasterDb : IMasterDb
 		return (ErrorCode.None, selectedShopItems);
 	}
 
-	public (ErrorCode,IList<StageItem>) GetStageItem(int stageCode)
+	public (ErrorCode,List<StageItem>) GetStageItem(int stageCode)
 	{
 		var selectedStageItems = _stageItemList.Where(x => x.StageCode == stageCode).ToList();
 
@@ -106,7 +106,7 @@ public class MasterDb : IMasterDb
 		return (ErrorCode.None, selectedStageItems);
 	}
 
-	public (ErrorCode, IList<StageNpc>) GetStageNpc(int stageCode)
+	public (ErrorCode, List<StageNpc>) GetStageNpc(int stageCode)
 	{ 
 		var selectedStageNpcs = _stageNpcList.Where(x => x.StageCode == stageCode).ToList();
 
@@ -118,7 +118,7 @@ public class MasterDb : IMasterDb
 		return (ErrorCode.None, selectedStageNpcs);
 	}
 
-	public IList<InitialPlayerItem> GetInitialPlayerItem()
+	public List<InitialPlayerItem> GetInitialPlayerItem()
 	{
 		return _initialItemList;
 	}

@@ -68,9 +68,7 @@ namespace Com2usEduAPITester.TabControls
 
         private void ShowChat(Chat chat)
         {
-            string line = "";
-            line += chat.PlayerNickname + " : " + chat.Content;
-            tbChatViewer.AppendText(line + "\r\n");
+            tbChatViewer.AppendText(chat.PlayerNickname + " : " + chat.Content + "\r\n");
         }
 
         private async Task WriteChat()

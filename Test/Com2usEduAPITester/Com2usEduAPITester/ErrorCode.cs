@@ -1,5 +1,4 @@
-﻿
-namespace Com2usEduAPITester;
+﻿namespace Com2usEduAPITester;
 
 // 1000 ~ 19999
 public enum ErrorCode : UInt16
@@ -34,11 +33,25 @@ public enum ErrorCode : UInt16
     ReceiveMailItemAlready = 20060,
     // ReceiveInAppPurchaseItem 20070~
     DuplicatedReceiveInAppPurchaseItemRequest = 20070,
-    // ShowPlayerItem 20080 ~
+    // LoadPlayerItem 20080 ~
 
     // EnforcePlayerItem 20090 ~
     EnforcePlayerItemRequestFromNonOwnerPlayer = 20090,
 
+    // LoadPlayer 20100 ~
+
+    //CompleteStage 20110 ~
+
+    //FarmStageNpc 20120 ~
+    FarmStageNpcInfoNotExist = 20120,
+    FarmStageNpcInvalidNpc = 20121,
+    //EnterStage 20130 ~
+    EnterStageDuplicate = 20130,
+    UnknownStageCode = 20131,
+    //FarmStage 20140 ~
+    FarmStageItemInfoUpdateFail = 20140,
+    FarmStageItemInvalidItem = 20141,
+    //LoadCompleteStageList 20150 ~ 
 
 
     // AccountDb 30000 ~ =========================================
@@ -74,10 +87,11 @@ public enum ErrorCode : UInt16
     //GameDb.PlayerItemTable 30200 ~
     PlayerItemInsertFailException = 30201,
     PlayerItemSelectFailException = 30202,
-    PlayerItemUpdateFailException = 30203,
-    PlayerItemUpdateFail = 30204,
-    PlayerItemDeleteFailException = 30205,
-    PlayerItemDeleteFail = 30206,
+    PlayerItemSelectNotExist = 30203,
+    PlayerItemUpdateFailException = 30204,
+    PlayerItemUpdateFail = 30205,
+    PlayerItemDeleteFailException = 30206,
+    PlayerItemDeleteFail = 30207,
 
     //GameDb.MailTable 30300 ~
     MailInsertFailException = 30301,
@@ -104,6 +118,23 @@ public enum ErrorCode : UInt16
     BillDeleteFailException = 30406,
     BillDeleteFail = 30407,
 
+    //GameDb.PlayerAttendanceTable 30600 ~
+    PlayerAttendanceInsertFailException = 30601,
+    PlayerAttendanceInsertFail = 30602,
+    PlayerAttendanceSelectFailException = 30603,
+    PlayerAttendanceUpdateFailException = 30604,
+    PlayerAttendanceUpdateFail = 30605,
+    PlayerAttendanceDeleteFailException = 30606,
+    PlayerAttendanceDeleteFail = 30607,
+
+    //GameDb.PlayerCompletedStageTable 30700 ~
+    PlayerCompletedStageInsertFailException = 30701,
+    PlayerCompletedStageInsertFail = 30702,
+    PlayerCompletedStageSelectFailException = 30703,
+    PlayerCompletedStageUpdateFailException = 30704,
+    PlayerCompletedStageUpdateFail = 30705,
+    PlayerCompletedStageDeleteFailException = 30706,
+    PlayerCompletedStageDeleteFail = 30707,
 
     //MasterDb 40000~ =====================================================
     UnknownCode = 40001,
@@ -115,9 +146,16 @@ public enum ErrorCode : UInt16
 
 
     //RedisDb 50000 ~ ======================================================
-    RedisFailException = 5001,
-    RedisKeyNotFound = 5002,
-    RedisSetDuplicateKey = 5003,
-    RedisGetFailed = 5004,
+    RedisFailException = 50001,
+    RedisKeyNotFound = 50002,
+    RedisSetDuplicateKey = 50003,
+    RedisGetFailed = 50004,
+    //AuthManager 50100 ~ --------------------------------------------------
+
+    //NoticeManager 50200 ~ ------------------------------------------------
+    NoticeManager = 50201,
+    //ChatManager 50300 ~ --------------------------------------------------
+    ChatLobbyOutOfIndex = 50301,
+    //StageManager 50400 ~ -------------------------------------------------
 
 }

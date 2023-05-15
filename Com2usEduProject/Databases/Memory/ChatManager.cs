@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using CloudStructures;
 using CloudStructures.Structures;
-using Com2usEduProject.Chatting;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using ZLogger;
 
@@ -23,21 +23,11 @@ public class ChatManager
 		_logger = logger;
 	}
 
-    public void Init()
+    public async Task<(ErrorCode, IList<Chat>)> LoadChatHistoryAsync(int lobbyNumber)
     {
-        // var redis = new RedisList<Chat>(_redisConnection, CHAT_LOBBY, null);
-    }
-
-    public async Task<(ErrorCode, IList<Chat>)> LoadChatHistory(int lobbyNumber)
-    {
-        if (lobbyNumber is < 1 or > 100)
-        {
-            return (ErrorCode.ChatLobbyOutOfIndex, Array.Empty<Chat>());
-        }
         try
         {
             var redis = new RedisList<Chat>(_redisConnection, CHAT_LOBBY + lobbyNumber, null);
-            var len = await redis.LengthAsync();
             var chatList = await redis.RangeAsync(-CHAT_HISTORY_SIZE, -1);
             return (ErrorCode.None, chatList);
         }
@@ -49,7 +39,7 @@ public class ChatManager
         }
     }
     
-    public async Task<(ErrorCode,IList<Chat>)> LoadChatFromIndex(int lobbyNumber, long index)
+    public async Task<(ErrorCode,IList<Chat>)> LoadChatFromIndexAsync(int lobbyNumber, long index)
     {
         Console.WriteLine("?");
         if (lobbyNumber is < 1 or > 100)
@@ -70,7 +60,7 @@ public class ChatManager
         }
     }
 
-    public async Task<ErrorCode> WriteChat(int lobbyNumber, int playerId, string playerNickname, string content)
+    public async Task<ErrorCode> WriteChatAsync(int lobbyNumber, int playerId, string playerNickname, string content)
     {
         if (lobbyNumber is < 1 or > 100)
         {
@@ -88,8 +78,7 @@ public class ChatManager
         try
         {
             var redis = new RedisList<Chat>(_redisConnection, CHAT_LOBBY + lobbyNumber, null);
-            var len = await redis.LengthAsync();
-            chat.Index = len;
+            chat.Index = await redis.LengthAsync();
             await redis.RightPushAsync(chat);
             return ErrorCode.None;
         }

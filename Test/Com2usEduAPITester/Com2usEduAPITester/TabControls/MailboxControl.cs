@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Com2usEduAPITester.MasterData.MasterData;
 
 namespace Com2usEduAPITester
 {
@@ -105,7 +104,7 @@ namespace Com2usEduAPITester
             foreach (var item in mail.GetItemList())
             {
                 if (item.ItemCode != -1)
-                    tbMailDetail.Text += $"(이름: {ItemName[item.ItemCode]}, 수량: {item.ItemCount}), ";
+                    tbMailDetail.Text += $"(이름: {MasterData.ItemName[item.ItemCode]}, 수량: {item.ItemCount}), ";
             }
         }
 

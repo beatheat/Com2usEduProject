@@ -3,10 +3,7 @@ using System.Threading.Tasks;
 using System;
 using CloudStructures;
 using CloudStructures.Structures;
-using Com2usEduProject.DBSchema;
-using Com2usEduProject.ModelDB;
-using Com2usEduProject.Authorization;
-using Com2usEduProject.Chatting;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using Humanizer;
 using StackExchange.Redis;
@@ -23,6 +20,7 @@ public class RedisDb : IMemoryDb
     public AuthManager AuthManager { get; private set; }
     public NoticeManager NoticeManager { get; private set; }
     public ChatManager ChatManager { get; private set; }
+    public StageManager StageManager { get; private set; }
     
     public void Init(string address)
     {
@@ -33,6 +31,6 @@ public class RedisDb : IMemoryDb
         AuthManager = new AuthManager(_redisConnection,s_logger);
         NoticeManager = new NoticeManager(_redisConnection, s_logger);
         ChatManager = new ChatManager(_redisConnection, s_logger);
-        ChatManager.Init();
+        StageManager = new StageManager(_redisConnection, s_logger);
     }
 }

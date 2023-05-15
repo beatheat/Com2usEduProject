@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using Com2usEduProject.DBSchema;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.ModelDB;
 using Com2usEduProject.Tools;
 using Microsoft.Extensions.Options;
@@ -21,6 +21,8 @@ public class GameDb : IGameDb
 
 
 	public PlayerTable PlayerTable => new (_queryFactory, _logger);
+	public PlayerAttendanceTable PlayerAttendanceTable => new(_queryFactory, _logger);
+	public PlayerCompletedStageTable PlayerCompletedStageTable => new(_queryFactory, _logger);
 	public PlayerItemTable PlayerItemTable => new (_queryFactory, _logger);
 	public MailTable MailTable => new (_queryFactory, _logger);
 	public BillTable BillTable => new (_queryFactory, _logger);

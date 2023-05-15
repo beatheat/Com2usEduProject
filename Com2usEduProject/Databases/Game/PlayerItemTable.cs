@@ -1,4 +1,4 @@
-﻿using Com2usEduProject.DBSchema;
+﻿using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using MySqlConnector;
 using SqlKata.Execution;
@@ -17,17 +17,12 @@ public class PlayerItemTable
 		_logger = logger;
 	}
 	
-
-
 	
 	public async Task<(ErrorCode, int)> InsertAsync(PlayerItem item)
 	{
 		try
 		{
 			var playerItemId = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(item);
-		
-			_logger.ZLogDebug($"[InsertPlayerItem] PlayerId: {item.PlayerId} ItemCode {item.ItemCode} Count {item.Count}");
-
 			return (ErrorCode.None, playerItemId);
 		}
 		catch (Exception e)
@@ -40,32 +35,20 @@ public class PlayerItemTable
 	
 	public async Task<(ErrorCode, int)> InsertAsync(int playerId, Item item, int count)
 	{
-		// 돈일 경우에
-		if (item.Attribute == ItemAttribute.MONEY)
+		PlayerItem playerItem = new PlayerItem
 		{
-			return (await new PlayerTable(_queryFactory, _logger).UpdateAddMoneyAsync(playerId, count), -1);
-		}
-		
+			PlayerId = playerId,
+			ItemCode = item.Code,
+			Count = count,
+			Attack = item.Attack,
+			Defence = item.Defence,
+			Magic = item.Magic,
+			EnhanceCount = 0
+		};
+
 		try
 		{
-			if (item.Consumable)
-			{
-			}
-			PlayerItem playerItem = new PlayerItem
-			{
-				PlayerId = playerId,
-				ItemCode = item.Code,
-				Count = count,
-				Attack = item.Attack,
-				Defence = item.Defence,
-				Magic = item.Magic,
-				EnhanceCount = 0
-			};
-			
 			var playerItemId = await _queryFactory.Query("PlayerItem").InsertGetIdAsync<int>(playerItem);
-		
-			_logger.ZLogDebug($"[InsertPlayerItem] PlayerId: {playerId} ItemCode {item.Code} Count {count}");
-
 			return (ErrorCode.None, playerItemId);
 		}
 		catch (Exception e)
@@ -81,9 +64,6 @@ public class PlayerItemTable
 		try
 		{
 			var playerItem = await _queryFactory.Query("PlayerItem").Where("Id", playerItemId).FirstAsync<PlayerItem>();
-
-			_logger.ZLogDebug($"[SelectPlayerItem] PlayerItemId: {playerItemId}");
-			
 			return (ErrorCode.None, playerItem);
 		}
 		catch (Exception e)
@@ -99,9 +79,6 @@ public class PlayerItemTable
 		try
 		{
 			var playerItems = await _queryFactory.Query("PlayerItem").Where("PlayerId", playerId).GetAsync<PlayerItem>();
-
-			_logger.ZLogDebug($"[SelectPlayerItemList] PlayerId: {playerId}");
-			
 			return (ErrorCode.None, playerItems.ToList());
 		}
 		catch (Exception e)
@@ -124,9 +101,7 @@ public class PlayerItemTable
 			}
 			
 			var playerItem = await query.FirstAsync<PlayerItem>();
-				
-			_logger.ZLogDebug($"[SelectByItemCode] PlayerId: {playerItem.PlayerId}");
-
+			
 			return (ErrorCode.None, playerItem);		
 		}
 
@@ -150,8 +125,6 @@ public class PlayerItemTable
 					new {PlayerItem = playerItem, ErrorCode = ErrorCode.PlayerItemUpdateFail}, "Update PlayerItem Fail");
 			}
 			
-			_logger.ZLogDebug($"[UpdatePlayerItem] PlayerId : {playerItem.PlayerId}, PlayerItemId: {playerItem.Id}");
-			
 			return ErrorCode.None;
 		}
 		catch (Exception e)
@@ -166,7 +139,7 @@ public class PlayerItemTable
 	{
 		try
 		{
-			int count = await _queryFactory.Query("PlayerItem").Where("Id", playerItemId).DeleteAsync();
+			var count = await _queryFactory.Query("PlayerItem").Where("Id", playerItemId).DeleteAsync();
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerItemDeleteError],
@@ -174,7 +147,7 @@ public class PlayerItemTable
 				return ErrorCode.PlayerItemDeleteFail;
 
 			}
-			_logger.ZLogDebug($"[DeletePlayerItem] PlayerItemId: {playerItemId}");
+			
 			return ErrorCode.None;
 		}
 		catch (Exception e)
@@ -190,8 +163,6 @@ public class PlayerItemTable
 		try
 		{
 			await _queryFactory.Query("PlayerItem").Where("PlayerId", playerId).DeleteAsync();
-
-			_logger.ZLogDebug($"[DeletePlayerItem] PlayerItemId: {playerId}");
 			return ErrorCode.None;
 		}
 		catch (Exception e)

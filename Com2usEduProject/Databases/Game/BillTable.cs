@@ -1,4 +1,4 @@
-﻿using Com2usEduProject.DBSchema;
+﻿using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using SqlKata.Execution;
 using ZLogger;
@@ -23,8 +23,6 @@ public class BillTable
 		try
 		{
 			var bill = await _queryFactory.Query("Bill").Where("Token", billToken).FirstAsync<Bill>();
-			
-			_logger.ZLogDebug($"[SelectAsync] BillToken : {billToken}");
 			return (ErrorCode.None, bill);
 		}
 		catch (Exception e)
@@ -40,8 +38,6 @@ public class BillTable
 		try
 		{
 			var billId = await _queryFactory.Query("Bill").InsertGetIdAsync<int>(bill);
-			
-			_logger.ZLogDebug($"[SelectAsync] PlayerId : {bill.PlayerId}, BillToken : {bill.Token}");
 			return (ErrorCode.None, billId);
 		}
 		catch (Exception e)
@@ -65,7 +61,6 @@ public class BillTable
 				return ErrorCode.BillDeleteFail;
 			}
 			
-			_logger.ZLogDebug($"[DeleteAsync] BillId : {billId}");
 			return ErrorCode.None;
 		}
 		catch (Exception e)

@@ -1,4 +1,4 @@
-﻿using Com2usEduProject.DBSchema;
+﻿using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using SqlKata.Execution;
 using ZLogger;
@@ -23,9 +23,6 @@ public class MailTable
 		try
 		{
 			var mailId = await _queryFactory.Query("Mail").InsertGetIdAsync<int>(mail);
-			
-			_logger.ZLogDebug($"[InsertMail] PlayerId: {mail.PlayerId}, MailName : {mail.Name}");
-			
 			return (ErrorCode.None, mailId);
 		}
 		catch (Exception e)
@@ -41,9 +38,6 @@ public class MailTable
 		try
 		{
 			var mail = await _queryFactory.Query("Mail").Where("Id", mailId).FirstAsync<Mail>();
-			
-			_logger.ZLogDebug($"[LoadMail] MailId: {mailId}");
-			
 			return (ErrorCode.None, mail);
 		}
 		catch (Exception e)
@@ -59,11 +53,7 @@ public class MailTable
 	{
 		try
 		{
-			var count = await _queryFactory.Query("Mail").Where("PlayerId", playerId).
-				Where("ExpireDate",">",DateTime.Now).CountAsync<int>();
-
-			_logger.ZLogDebug($"[LoadMailboxPageCount] PlayerId: {playerId}, MailCount : {count}");
-			
+			var count = await _queryFactory.Query("Mail").Where("PlayerId", playerId).Where("ExpireDate",">",DateTime.Now).CountAsync<int>();
 			return (ErrorCode.None, count);
 		}
 		catch (Exception e)
@@ -86,9 +76,6 @@ public class MailTable
 				OrderByDesc("Id","TransmissionDate").
 				Limit(size).Offset(offset).GetAsync<Mail>();
 
-			
-			_logger.ZLogDebug($"[SelectList] PlayerId: {playerId} size : {size}, offset : {offset}");
-			
 			return (ErrorCode.None, mailboxPage.ToList());
 		}
 		catch (Exception e)
@@ -112,9 +99,7 @@ public class MailTable
 					new {MailId = mailId, ErrorCode = ErrorCode.MailUpdateFail}, "Update Mail Failed");
 				return ErrorCode.MailUpdateFail;
 			}
-
-			_logger.ZLogDebug($"[UpdateItemReceivedToTrue] MailId: {mailId}");
-
+			
 			return ErrorCode.None;
 		}
 		catch (Exception e)
@@ -137,9 +122,7 @@ public class MailTable
 					new {MailId = mailId, ErrorCode = ErrorCode.MailDeleteFail}, "Delete Mail Failed");
 				return ErrorCode.MailDeleteFail;
 			}
-
-			_logger.ZLogDebug($"[DeleteAsync] MailId: {mailId}");
-
+			
 			return ErrorCode.None;
 		}
 		catch (Exception e)

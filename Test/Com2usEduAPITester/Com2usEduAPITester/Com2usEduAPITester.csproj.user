@@ -25,5 +25,8 @@
     <Compile Update="TabControls\ShopControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="TabControls\StageControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

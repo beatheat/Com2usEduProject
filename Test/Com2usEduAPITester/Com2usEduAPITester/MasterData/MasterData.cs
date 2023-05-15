@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Com2usEduAPITester.MasterData;
+using Com2usEduAPITester.Model;
+
+namespace Com2usEduAPITester;
 
 public static class MasterData
 {
@@ -12,4 +14,21 @@ public static class MasterData
     {
        "dummy", "돈", "작은 칼" , "도금 칼", "나무 방패" , "보통 모자" , "포션"
     };
+
+    public static List<StageNpc> StageNpcs= new List<StageNpc>();
+
+
+    public static void Init()
+    {
+        StageNpcs.Add(new StageNpc { StageCode = 1, Code = 101, Count = 10, Exp = 10 });
+        StageNpcs.Add(new StageNpc { StageCode = 1, Code = 110, Count = 12, Exp = 15 });
+        StageNpcs.Add(new StageNpc { StageCode = 2, Code = 201, Count = 40, Exp = 20 });
+        StageNpcs.Add(new StageNpc { StageCode = 2, Code = 211, Count = 20, Exp = 35 });
+        StageNpcs.Add(new StageNpc { StageCode = 2, Code = 221, Count = 1, Exp = 50 });
+        StageNpcs.Add(new StageNpc { StageCode = 3, Code = 301, Count = 10, Exp = 25 });
+        StageNpcs.Add(new StageNpc { StageCode = 3, Code = 311, Count = 5, Exp = 40 });
+        StageNpcs.Add(new StageNpc { StageCode = 4, Code = 401, Count = 20, Exp = 35 });
+        StageNpcs.Add(new StageNpc { StageCode = 4, Code = 411, Count = 10, Exp = 45 });
+        StageNpcs.Add(new StageNpc { StageCode = 4, Code = 421, Count = 2, Exp = 80 });
+    }
 }

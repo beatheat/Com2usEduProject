@@ -52,9 +52,29 @@ public enum EventType
 	APIReadChat = 10121,
 	APIReadChatError = 10122,
 	
-	//WriteCaht 10130 ~ ----------------------------------
+	//WriteChat 10130 ~ ----------------------------------
 	APIWriteChat = 10131,
 	APIWriteChatError = 10132,
+	
+	//CompleteStageController 10140 ~ --------------------
+	APICompleteStage = 10141,
+	APICompleteStageError = 10142,
+	
+	//APIDefeatStageNPC 10150 ~ --------------------
+	APIFarmStageNPC = 10151,
+	APIFarmStageNPCError = 10152,
+	
+	//EnterStage 10160 ~ --------------------
+	APIEnterStagee = 10161,
+	APIEnterStageError = 10162,
+	
+	//FarmStageItem 10170 ~ --------------------
+	APIFarmStageItem = 10171,
+	APIFarmStageItemError = 10172,
+	
+	//CompleteStageController 10180 ~ --------------------
+	APILoadCompletedStageList = 10181,
+	APILoadCompletedStageListError = 10182,
 	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
@@ -103,6 +123,18 @@ public enum EventType
 	BillDeleteError = 30520,
 	BillUpdateError = 30530,
 	
+	//GameDB.PlayerAttendanceTable 30600 ~ ---------------
+	PlayerAttendanceInsertError = 30600,
+	PlayerAttendanceSelectError = 30610,
+	PlayerAttendanceDeleteError = 30620,
+	PlayerAttendanceUpdateError = 30630,
+	
+	//GameDB.PlayerCompletedStageTable 30700 ~ ---------------
+	PlayerCompletedStageInsertError = 30700,
+	PlayerCompletedStageSelectError = 30710,
+	PlayerCompletedStageDeleteError = 30720,
+	PlayerCompletedStageUpdateError = 30730,
+
 	// MasterDB 40000~ ===================================
 	MasterDbError = 40000,
 	MasterDbConnectionError = 40001,
@@ -121,4 +153,12 @@ public enum EventType
 	LoadChatHistoryError = 50101,
 	LoadChatFromIndexError = 50102,
 	WriteChatError = 50103,
+	
+	//StageManager 50200 ~ -------------------------------
+	EnterStageError = 50201,
+	ExitStageError = 50202,
+	
+	// PlayerItemReceiver 60000 ~ ========================
+	PlayerItemReceiver = 60000,
+	PlayerItemReceiverError = 60001,
 }

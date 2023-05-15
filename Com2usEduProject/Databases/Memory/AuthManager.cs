@@ -1,6 +1,6 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
-using Com2usEduProject.Authorization;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using SqlKata.Execution;
 using ZLogger;
@@ -16,12 +16,12 @@ public class AuthManager
     readonly RedisConnection _redisConnection;
     readonly ILogger<RedisDb> _logger;
     
+    
+    
     public class RedisKeyExpireTime
     {
         public const ushort KeyExpireSecond = 3;
-        public const ushort RegisterKeyExpireSecond = 6000;
         public const ushort LoginKeyExpireMin = 60; 
-        public const ushort TicketKeyExpireSecond = 6000; 
     }
 
 

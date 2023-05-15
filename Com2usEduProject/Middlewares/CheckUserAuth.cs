@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Com2usEduProject.Authorization;
 using Com2usEduProject.Databases;
+using Com2usEduProject.Databases.Schema;
 
 namespace Com2usEduProject.Middlewares;
 

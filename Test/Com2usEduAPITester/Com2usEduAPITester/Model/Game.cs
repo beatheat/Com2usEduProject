@@ -3,9 +3,14 @@
 public class Player
 {
     public int Id { get; set; }
+    public string Nickname { get; set; }
     public int AccountId { get; set; }
-    public int ContinuousAttendanceDays { get; set; }
-    public DateTime? LastAttendanceDate { get; set; }
+    public int HP { get; set; }
+    public int Attack { get; set; }
+    public int Defence { get; set; }
+    public int Magic { get; set; }
+    public int Exp { get; set; }
+    public int Level { get; set; }
     public int Money { get; set; }
 }
 
@@ -50,4 +55,10 @@ public class Bill
     public long Id { get; set; }
     public long Token { get; set; }
     public int PlayerId { get; set; }
+}
+
+public class ItemBundle
+{
+    public int ItemCode { get; set; }
+    public int ItemCount { get; set; }
 }

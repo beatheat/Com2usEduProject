@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS MasterDB.`StageItem`
 (
 	UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
 	StageCode INT NOT NULL COMMENT '스테이지 번호',
-	ItemCode INT NOT NULL COMMENT '아이템코드'
+	ItemCode INT NOT NULL COMMENT '아이템코드',
+    MaxItemCount INT NOT NULL COMMENT '아이템 최대 개수'
 ) COMMENT '스테이지 아이템 테이블';
 
 DROP TABLE IF EXISTS MasterDB.`StageNpc`;
@@ -133,10 +134,14 @@ INSERT INTO MasterDB.`ShopItem`(Code,ItemCode,ItemCount) VALUES(3,3,1);
 INSERT INTO MasterDB.`ShopItem`(Code,ItemCode,ItemCount) VALUES(3,5,1);
 
 
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode) VALUES(1,1);
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode) VALUES(1,2);
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode) VALUES(2,3);
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode) VALUES(2,4);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(1,1,3);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(1,2,3);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(2,2,2);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(2,3,2);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(3,4,2);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(3,6,5);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(4,5,2);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(4,6,5);
 
 
 INSERT INTO MasterDB.`StageNpc` VALUES(101,1,10,10);
@@ -144,3 +149,9 @@ INSERT INTO MasterDB.`StageNpc` VALUES(110,1,12,15);
 INSERT INTO MasterDB.`StageNpc` VALUES(201,2,40,20);
 INSERT INTO MasterDB.`StageNpc` VALUES(211,2,20,36);
 INSERT INTO MasterDB.`StageNpc` VALUES(221,2,1,50);
+
+INSERT INTO MasterDB.`StageNpc` VALUES(301,3,10,25);
+INSERT INTO MasterDB.`StageNpc` VALUES(311,3,12,40);
+INSERT INTO MasterDB.`StageNpc` VALUES(401,4,40,35);
+INSERT INTO MasterDB.`StageNpc` VALUES(411,4,20,45);
+INSERT INTO MasterDB.`StageNpc` VALUES(421,4,1,80);

@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Com2usEduAPITester.MasterData.MasterData;
+using static Com2usEduAPITester.MasterData;
 
 namespace Com2usEduAPITester.TabControls
 {
@@ -43,9 +43,15 @@ namespace Com2usEduAPITester.TabControls
             var player = loadPlayerResponse.Player;
 
             tbPlayerInfo.Text = "";
+
+            tbPlayerInfo.Text += "닉네임 : " + player.Nickname + "\r\n";
             tbPlayerInfo.Text += "소지금 : " + player.Money + "\r\n";
-            tbPlayerInfo.Text += "최종출석일 : " + player.LastAttendanceDate + "\r\n";
-            tbPlayerInfo.Text += "연속출석일 : " + player.ContinuousAttendanceDays + "\r\n";
+            tbPlayerInfo.Text += "레벨 : " + player.Level + "\r\n";
+            tbPlayerInfo.Text += "경험치 : " + player.Exp + "\r\n";
+            tbPlayerInfo.Text += "체력 : " + player.HP + "\r\n";
+            tbPlayerInfo.Text += "공격력 : " + player.Attack + "\r\n";
+            tbPlayerInfo.Text += "방어력 : " + player.Defence + "\r\n";
+            tbPlayerInfo.Text += "마법력 : " + player.Magic + "\r\n";
 
             var loadPlayerItemRequest = new LoadPlayerItemRequest();
 

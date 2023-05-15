@@ -6,8 +6,6 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Com2usEduAPITester.ReqRes;
 using Com2usEduAPITester.Game;
-using Com2usEduAPITester.MasterData;
-using static Com2usEduAPITester.MasterData.MasterData;
 using Com2usEduAPITester.TabControls;
 
 namespace Com2usEduAPITester
@@ -22,11 +20,14 @@ namespace Com2usEduAPITester
         ShopControl _shopControl;
         EnforceControl _enforceControl;
         ChatControl _chatContorl;
+        StageControl _stageControl;
 
         public MainForm()
         {
 
             InitializeComponent();
+
+            MasterData.Init();
 
             HttpRequest.Init(tbMasterDataVersion.Text, tbClientVersion.Text, tbRequest, tbResponse);
             HttpRequest.SetServerURL(tbServerURL.Text);
@@ -79,6 +80,12 @@ namespace Com2usEduAPITester
             chatPage.Text = "채팅";
             chatPage.Controls.Add(_chatContorl);
             tabAPI.TabPages.Add(chatPage);
+
+            TabPage stagePage = new TabPage();
+            _stageControl = new StageControl();
+            stagePage.Text = "스테이지";
+            stagePage.Controls.Add(_stageControl);
+            tabAPI.TabPages.Add(stagePage);
         }
 
 
@@ -99,6 +106,9 @@ namespace Com2usEduAPITester
                 case "채팅":
                     _chatContorl.RefreshData();
                     chat = true;
+                    break;
+                case "스테이지":
+                    _stageControl.RefreshData();
                     break;
             }
             if (chat == false) _chatContorl.StopTimer();

@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using Com2usEduProject.DBSchema;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.ModelDB;
 using Com2usEduProject.Tools;
 using Microsoft.Extensions.Options;

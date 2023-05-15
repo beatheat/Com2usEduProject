@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Com2usEduProject.DBSchema;
+using Com2usEduProject.Databases.Schema;
 using Com2usEduProject.Tools;
 using SqlKata;
 using SqlKata.Execution;
@@ -18,59 +18,51 @@ public class PlayerTable
 		_logger = logger;
 	}
 	
-	public async Task<(ErrorCode, int)> CreateAndInsertAsync(int accountId, string nickname)
+	public async Task<(ErrorCode, int)> CreateAsync(int accountId, string nickname)
 	{
 		try
 		{
-			var playerId = await _queryFactory.Query("Player").InsertGetIdAsync<int>(new Player
+			var playerId = await _queryFactory.Query("Player").InsertGetIdAsync<int>(new
 			{
 				AccountId = accountId,
 				Nickname = nickname,
 			});
-			_logger.ZLogDebug($"[CreateAndInsertAsync] AccountId: {accountId}");
-
-			
 			return (ErrorCode.None, playerId);
 		}
 		catch  (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerCreateAndInsertError], e,
-				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerInsertFailException}, "Insert Player Failed");
+				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerInsertFailException}, "Insert Player Fail");
 			return (ErrorCode.PlayerInsertFailException, -1);
 		}
 	}
 
-	public async Task<(ErrorCode, Player)> SelectByAccountIdAsync(int accountId)
+	public async Task<(ErrorCode, int)> SelectIdByAccountIdAsync(int accountId)
 	{
 		try
 		{
-			var playerData = await _queryFactory.Query("Player").Where("AccountId", accountId).FirstAsync<Player>();
-			_logger.ZLogDebug($"[SelectByAccountIdAsync] AccountId: {accountId}");
-			
-			return (ErrorCode.None, playerData);
+			var playerId = await _queryFactory.Query("Player").Select("Id").Where("AccountId", accountId).FirstAsync<int>();
+			return (ErrorCode.None, playerId);
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerSelectByAccountIdError], e,
-				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Failed");		
-			return (ErrorCode.PlayerSelectFailException, new Player());
+				new {AccountId = accountId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Fail");		
+			return (ErrorCode.PlayerSelectFailException, -1);
 		}
 	}
 
-	public async Task<ErrorCode> UpdateAddMoneyAsync(int playerId, int money)
+	public async Task<ErrorCode> UpdateAddColumnAsync(int playerId, string column, int amount)
 	{
 		try
 		{
-			var playerData = await _queryFactory.StatementAsync($"UPDATE Player SET MONEY = MONEY + {money} WHERE Id = {playerId}");
-			
-			_logger.ZLogDebug($"[UpdateAddMoneyAsync] PlayerId: {playerId}, Money : {money}");
-
+			var playerData = await _queryFactory.StatementAsync($"UPDATE Player SET {column} = {column} + {amount} WHERE Id = {playerId}");
 			return ErrorCode.None;
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
-				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Failed");		
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Fail");		
 			return ErrorCode.PlayerUpdateFailException;
 		}
 	}
@@ -80,14 +72,27 @@ public class PlayerTable
 		try
 		{
 			var playerData = await _queryFactory.Query("Player").Where("Id", playerId).FirstAsync<Player>();
-			_logger.ZLogDebug($"[SelectAsync] PlayerId: {playerId}");
-			
 			return (ErrorCode.None, playerData);
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerSelectError], e,
-				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Failed");		
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Fail");		
+			return (ErrorCode.PlayerSelectFailException, new Player());
+		}
+	}
+
+	public async Task<(ErrorCode, Player)> SelectAsync(int playerId, params string[] columns)
+	{
+		try
+		{
+			var playerData = await _queryFactory.Query("Player").Select(columns).Where("Id", playerId).FirstAsync<Player>();
+			return (ErrorCode.None, playerData);
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerSelectError], e,
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerSelectFailException}, "Select Player Fail");		
 			return (ErrorCode.PlayerSelectFailException, new Player());
 		}
 	}
@@ -101,18 +106,16 @@ public class PlayerTable
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerDeleteError], 
-					new {AccountId = playerId, ErrorCode = ErrorCode.PlayerDeleteFail}, "Delete Player Failed");
+					new {AccountId = playerId, ErrorCode = ErrorCode.PlayerDeleteFail}, "Delete Player Fail");
 				return ErrorCode.PlayerDeleteFail;
 			}
 			
-			_logger.ZLogDebug($"[DeleteAsync] PlayerId: {playerId}");
-
 			return ErrorCode.None;
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerDeleteError], e,
-				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerDeleteFailException}, "Delete Player Failed");		
+				new {PlayerId = playerId, ErrorCode = ErrorCode.PlayerDeleteFailException}, "Delete Player Fail");		
 			return ErrorCode.PlayerDeleteFailException;
 		}	
 	}
@@ -125,17 +128,15 @@ public class PlayerTable
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 
-					new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFail}, "Update Player Failed");
+					new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFail}, "Update Player Fail");
 				return ErrorCode.PlayerUpdateFail;
 			}
-			_logger.ZLogDebug($"[UpdateAsync] PlayerId: {player.Id}");
-
 			return ErrorCode.None;
 		}
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
-				new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Failed");		
+				new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Fail");		
 			return ErrorCode.PlayerUpdateFailException;
 		}	
 	}
