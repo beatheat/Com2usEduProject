@@ -134,15 +134,15 @@ INSERT INTO MasterDB.`ShopItem`(Code,ItemCode,ItemCount) VALUES(3,3,1);
 INSERT INTO MasterDB.`ShopItem`(Code,ItemCode,ItemCount) VALUES(3,5,1);
 
 
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(1,1,3);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(1,1,500);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(1,2,3);
-INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(2,2,2);
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(2,1,1000);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(2,3,2);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(3,4,2);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(3,6,5);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(4,5,2);
 INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(4,6,5);
-
+INSERT INTO MasterDB.`StageItem`(StageCode,ItemCode,MaxItemCount) VALUES(4,1,1500);
 
 INSERT INTO MasterDB.`StageNpc` VALUES(101,1,10,10);
 INSERT INTO MasterDB.`StageNpc` VALUES(110,1,12,15);
