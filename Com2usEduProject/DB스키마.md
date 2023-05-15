@@ -6,7 +6,7 @@
 ```sql
 CREATE TABLE AccountDB.`Account`
 (
-    Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
+    Id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
     LoginId VARCHAR(50) NOT NULL UNIQUE COMMENT '계정',
     SaltValue VARCHAR(100) NOT NULL COMMENT  '암호화 값',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
@@ -23,9 +23,9 @@ CREATE TABLE AccountDB.`Account`
 ```sql
 CREATE TABLE MasterDB.`Version`
 (
-UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '고유번호',
-Version VARCHAR(30) NOT NULL COMMENT '마스터데이터 버전',
-ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '고유번호',
+	Version VARCHAR(30) NOT NULL COMMENT '마스터데이터 버전',
+    ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
 ) COMMENT '데이터 버전 테이블';
 ```
 
@@ -42,9 +42,9 @@ CREATE TABLE MasterDB.`Item`
     UseLevel INT NOT NULL COMMENT '사용가능 레벨',
     Attack INT NOT NULL COMMENT '공격력',
     Defence INT NOT NULL COMMENT '방어력',
-    Magic INT NOT NULL COMMENT '마법력',
+	Magic INT NOT NULL COMMENT '마법력',
     MaxEnhanceCount INT NOT NULL COMMENT '최대 강화 가능 횟수',
-    Consumable BOOL NOT NULL DEFAULT FALSE COMMENT '소비가능 여부'
+	Consumable BOOL NOT NULL DEFAULT FALSE COMMENT '소비가능 여부'
 ) COMMENT '아이템 테이블';
 ```
 
@@ -65,9 +65,9 @@ CREATE TABLE MasterDB.`AttendanceReward`
 ```sql
 CREATE TABLE MasterDB.`ShopItem`
 (
-    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품테이블 고유번호',
-    Code INT NOT NULL COMMENT '상품번호',
-    ItemCode INT NOT NULL COMMENT '아이템코드',
+	UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품테이블 고유번호',
+	Code INT NOT NULL COMMENT '상품번호',
+	ItemCode INT NOT NULL COMMENT '아이템코드',
     ItemCount INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '인앱상품 테이블';
 ```
@@ -77,9 +77,10 @@ CREATE TABLE MasterDB.`ShopItem`
 ```sql
 CREATE TABLE MasterDB.`StageItem`
 (
-    UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
-    StageCode INT NOT NULL COMMENT '스테이지 번호',
-    ItemCode INT NOT NULL COMMENT '아이템코드'
+	UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
+	StageCode INT NOT NULL COMMENT '스테이지 번호',
+	ItemCode INT NOT NULL COMMENT '아이템코드',
+    MaxItemCount INT NOT NULL COMMENT '아이템 최대 개수'
 ) COMMENT '스테이지 아이템 테이블';
 ```
 
@@ -88,13 +89,24 @@ CREATE TABLE MasterDB.`StageItem`
 ```sql
 CREATE TABLE MasterDB.`StageNpc`
 (
-    Code INT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
-    StageCode INT NOT NULL COMMENT '스테이지 번호',
-    Count INT NOT NULL COMMENT 'NPC 개수',
-    Exp INT NOT NULL COMMENT '1개당 경험치'
-
+	Code INT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
+	StageCode INT NOT NULL COMMENT '스테이지 번호',
+	Count INT NOT NULL COMMENT 'NPC 개수',
+	Exp INT NOT NULL COMMENT '1개당 경험치'
 ) COMMENT '스테이지 NPC 테이블';
 ```
+
+## InitialPlayerItem 테이블
+계정 생성 시 플레이어에게 부여할 아이템 정보를 가진 테이블
+```sql
+CREATE TABLE MasterDB.`InitialPlayerItem`
+(
+	Code INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '초기 아이템 행 공유 번호',
+	ItemCode INT NOT NULL COMMENT '아이템 고유 번호',
+	ItemCount INT NOT NULL COMMENT 'NPC 개수'
+) COMMENT '초기 플레이어 아이템 테이블';
+```
+
 
 # Game DB
 
@@ -103,12 +115,40 @@ CREATE TABLE MasterDB.`StageNpc`
 ```sql
 CREATE TABLE GameDB.`Player`
 (
-    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 고유번호',
+    Nickname VARCHAR(20) NOT NULL COMMENT '플레이어 이름',
     AccountId INT NOT NULL UNIQUE COMMENT '계정 고유번호',
-    ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
-    LastAttendanceDate DATE DEFAULT NULL COMMENT '마지막출석일',
-    Money INT NOT NULL DEFAULT 1000 COMMENT '소지금'
+    HP INT NOT NULL DEFAULT 20 COMMENT '체력',
+    Attack INT NOT NULL DEFAULT 5 COMMENT '공격력',
+    Defence INT NOT NULL DEFAULT 5 COMMENT '방어력',
+    Magic INT NOT NULL DEFAULT 5 COMMENT '마법력',
+    Exp INT NOT NULL DEFAULT 0 COMMENT '경험치',
+    Level INT NOT NULL DEFAULT 1 COMMENT '경험치',
+	Money INT NOT NULL DEFAULT 1000 COMMENT '소지금'
 ) COMMENT '플레이어 기본 데이터 테이블';
+```
+
+## PlayerAttendance 테이블
+플레이어의 출석정보를 가진 테이블
+```sql
+CREATE TABLE GameDB.`PlayerAttendance`
+(
+    PlayerId INT NOT NULL PRIMARY KEY COMMENT '출석부 소유 플레이어 고유번호',
+	ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
+    LastAttendanceDate DATE NOT NULL DEFAULT "1985-01-01" COMMENT '마지막출석일'
+) COMMENT '플레이어 출석부 테이블';
+```
+
+## PlayerCompletedStage 테이블
+플레이어가 클리어한 스테이지 정보를 가진 테이블
+(비선형적인 스테이지일 경우를 고려해서 테이블을 통해 저장)
+```sql
+CREATE TABLE GameDB.`PlayerCompletedStage`
+(
+    PlayerId INT NOT NULL COMMENT '플레이어 고유번호',
+    StageCode INT NOT NULL COMMENT '완료한 스테이지 코드',
+    CONSTRAINT PlayerCompletedStagePK PRIMARY KEY(PlayerId,StageCode)
+) COMMENT '플레이어가 완료한 스테이지 테이블';
 ```
 
 
@@ -117,8 +157,8 @@ CREATE TABLE GameDB.`Player`
 ```sql
 CREATE TABLE GameDB.`PlayerItem`
 (
-    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
-    PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
+	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '플레이어 아이템 고유번호',
+	PlayerId INT NOT NULL COMMENT '아이템 소유 플레이어 고유번호',
     ItemCode INT NOT NULL COMMENT '아이템 코드',
     Attack INT NOT NULL COMMENT '아이템 공격력',
     Defence INT NOT NULL COMMENT '아이템 방어력',
@@ -139,29 +179,26 @@ CREATE TABLE GameDB.`Mail`
     TransmissionDate DATETIME NOT NULL COMMENT '메일 전송일',
     ExpireDate DATETIME NOT NULL COMMENT '아이템 보관 기일',
     IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부',
-    Content VARCHAR(400) NOT NULL COMMENT '메일 내용'
+	Content VARCHAR(400) NOT NULL COMMENT '메일 내용',
+    
+    ItemCode1 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템1 코드',
+    ItemCount1 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템1 개수',
+	ItemCode2 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템2 코드',
+    ItemCount2 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템2 개수',
+	ItemCode3 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템3 코드',
+    ItemCount3 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템3 개수',
+	ItemCode4 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템4 코드',
+    ItemCount4 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템4 개수'
 ) COMMENT '플레이어 우편함 테이블';
 ```
 
-## MailItem 테이블
-메일에 포함된 아이템 데이터를 가진 테이블 
-```sql
-CREATE TABLE GameDB.`MailItem`
-(
-	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '메일 아이템 고유번호',
-	MailId INT NOT NULL COMMENT '메일 고유번호',
-    ItemCode INT NOT NULL COMMENT '메일에 포함된 아이템 코드',
-    ItemCount INT NOT NULL COMMENT '메일에 포함된 아이템 개수'
-) COMMENT '플레이어 아이템 테이블';
-```
 
 ## Bill 테이블
 플레이어의 결제 영수증 데이터를 가진 테이블
 ```sql
 CREATE TABLE GameDB.`Bill`
 (
-	Id BIGINT NOT NULL PRIMARY KEY COMMENT '영수증 고유번호',
-	Token BIGINT NOT NULL COMMENT '영수증 인증토큰',
+	Token BIGINT NOT NULL PRIMARY KEY COMMENT '영수증 인증토큰',
     PlayerId INT NOT NULL COMMENT '결제한 플레이어 고유번호' 
 ) COMMENT '플레이어 영수증 테이블';
 ```

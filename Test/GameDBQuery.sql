@@ -60,14 +60,14 @@ CREATE TABLE IF NOT EXISTS GameDB.`Mail`
     IsItemReceived BOOL NOT NULL DEFAULT FALSE COMMENT '아이템 수령 여부',
 	Content VARCHAR(400) NOT NULL COMMENT '메일 내용',
     
-    ItemCode1 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
-    ItemCount1 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
-	ItemCode2 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
-    ItemCount2 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
-	ItemCode3 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
-    ItemCount3 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수',
-	ItemCode4 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템 코드',
-    ItemCount4 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템 개수'
+    ItemCode1 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템1 코드',
+    ItemCount1 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템1 개수',
+	ItemCode2 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템2 코드',
+    ItemCount2 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템2 개수',
+	ItemCode3 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템3 코드',
+    ItemCount3 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템3 개수',
+	ItemCode4 INT NOT NULL DEFAULT -1 COMMENT '메일에 포함된 아이템4 코드',
+    ItemCount4 INT NOT NULL DEFAULT 0 COMMENT '메일에 포함된 아이템4 개수'
 ) COMMENT '플레이어 우편함 테이블';
 
 
