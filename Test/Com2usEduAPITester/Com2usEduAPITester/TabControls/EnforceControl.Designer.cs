@@ -111,6 +111,7 @@
             this.lbxEnforcePlayerItem.Name = "lbxEnforcePlayerItem";
             this.lbxEnforcePlayerItem.Size = new System.Drawing.Size(339, 284);
             this.lbxEnforcePlayerItem.TabIndex = 14;
+            this.lbxEnforcePlayerItem.DoubleClick += new System.EventHandler(this.lbxEnforcePlayerItem_DoubleClick);
             // 
             // lbEnforceList
             // 

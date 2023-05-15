@@ -63,11 +63,13 @@ namespace Com2usEduAPITester.TabControls
                     tbEnforceResult.Text += $"방어력: {item.Defence}\r\n";
                     tbEnforceResult.Text += $"마법력: {item.Magic}\r\n";
                     tbEnforceResult.Text += $"강화횟수: {item.EnhanceCount}\r\n";
+
+                    var itemIndex = _enforceItemList.FindIndex(x => x.Id == itemId);
+                    _enforceItemList[itemIndex] = item;
                 }
                 else if (enforceState == EnforceState.Fail)
                 {
                     MessageBox.Show("강화실패");
-                    LoadEnforceItemList();
                 }
                 else
                 {
@@ -93,9 +95,28 @@ namespace Com2usEduAPITester.TabControls
             _enforceItemList.Clear();
             foreach (var item in playerItems)
             {
+                //돈 or 포션
+                if (item.ItemCode == 1 || item.ItemCode == 6)
+                    continue;
                 _enforceItemList.Add(item);
                 lbxEnforcePlayerItem.Items.Add($"{item.Id}: " + MasterData.ItemName[item.ItemCode]);
             }
+        }
+
+        private void lbxEnforcePlayerItem_DoubleClick(object sender, EventArgs e)
+        {
+            tbEnforceResult.Text = "";
+            int selectedIndex = lbxEnforcePlayerItem.SelectedIndex;
+
+            var item = _enforceItemList[selectedIndex];
+
+            tbEnforceDetail.Text = item.Id + "\r\n";
+            tbEnforceDetail.Text += $"이름: {MasterData.ItemName[item.ItemCode]}\r\n";
+            tbEnforceDetail.Text += $"수량: {item.Count}\r\n";
+            tbEnforceDetail.Text += $"공격력: {item.Attack}\r\n";
+            tbEnforceDetail.Text += $"방어력: {item.Defence}\r\n";
+            tbEnforceDetail.Text += $"마법력: {item.Magic}\r\n";
+            tbEnforceDetail.Text += $"강화횟수: {item.EnhanceCount}\r\n";
         }
     }
 }
