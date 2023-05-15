@@ -84,7 +84,8 @@ namespace Com2usEduAPITester.TabControls
                 return;
             }
             var enterStageResponse = JsonSerializer.Deserialize<EnterStageResponse>(response);
-            
+           
+
             var (itemString, expString) = await Game(enterStageResponse.StageItems, enterStageResponse.StageNpcs);
 
             var completeStageRequest = new CompleteStageRequest();
@@ -126,17 +127,20 @@ namespace Com2usEduAPITester.TabControls
                 {
                     var request = new FarmStageItemRequest
                     {
-                        ItemCode = farmItem.ItemCount,
+                        ItemCode = farmItem.ItemCode,
                         ItemCount = farmItem.ItemCount
                     };
                     var response = await HttpRequest.PostAuth("FarmStageItem", request);
                     if (response == null)
+                    {
+                        MessageBox.Show(farmItem.ItemCode + ", " + farmItem.ItemCount);
                         return;
+                    }
                     lock (this)
                     {
-                        tbStageLog.AppendText(MasterData.ItemName[farmItem.ItemCount] + "를 " + farmItem.ItemCount + "개 획득!\r\n");
+                        tbStageLog.AppendText(MasterData.ItemName[farmItem.ItemCode] + "를 " + farmItem.ItemCount + "개 획득!\r\n");
                     }
-                    itemString += MasterData.ItemName[farmItem.ItemCount] + " : " + farmItem.ItemCount + "개\r\n";
+                    itemString += MasterData.ItemName[farmItem.ItemCode] + " : " + farmItem.ItemCount + "개\r\n";
                     await Task.Delay(100);
                 }
             });
@@ -178,13 +182,13 @@ namespace Com2usEduAPITester.TabControls
         {
             List<ItemBundle> result = new List<ItemBundle>();
             Random random = new Random();
-            foreach(var item in stageItems)
+            foreach (var item in stageItems)
             {
                 if (random.Next(100) < 75)
                 {
                     var itemBundle = new ItemBundle();
                     itemBundle.ItemCode = item.ItemCode;
-                    itemBundle.ItemCount = random.Next(1, item.MaxItemCount);
+                    itemBundle.ItemCount = random.Next(item.MaxItemCount) + 1;
                     result.Add(itemBundle);
                 }
             }
@@ -204,13 +208,13 @@ namespace Com2usEduAPITester.TabControls
 
             List<StageNpc> result = new List<StageNpc>();
 
-            foreach (var item in stageNpcs)
+            foreach (var stageNpc in stageNpcs)
             {
                 if (random.Next(100) < 75)
                 {
-                    var npc = new StageNpc();
-                    npc.Count = random.Next(npc.Count);
-                    result.Add(npc);
+                    var selectedNpc = new StageNpc();
+                    selectedNpc.Count = random.Next(stageNpc.Count)+1;
+                    result.Add(selectedNpc);
                 }
             }
             return result;
