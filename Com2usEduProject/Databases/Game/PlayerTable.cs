@@ -18,7 +18,7 @@ public class PlayerTable
 		_logger = logger;
 	}
 	
-	public async Task<(ErrorCode, int)> CreateAsync(int accountId, string nickname)
+	public async Task<(ErrorCode, int)> InsertAsync(int accountId, string nickname)
 	{
 		try
 		{
@@ -137,6 +137,29 @@ public class PlayerTable
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
 				new {Player = player, ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Fail");		
+			return ErrorCode.PlayerUpdateFailException;
+		}	
+	}
+	
+	public async Task<ErrorCode> UpdateAsync<T>(int playerId, string column, T value)
+	{
+		try
+		{
+			var count = await _queryFactory.Query("Player").Where("Id", playerId).Select(column).UpdateAsync(value);
+			if (count != 1)
+			{
+				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 
+					new {PlayerId = playerId, Column = column, UpdateValue = value,
+						ErrorCode = ErrorCode.PlayerUpdateFail}, "Update Player Fail");
+				return ErrorCode.PlayerUpdateFail;
+			}
+			return ErrorCode.None;
+		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], e,
+				new {PlayerId = playerId, Column = column, UpdateValue = value,
+					ErrorCode = ErrorCode.PlayerUpdateFailException}, "Update Player Fail");		
 			return ErrorCode.PlayerUpdateFailException;
 		}	
 	}

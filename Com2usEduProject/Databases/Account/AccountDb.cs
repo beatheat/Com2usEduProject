@@ -55,7 +55,7 @@ public class AccountDb : IAccountDb
 	}
 
 
-	public async Task<(ErrorCode,int)> InsertAccountAsync(string loginId, string password)
+	public async Task<(ErrorCode,int)> InsertAsync(string loginId, string password)
 	{
         try
         {

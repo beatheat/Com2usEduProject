@@ -24,7 +24,23 @@ public class EnterChatLobby
 	{
 		var response = new EnterChatLobbyResponse();
 
-		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatHistoryAsync(request.LobbyNumber);
+		var errorCode = ErrorCode.None;
+		errorCode = await _memoryDb.ChatManager.SetLobbyEnterLockAsync();
+		
+		(errorCode, var lobbyUserCounts)  = await _memoryDb.ChatManager.GetChatLobbyUserCountsAsync(request.LobbyNumber);
+
+		if (lobbyUserCounts == 100)
+		{
+			return response;
+		}
+		
+		await _memoryDb.ChatManager.SetChatLobbyUserCountsAsync(request.LobbyNumber, lobbyUserCounts + 1);
+		
+		await _memoryDb.ChatManager.DelLobbyEnterLockAsync();
+
+		await _memoryDb.ChatManager.SetChatUserAsync(request.PlayerId, request.LobbyNumber);
+		
+		(errorCode, var chatHistory) = await _memoryDb.ChatManager.LoadChatHistoryAsync(request.LobbyNumber);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Load Chat History Fail");
@@ -32,7 +48,7 @@ public class EnterChatLobby
 			return response;
 		}
 		
-		response.ChatHistory = chatList;
+		response.ChatHistory = chatHistory;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIEnterChatLobby],
 			new {PlayerId = request.PlayerId}, "Enter Chat Lobby Success");

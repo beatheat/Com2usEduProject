@@ -12,6 +12,7 @@ public class Player
 	public int Exp { get; set; }
 	public int Level { get; set; }
 	public int Money { get; set; }
+	public int HighestClearStageCode { get; set; }
 }
 
 public class PlayerAttendance
@@ -20,13 +21,6 @@ public class PlayerAttendance
 	public int ContinuousAttendanceDays { get; set; }
 	public DateTime LastAttendanceDate { get; set; }
 }
-
-public class PlayerCompletedStage
-{
-	public int PlayerId { get; set; }
-	public int StageCode { get; set; }
-}
-
 
 public class PlayerItem
 {

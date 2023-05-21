@@ -14,11 +14,10 @@ public class StageManager
 	readonly RedisConnection _redisConnection;
 	readonly ILogger<RedisDb> _logger;
 
-	public class RedisKeyExpireTime
+	class RedisKeyExpireTime
 	{
 		public const ushort StageKeyExpireMin = 30; 
 	}
-
 
 	public StageManager(RedisConnection redisConnection, ILogger<RedisDb> logger)
 	{

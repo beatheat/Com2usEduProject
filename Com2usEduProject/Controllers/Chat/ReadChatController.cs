@@ -23,8 +23,10 @@ public class ReadChat
 	public async Task<ReadChatResponse> Post(ReadChatRequest request)
 	{
 		var response = new ReadChatResponse();
-
-		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatFromIndexAsync(request.LobbyNumber, request.LastChatIndex+1);
+	
+		await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		
+		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatHistoryFromIndexAsync(request.LobbyNumber, request.LastChatIndex+1);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Load Chat From Index Fail");

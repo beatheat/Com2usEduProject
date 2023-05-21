@@ -13,15 +13,17 @@ namespace Com2usEduProject.Controllers;
 [Route("[controller]")]
 public class EnterStage
 {
+	readonly IGameDb _gameDb;
 	readonly IMemoryDb _memoryDb;
 	readonly IMasterDb _masterDb;
 	readonly ILogger<EnterStage> _logger;
 
 	const int MAX_STAGE_CODE = 4;
 	
-	public EnterStage(ILogger<EnterStage> logger, IMemoryDb memoryDb, IMasterDb masterDb)
+	public EnterStage(ILogger<EnterStage> logger, IGameDb gameDb, IMemoryDb memoryDb, IMasterDb masterDb)
 	{
 		_logger = logger;
+		_gameDb = gameDb;
 		_memoryDb = memoryDb;
 		_masterDb = masterDb;
 	}
@@ -30,19 +32,26 @@ public class EnterStage
 	public async Task<EnterStageResponse> Post(EnterStageRequest request)
 	{
 		var response = new EnterStageResponse();
-		ErrorCode errorCode = ErrorCode.None;
 
-		// 스테이지 코드 유효성 검증
-		if (request.StageCode is < 1 or > MAX_STAGE_CODE)
+		var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(request.PlayerId, "HighestClearStageCode");
+		if (errorCode != ErrorCode.None)
 		{
-			errorCode = ErrorCode.UnknownStageCode;
-			LogError(errorCode, request, "Unknown Stage Code");
+			LogError(errorCode, new {Player = player}, "Select Player Fail");
 			response.Result = errorCode;
 			return response;
 		}
 		
+		// 스테이지 코드 유효성 검증
+		if (await ValidateStageCode(request.StageCode,player.HighestClearStageCode))
+		{
+			errorCode = ErrorCode.WrongStageCode;
+			LogError(errorCode, request, "Wrong Stage Code");
+			response.Result = errorCode;
+			return response;
+		}
+
 		// 플레이어의 스테이지 정보 생성
-		var stageInfo = CreatePlayerStageInfo(request.PlayerId, request.StageCode, out var stageItems, out var stageNpcs);
+		var stageInfo = CreatePlayerStageInfo(request.PlayerId, request.StageCode, player.HighestClearStageCode, out var stageItems, out var stageNpcs);
 		
 		// 스테이지 진입 - 이미 스테이지에 입장중이면 요청 무시
 		errorCode = await _memoryDb.StageManager.EnterStageAsync(request.PlayerId, stageInfo);
@@ -61,21 +70,33 @@ public class EnterStage
 		return response;
 	}
 
-	private PlayerStageInfo CreatePlayerStageInfo(int playerId, int stageCode, out List<StageItem> stageItems, out List<StageNpc> stageNpcs)
+
+	private async Task<bool> ValidateStageCode(int accessStageCode, int highestClearStageCode)
+	{
+		int maxAccessibleStageCode = highestClearStageCode + 1;
+		if (accessStageCode < 1 || accessStageCode > maxAccessibleStageCode)
+		{
+			return false;
+		}
+		return true;
+	}
+	private PlayerStageInfo CreatePlayerStageInfo(int playerId, int stageCode, int highestClearStageCode, out List<StageItem> stageItems, out List<StageNpc> stageNpcs)
 	{
 		(_, stageItems) = _masterDb.GetStageItem(stageCode);
 		(_, stageNpcs) = _masterDb.GetStageNpc(stageCode);
 		
-		var stageInfo = new PlayerStageInfo {PlayerId = playerId, StageCode = stageCode};
+		var stageInfo = new PlayerStageInfo {PlayerId = playerId, StageCode = stageCode, HighestClearStageCode = highestClearStageCode};
 
 		foreach (var item in stageItems)
 		{
 			stageInfo.FarmedStageItemCounts.Add(item.ItemCode, 0);
+			stageInfo.MaxAvailableItemCounts.Add(item.ItemCode, item.MaxItemCount);
 		}
 
 		foreach (var npc in stageNpcs)
 		{
 			stageInfo.FarmedStageNpcCounts.Add(npc.Code, 0);
+			stageInfo.MaxAvailableStageNpcCounts.Add(npc.Code,npc.Count);
 		}
 
 		return stageInfo;

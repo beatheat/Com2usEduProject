@@ -27,7 +27,7 @@ public class FarmStageItem
 		var response = new FarmStageItemResponse();
 
 		// 플레이어 스테이지 정보 로드
-		var (errorCode, playerStageInfo) = await _memoryDb.StageManager.GetPlayerStageInfoAsync(request.PlayerId);
+		var (errorCode, stageInfo) = await _memoryDb.StageManager.GetPlayerStageInfoAsync(request.PlayerId);
 		if(errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Get Player Stage Info Fail");
@@ -36,7 +36,7 @@ public class FarmStageItem
 		}
 
 		// 파밍한 아이템이 스테이지에 속한 것인지 검증
-		if (playerStageInfo.FarmedStageItemCounts.ContainsKey(request.ItemCode) == false)
+		if (ValidateStageItem(request.ItemCode, request.ItemCount, stageInfo) == false)
 		{
 			errorCode = ErrorCode.FarmStageItemInvalidItem;
 			LogError(errorCode, request, "Invalid Stage Item Request");
@@ -45,8 +45,8 @@ public class FarmStageItem
 		}
 
 		// 파밍한 아이템 스테이지 정보에 추가
-		playerStageInfo.FarmedStageItemCounts[request.ItemCode] += request.ItemCount;
-		errorCode = await _memoryDb.StageManager.UpdatePlayerStageInfoAsync(request.PlayerId, playerStageInfo);
+		stageInfo.FarmedStageItemCounts[request.ItemCode] += request.ItemCount;
+		errorCode = await _memoryDb.StageManager.UpdatePlayerStageInfoAsync(request.PlayerId, stageInfo);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Update Player Stage Info Fail");
@@ -58,7 +58,18 @@ public class FarmStageItem
 			new {PlayerId = request.PlayerId}, "Farm Stage Item Success");
 		return response;
 	}
-	
+
+	private bool ValidateStageItem(int itemCode,int itemCount , PlayerStageInfo stageInfo)
+	{
+		if (stageInfo.FarmedStageItemCounts.TryGetValue(itemCode, out var farmedItemCount))
+		{
+			if (farmedItemCount + itemCount  > stageInfo.MaxAvailableItemCounts[itemCode])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	private void LogError(ErrorCode errorCode, object payload, string message)
 	{

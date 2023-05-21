@@ -31,7 +31,7 @@ public class CreateAccount : ControllerBase
 		var response = new CreateAccountResponse();
         
 		// 계정 생성
-		var (errorCode,accountId) = await _accountDb.InsertAccountAsync(request.LoginId, request.Password);
+		var (errorCode,accountId) = await _accountDb.InsertAsync(request.LoginId, request.Password);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request, "Insert Account Fail");
@@ -40,7 +40,7 @@ public class CreateAccount : ControllerBase
 		}
 
 		// 플레이어 기본 데이터 생성
-		(errorCode, var playerId) = await _gameDb.PlayerTable.CreateAsync(accountId, request.LoginId);
+		(errorCode, var playerId) = await _gameDb.PlayerTable.InsertAsync(accountId, request.LoginId);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Create Player Fail");
@@ -50,7 +50,7 @@ public class CreateAccount : ControllerBase
 		}
 
 		//플레이어 출석 데이터 생성
-		(errorCode,_) = await _gameDb.PlayerAttendanceTable.CreateAsync(playerId);
+		(errorCode,_) = await _gameDb.PlayerAttendanceTable.InsertAsync(playerId);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Create PlayerAttendance Fail");

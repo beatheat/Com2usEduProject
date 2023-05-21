@@ -7,6 +7,12 @@ public class AuthUser
 	public string AuthToken { get; set; } = "";
 }
 
+public class ChatUser
+{
+	public int PlayerId { get; set; } = 0;
+	public int LobbyNumber { get; set; } = 0;
+}
+
 public class Chat
 {
 	public long Index { get; set; }
@@ -19,7 +25,10 @@ public class PlayerStageInfo
 {
 	public int PlayerId { get; set; }
 	public int StageCode { get; set; }
+	public int HighestClearStageCode { get; set; }
 	public Dictionary<int, int> FarmedStageItemCounts { get; set; } = new ();
 	public Dictionary<int,int> FarmedStageNpcCounts { get; set; } = new();
-	public int FarmedExp { get; set; } = 0;
+
+	public Dictionary<int, int> MaxAvailableItemCounts { get; set; } = new();
+	public Dictionary<int, int> MaxAvailableStageNpcCounts { get; set; } = new();
 }

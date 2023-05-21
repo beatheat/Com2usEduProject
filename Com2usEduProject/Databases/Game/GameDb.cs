@@ -22,7 +22,6 @@ public class GameDb : IGameDb
 
 	public PlayerTable PlayerTable => new (_queryFactory, _logger);
 	public PlayerAttendanceTable PlayerAttendanceTable => new(_queryFactory, _logger);
-	public PlayerCompletedStageTable PlayerCompletedStageTable => new(_queryFactory, _logger);
 	public PlayerItemTable PlayerItemTable => new (_queryFactory, _logger);
 	public MailTable MailTable => new (_queryFactory, _logger);
 	public BillTable BillTable => new (_queryFactory, _logger);

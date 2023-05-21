@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS GameDB.`Player`
     Magic INT NOT NULL DEFAULT 5 COMMENT '마법력',
     Exp INT NOT NULL DEFAULT 0 COMMENT '경험치',
     Level INT NOT NULL DEFAULT 1 COMMENT '경험치',
-	Money INT NOT NULL DEFAULT 1000 COMMENT '소지금'
+	Money INT NOT NULL DEFAULT 1000 COMMENT '소지금',
+    HighestClearStageCode INT NOT NULL DEFAULT 0 COMMENT '클리어한 스테이지 중 가장 높은 코드'
 ) COMMENT '플레이어 기본 데이터 테이블';
 
 DROP TABLE IF EXISTS GameDB.`PlayerAttendance`;
@@ -26,14 +27,6 @@ CREATE TABLE IF NOT EXISTS GameDB.`PlayerAttendance`
     LastAttendanceDate DATE NOT NULL DEFAULT "1985-01-01" COMMENT '마지막출석일'
 ) COMMENT '플레이어 출석부 테이블';
 
-/*비선형적인 스테이지일 경우를 고려해서 완료한 스테이지 테이블을 분리함*/
-DROP TABLE IF EXISTS GameDB.`PlayerCompletedStage`;
-CREATE TABLE IF NOT EXISTS GameDB.`PlayerCompletedStage`
-(
-    PlayerId INT NOT NULL COMMENT '플레이어 고유번호',
-    StageCode INT NOT NULL COMMENT '완료한 스테이지 코드',
-    CONSTRAINT PlayerCompletedStagePK PRIMARY KEY(PlayerId,StageCode)
-) COMMENT '플레이어가 완료한 스테이지 테이블';
 
 
 DROP TABLE IF EXISTS GameDB.`PlayerItem`;

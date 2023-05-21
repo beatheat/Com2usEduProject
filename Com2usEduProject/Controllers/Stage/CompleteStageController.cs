@@ -52,19 +52,32 @@ public class CompleteStage
 			}
 		}
 
-		// 플레이어가 완료한 스테이지 추가
-		errorCode = await _gameDb.PlayerCompletedStageTable.InsertAsync(request.PlayerId, stageInfo.StageCode);
-		if (errorCode is not ErrorCode.PlayerCompletedStageInsertDuplicate and not ErrorCode.None)
+		errorCode = await UpdateHighestClearStage(stageInfo);
+		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Insert Player Completed Stage Fail");
+			LogError(errorCode, request, "Update HighestClearStage Fail");
 			response.Result = errorCode;
 			return response;
 		}
 
-
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICompleteStage], 
 			new {PlayerId = request.PlayerId, IsStageClear = response.IsStageCleared}, "Complete Stage Success");
 		return response;
+	}
+
+	private async Task<ErrorCode> UpdateHighestClearStage(PlayerStageInfo stageInfo)
+	{
+		if (stageInfo.StageCode > stageInfo.HighestClearStageCode)
+		{
+			// 플레이어가 완료한 스테이지 추가
+			var errorCode = await _gameDb.PlayerTable.UpdateAsync(stageInfo.PlayerId, "HighestClearStageCode", stageInfo.HighestClearStageCode);
+			if (errorCode != ErrorCode.None)
+			{
+				LogError(errorCode, new {StageInfo = stageInfo}, "Update Highest Clear Stage");
+				return errorCode;
+			}
+		}
+		return ErrorCode.None;
 	}
 
 	private async Task<ErrorCode> InsertStageRewardToPlayer(PlayerStageInfo stageInfo)
@@ -100,12 +113,7 @@ public class CompleteStage
 			var itemCount = farmedItem.Value;
 			if (itemCount == 0) 
 				continue;
-			// 아이템 수량이 최대치를 넘어설 경우 최대치값으로 고정(정책)
-			var itemInfo = stageItems.Find(x => x.ItemCode == itemCode);
-			if (itemCount > itemInfo.MaxItemCount)
-			{
-				itemCount = itemInfo.MaxItemCount;
-			}
+
 			itemBundles.Add(new ItemBundle {ItemCode = itemCode, ItemCount = itemCount});
 		}
 		return itemBundles;

@@ -26,16 +26,16 @@ public class LoadPlayerStageInfo
 	public async Task<LoadPlayerStageInfoResponse> Post(LoadPlayerStageInfoRequest request)
 	{
 		var response = new LoadPlayerStageInfoResponse();
-		var (errorCode, completedStages) = await _gameDb.PlayerCompletedStageTable.SelectListAsync(request.PlayerId);
+
+		var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(request.PlayerId, "HighestClearStageCode");
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Select Player Completed Stage Fail");
+			LogError(errorCode, request, "Select Player Column 'HighesClearStageCode' Fail");
 			response.Result = errorCode;
 			return response;
 		}
 
-		response.AccessibleStages = GetAccessibleStageList(completedStages);
-		response.CompletedStages = completedStages;
+		response.AccessibleStageCode = Enumerable.Range(1, player.HighestClearStageCode + 1).ToList();
 		response.MaxStageCode = MAX_STAGE_CODE;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadCompletedStageList], 
@@ -44,24 +44,6 @@ public class LoadPlayerStageInfo
 		return response;
 	}
 
-	private IList<int> GetAccessibleStageList(IList<int> completedStages)
-	{
-		List<int> accessibleStages = new List<int>();
-		int latestClearStage = 0;
-		
-		if (completedStages.Count > 0)
-			latestClearStage = completedStages.Max();
-		
-		if (latestClearStage == MAX_STAGE_CODE)
-			latestClearStage = MAX_STAGE_CODE - 1;
-		
-		for (int i = 1; i <= latestClearStage + 1; i++)
-		{
-			accessibleStages.Add(i);
-		}
-		return accessibleStages;
-	}
-	
 	private void LogError(ErrorCode errorCode, object payload, string message)
 	{
 		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APILoadCompletedStageListError],

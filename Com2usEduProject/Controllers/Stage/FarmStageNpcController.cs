@@ -27,7 +27,7 @@ public class FarmStageNpc
 		var response = new FarmStageNpcResponse();
 
 		// 플레이어 스테이지 정보 로드
-		var (errorCode, playerStageInfo) = await _memoryDb.StageManager.GetPlayerStageInfoAsync(request.PlayerId);
+		var (errorCode, stageInfo) = await _memoryDb.StageManager.GetPlayerStageInfoAsync(request.PlayerId);
 		if(errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Get Player Stage Info Fail");
@@ -36,7 +36,7 @@ public class FarmStageNpc
 		}
 		
 		// 파밍한 NPC가 스테이지에 속하는 지 검증
-		if (playerStageInfo.FarmedStageNpcCounts.ContainsKey(request.NpcCode) == false)
+		if (ValidateStageNpc(request.NpcCode, stageInfo) == false)
 		{
 			errorCode = ErrorCode.FarmStageItemInvalidItem;
 			LogError(errorCode, request, "Invalid Stage Npc Request");
@@ -45,8 +45,8 @@ public class FarmStageNpc
 		}
 
 		// 파밍한 NPC 스테이지 정보에 추가
-		playerStageInfo.FarmedStageNpcCounts[request.NpcCode]++;
-		errorCode = await _memoryDb.StageManager.UpdatePlayerStageInfoAsync(request.PlayerId, playerStageInfo);
+		stageInfo.FarmedStageNpcCounts[request.NpcCode]++;
+		errorCode = await _memoryDb.StageManager.UpdatePlayerStageInfoAsync(request.PlayerId, stageInfo);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Update Player Stage Info Fail");
@@ -58,6 +58,19 @@ public class FarmStageNpc
 			new {PlayerId = request.PlayerId}, "Farm Stage Npc Success");
 		return response;	
 	}
+	
+	private bool ValidateStageNpc(int npcCode, PlayerStageInfo stageInfo)
+	{
+		if (stageInfo.FarmedStageNpcCounts.TryGetValue(npcCode, out var farmedNpcCount))
+		{
+			if (farmedNpcCount + 1 > stageInfo.MaxAvailableItemCounts[npcCode])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	
 	private void LogError(ErrorCode errorCode, object payload, string message)
 	{

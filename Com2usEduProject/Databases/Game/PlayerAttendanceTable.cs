@@ -16,7 +16,7 @@ public class PlayerAttendanceTable
 		_logger = logger;
 	}
 	
-	public async Task<(ErrorCode, int)> CreateAsync(int playerId)
+	public async Task<(ErrorCode, int)> InsertAsync(int playerId)
 	{
 		try
 		{

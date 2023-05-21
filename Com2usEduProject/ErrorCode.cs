@@ -47,7 +47,7 @@ public enum ErrorCode : UInt16
     FarmStageNpcInvalidNpc = 20121,
     //EnterStage 20130 ~
     EnterStageDuplicate = 20130,
-    UnknownStageCode = 20131,
+    WrongStageCode = 20131,
     //FarmStage 20140 ~
     FarmStageItemInfoUpdateFail = 20140,
     FarmStageItemInvalidItem = 20141,
