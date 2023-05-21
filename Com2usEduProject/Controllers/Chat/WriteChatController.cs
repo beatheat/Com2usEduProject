@@ -18,12 +18,21 @@ public class WriteChat
 		_logger = logger;
 		_memoryDb = memoryDb;
 	}
+	
 	[HttpPost]
 	public async Task<WriteChatResponse> Post(WriteChatRequest request)
 	{
 		var response = new WriteChatResponse();
 
-		var errorCode = await _memoryDb.ChatManager.WriteChatAsync(request.LobbyNumber, request.PlayerId, request.PlayerNickName, request.Chat);
+		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		if (errorCode != ErrorCode.None)
+		{
+			LogError(errorCode, request, "Invalidate Chat User");
+			response.Result = errorCode;
+			return response;
+		}
+		
+		errorCode = await _memoryDb.ChatManager.WriteChatAsync(request.LobbyNumber, request.PlayerId, request.PlayerNickName, request.Chat);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Write Chat Fail");

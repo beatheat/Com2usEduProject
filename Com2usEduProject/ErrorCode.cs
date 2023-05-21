@@ -157,6 +157,12 @@ public enum ErrorCode : UInt16
     NoticeManager = 50201,
     //ChatManager 50300 ~ --------------------------------------------------
     ChatLobbyOutOfIndex = 50301,
+    EnterLockDuplicate = 50302,
+    DelLobbyEnterLockFail = 50303,
+    LobbyUserCountNotExist = 50304,
+    SetChatUserFail = 50305,
+    ChatUserNotFound = 50306,
+    ChatLobbyFull = 50307,
     //StageManager 50400 ~ -------------------------------------------------
     
 }

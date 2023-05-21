@@ -24,9 +24,15 @@ public class ReadChat
 	{
 		var response = new ReadChatResponse();
 	
-		await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		if (errorCode != ErrorCode.None)
+		{
+			LogError(errorCode, request, "Invalidate Chat User");
+			response.Result = errorCode;
+			return response;
+		}
 		
-		var (errorCode, chatList) = await _memoryDb.ChatManager.LoadChatHistoryFromIndexAsync(request.LobbyNumber, request.LastChatIndex+1);
+		(errorCode, var chatList) = await _memoryDb.ChatManager.LoadChatHistoryFromIndexAsync(request.LobbyNumber, request.LastChatIndex+1);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Load Chat From Index Fail");

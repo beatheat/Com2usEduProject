@@ -74,7 +74,7 @@ public class EnforcePlayerItem
 		(errorCode, var itemMasterData) = _masterDb.GetItem(playerItem.ItemCode);
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, new {PlayerItem = playerItem}, "EnforceItem - Account Insert Fail");
+			LogError(errorCode, new {PlayerItem = playerItem}, "EnforceItem - Wrong Item Code");
 			return (errorCode, EnforceState.Error);
 		}
 

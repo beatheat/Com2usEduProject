@@ -25,22 +25,28 @@ public class EnterChatLobby
 		var response = new EnterChatLobbyResponse();
 
 		var errorCode = ErrorCode.None;
-		errorCode = await _memoryDb.ChatManager.SetLobbyEnterLockAsync();
-		
-		(errorCode, var lobbyUserCounts)  = await _memoryDb.ChatManager.GetChatLobbyUserCountsAsync(request.LobbyNumber);
 
-		if (lobbyUserCounts == 100)
+		int lobbyNumber = request.LobbyNumber;
+		if (lobbyNumber == -1)
 		{
+			(errorCode,lobbyNumber) = await _memoryDb.ChatManager.GetRecommendLobbyNumber();
+			if (errorCode != ErrorCode.None)
+			{
+				LogError(errorCode, request, "Every Lobby is Full");
+				response.Result = errorCode;
+				return response;
+			}
+		}
+		
+		errorCode = await _memoryDb.ChatManager.EnterLobby(request.PlayerId, lobbyNumber);
+		if (errorCode != ErrorCode.None)
+		{
+			LogError(errorCode,request,"Enter Lobby Fail");
+			response.Result = errorCode;
 			return response;
 		}
 		
-		await _memoryDb.ChatManager.SetChatLobbyUserCountsAsync(request.LobbyNumber, lobbyUserCounts + 1);
-		
-		await _memoryDb.ChatManager.DelLobbyEnterLockAsync();
-
-		await _memoryDb.ChatManager.SetChatUserAsync(request.PlayerId, request.LobbyNumber);
-		
-		(errorCode, var chatHistory) = await _memoryDb.ChatManager.LoadChatHistoryAsync(request.LobbyNumber);
+		(errorCode, var chatHistory) = await _memoryDb.ChatManager.LoadChatHistoryAsync(lobbyNumber);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Load Chat History Fail");
@@ -54,7 +60,7 @@ public class EnterChatLobby
 			new {PlayerId = request.PlayerId}, "Enter Chat Lobby Success");
 		return response;
 	}
-	
+
 	private void LogError(ErrorCode errorCode, object payload, string message)
 	{
 		_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.APIEnterChatLobbyError],

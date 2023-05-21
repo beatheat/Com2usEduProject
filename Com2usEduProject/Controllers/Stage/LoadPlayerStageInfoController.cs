@@ -30,7 +30,7 @@ public class LoadPlayerStageInfo
 		var (errorCode, player) = await _gameDb.PlayerTable.SelectAsync(request.PlayerId, "HighestClearStageCode");
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Select Player Column 'HighesClearStageCode' Fail");
+			LogError(errorCode, request, "Select Player Column 'HighestClearStageCode' Fail");
 			response.Result = errorCode;
 			return response;
 		}

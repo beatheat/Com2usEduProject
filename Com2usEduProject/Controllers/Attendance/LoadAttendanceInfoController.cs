@@ -13,7 +13,7 @@ public class LoadAttendanceInfo
 	readonly ILogger<LoadAttendanceInfo> _logger;
 	readonly IGameDb _gameDb;
 	readonly IMasterDb _masterDb;
-	
+	 
 	public LoadAttendanceInfo(ILogger<LoadAttendanceInfo> logger, IGameDb gameDb, IMasterDb masterDb)
 	{
 		_logger = logger;

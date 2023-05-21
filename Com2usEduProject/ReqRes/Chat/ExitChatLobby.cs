@@ -3,20 +3,14 @@ using Com2usEduProject.Databases.Schema;
 
 namespace Com2usEduProject.ReqRes;
 
-public class EnterChatLobbyRequest
+public class ExitChatLobbyRequest
 {
 	[Required]
 	public int PlayerId { get; set; }
-	
-	public int LobbyNumber { get; set; } = -1;
 }
 
-public class EnterChatLobbyResponse
+public class ExitChatLobbyResponse
 {
 	[Required] 
 	public ErrorCode Result { get; set; } = ErrorCode.None;
-
-	public IList<Chat> ChatHistory { get; set; }
-	
-	public int LobbyNumber { get; set; }
 }

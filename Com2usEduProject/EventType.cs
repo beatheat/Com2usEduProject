@@ -72,13 +72,18 @@ public enum EventType
 	APIFarmStageItem = 10171,
 	APIFarmStageItemError = 10172,
 	
-	//CompleteStageController 10180 ~ --------------------
+	//CompleteStage 10180 ~ --------------------
 	APILoadCompletedStageList = 10181,
 	APILoadCompletedStageListError = 10182,
 	
-	//LoadAttendanceInfoController 10190 ~ ---------------
+	//LoadAttendanceInfo 10190 ~ ---------------
 	APILoadAttendanceInfo = 10901,
 	APILoadAttendanceInfoError = 10902,
+	
+	//ExitChatLobby 10200 ~ ---------------------
+	APIExitChatLobby = 10201,
+	APIExitChatLobbyError = 10202,
+	
 	
 	// AccountDB 20000~ ===================================
 	AccountDbError = 20000,
@@ -154,10 +159,19 @@ public enum EventType
 	GetNoticeError = 50006,
 	
 	//ChatManager 50100~ ---------------------------------
+	ChatInitError = 50100,
 	LoadChatHistoryError = 50101,
-	LoadChatFromIndexError = 50102,
-	WriteChatError = 50103,
-	
+	LoadChatHistoryFromIndexError = 50102,
+	SetLobbyEnterLockError = 50103,
+	DelLobbyEnterLockError = 50104,
+	GetLobbyUserCountsError = 50105,
+	SetLobbyUserCountsError = 50106,
+	ValidateChatUserError = 50107,
+	SetChatUserError = 50108,
+	DelChatUserError = 50109,
+	GetChatUserError = 50110,
+	WriteChatError = 50111,
+
 	//StageManager 50200 ~ -------------------------------
 	EnterStageError = 50201,
 	ExitStageError = 50202,
