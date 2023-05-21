@@ -47,7 +47,7 @@ public enum ErrorCode : UInt16
     FarmStageNpcInvalidNpc = 20121,
     //EnterStage 20130 ~
     EnterStageDuplicate = 20130,
-    UnknownStageCode = 20131,
+    WrongStageCode = 20131,
     //FarmStage 20140 ~
     FarmStageItemInfoUpdateFail = 20140,
     FarmStageItemInvalidItem = 20141,
@@ -135,6 +135,7 @@ public enum ErrorCode : UInt16
     PlayerCompletedStageUpdateFail = 30705,
     PlayerCompletedStageDeleteFailException = 30706,
     PlayerCompletedStageDeleteFail = 30707,
+    PlayerCompletedStageInsertDuplicate = 30710,
 
     //MasterDb 40000~ =====================================================
     UnknownCode = 40001,
@@ -156,6 +157,12 @@ public enum ErrorCode : UInt16
     NoticeManager = 50201,
     //ChatManager 50300 ~ --------------------------------------------------
     ChatLobbyOutOfIndex = 50301,
+    EnterLockDuplicate = 50302,
+    DelLobbyEnterLockFail = 50303,
+    LobbyUserCountNotExist = 50304,
+    SetChatUserFail = 50305,
+    ChatUserNotFound = 50306,
+    ChatLobbyFull = 50307,
     //StageManager 50400 ~ -------------------------------------------------
 
 }

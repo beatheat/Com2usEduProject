@@ -66,6 +66,7 @@
             // 
             // cbChannel
             // 
+            this.cbChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbChannel.FormattingEnabled = true;
             this.cbChannel.Location = new System.Drawing.Point(917, 300);
             this.cbChannel.Name = "cbChannel";

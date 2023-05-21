@@ -19,4 +19,6 @@ public class EnterChatLobbyResponse
 	public ErrorCode Result { get; set; } = ErrorCode.None;
 
 	public IList<Chat> ChatHistory { get; set; }
+	
+	public int LobbyNumber { get; set; } = 1;
 }

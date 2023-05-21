@@ -17,12 +17,13 @@ namespace Com2usEduAPITester.TabControls
     {
         private string nickname = "";
         private long lastChatIndex = -1;
+
+        private int currentLobbyNumber = 0;
         public ChatControl(string nickname)
         {
             InitializeComponent();
             for (int i = 1; i <= 100; i++)
                 cbChannel.Items.Add(i);
-            cbChannel.SelectedIndex = new Random().Next(1, 100);
             this.nickname = nickname;
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -33,7 +34,7 @@ namespace Com2usEduAPITester.TabControls
 
         public void RefreshData()
         {
-            LoadChatHistory();
+            EnterLobby();
             timer.Enabled = true;
             timer.Start();
         }
@@ -42,19 +43,57 @@ namespace Com2usEduAPITester.TabControls
             timer.Stop();
         }
 
-        private async void LoadChatHistory()
+        private async void EnterLobby()
         {
-            var request = new EnterChatLobbyRequest
-            {
-                LobbyNumber = int.Parse(cbChannel.SelectedItem.ToString())
-            };
+            EnterChatLobbyRequest request;
+            request = new EnterChatLobbyRequest();
+
             var response = await HttpRequest.PostAuth<EnterChatLobbyResponse>("EnterChatLobby", request);
 
             if (response == null) return;
 
-  
+
+            cbChannel.SelectedIndex = response.LobbyNumber - 1;
+            currentLobbyNumber = response.LobbyNumber;
+
             tbChatViewer.Text = "";
-            foreach(var chat in response.ChatHistory)
+            foreach (var chat in response.ChatHistory)
+            {
+                ShowChat(chat);
+            }
+            if (response.ChatHistory.Count != 0)
+                lastChatIndex = response.ChatHistory.Last().Index;
+            else
+                lastChatIndex = -1;
+
+        }
+
+        private async Task ExitLobby()
+        {
+            ExitChatLobbyRequest request;
+            request = new ExitChatLobbyRequest();
+            
+            var response = await HttpRequest.PostAuth<ExitChatLobbyResponse>("ExitChatLobby", request);
+
+            if (response == null) return;
+        }
+        
+        private async void ChangeLobby()
+        {
+            EnterChatLobbyRequest request;
+
+            request = new EnterChatLobbyRequest
+            {
+                LobbyNumber = currentLobbyNumber
+            };
+
+            var response = await HttpRequest.PostAuth<EnterChatLobbyResponse>("EnterChatLobby", request);
+
+            if (response == null) return;
+
+
+            tbChatViewer.Text = "";
+            foreach (var chat in response.ChatHistory)
             {
                 ShowChat(chat);
             }
@@ -72,13 +111,15 @@ namespace Com2usEduAPITester.TabControls
 
         private async Task WriteChat()
         {
+            WriteChatRequest request;
 
-            var request = new WriteChatRequest
+            request = new WriteChatRequest
             {
-                LobbyNumber = int.Parse(cbChannel.SelectedItem.ToString()),
+                LobbyNumber = currentLobbyNumber,
                 PlayerNickName = nickname,
                 Chat = tbUserChat.Text
             };
+            
             tbUserChat.Text = "";
             var response = await HttpRequest.PostAuth<WriteChatResponse>("WriteChat", request);
             ReadChat();
@@ -107,11 +148,14 @@ namespace Com2usEduAPITester.TabControls
 
         private async void ReadChat()
         {
-            var request = new ReadChatRequest
+            ReadChatRequest request;
+
+            request = new ReadChatRequest
             {
-                LobbyNumber = int.Parse(cbChannel.SelectedItem.ToString()),
+                LobbyNumber = currentLobbyNumber,
                 LastChatIndex = lastChatIndex
             };
+            
             var response = await HttpRequest.PostAuth<ReadChatResponse>("ReadChat", request);
 
             if (response == null) return;
@@ -124,9 +168,11 @@ namespace Com2usEduAPITester.TabControls
                 lastChatIndex = response.Chats.Last().Index;
         }
 
-        private void cbChannel_SelectionChangeCommitted(object sender, EventArgs e)
+        private async void cbChannel_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            LoadChatHistory();
+            await ExitLobby();
+            currentLobbyNumber = cbChannel.SelectedIndex + 1;
+            ChangeLobby();
         }
     }
 }
