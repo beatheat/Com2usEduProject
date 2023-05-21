@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class WriteChat
+public class WriteChat : ControllerBase
 {
 	readonly IMemoryDb _memoryDb;
 	readonly ILogger<WriteChat> _logger;
@@ -24,15 +24,15 @@ public class WriteChat
 	{
 		var response = new WriteChatResponse();
 
-		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.PlayerId, request.LobbyNumber);
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Invalidate Chat User");
+			LogError(errorCode, request, "Invalid Chat User");
 			response.Result = errorCode;
 			return response;
 		}
 		
-		errorCode = await _memoryDb.ChatManager.WriteChatAsync(request.LobbyNumber, request.PlayerId, request.PlayerNickName, request.Chat);
+		errorCode = await _memoryDb.ChatManager.WriteChatAsync(request.PlayerId, request.LobbyNumber, request.PlayerNickName, request.Chat);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode,request,"Write Chat Fail");

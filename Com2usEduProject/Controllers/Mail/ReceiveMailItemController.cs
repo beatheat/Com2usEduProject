@@ -11,7 +11,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ReceiveMailItemController
+public class ReceiveMailItemController : ControllerBase
 {
 	readonly IMasterDb _masterDb;
 	readonly IGameDb _gameDb;

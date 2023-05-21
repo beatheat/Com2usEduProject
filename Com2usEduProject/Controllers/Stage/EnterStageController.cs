@@ -11,14 +11,12 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class EnterStage
+public class EnterStage : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly IMemoryDb _memoryDb;
 	readonly IMasterDb _masterDb;
 	readonly ILogger<EnterStage> _logger;
-
-	const int MAX_STAGE_CODE = 4;
 	
 	public EnterStage(ILogger<EnterStage> logger, IGameDb gameDb, IMemoryDb memoryDb, IMasterDb masterDb)
 	{

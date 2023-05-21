@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ReadChat
+public class ReadChat : ControllerBase
 {
 	readonly IMemoryDb _memoryDb;
 	readonly ILogger<ReadChat> _logger;
@@ -24,10 +24,10 @@ public class ReadChat
 	{
 		var response = new ReadChatResponse();
 	
-		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.LobbyNumber, request.PlayerId);
+		var errorCode = await _memoryDb.ChatManager.ValidateChatUserAsync(request.PlayerId, request.LobbyNumber);
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, request, "Invalidate Chat User");
+			LogError(errorCode, request, "Invalid Chat User");
 			response.Result = errorCode;
 			return response;
 		}

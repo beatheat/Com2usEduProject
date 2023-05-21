@@ -10,7 +10,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class EnforcePlayerItem
+public class EnforcePlayerItem : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly IMasterDb _masterDb;

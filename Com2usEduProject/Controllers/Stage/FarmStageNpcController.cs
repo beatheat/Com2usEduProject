@@ -9,7 +9,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class FarmStageNpc
+public class FarmStageNpc : ControllerBase
 {
 	readonly IMemoryDb _memoryDb;
 	readonly ILogger<FarmStageNpc> _logger;

@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadPlayer
+public class LoadPlayer : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly ILogger<LoadPlayer> _logger;

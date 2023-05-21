@@ -9,7 +9,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ExitChatLobby
+public class ExitChatLobby : ControllerBase
 {
 	readonly IMemoryDb _memoryDb;
 	readonly ILogger<ExitChatLobby> _logger;
@@ -27,7 +27,7 @@ public class ExitChatLobby
 		var response = new ExitChatLobbyResponse();
 
 		var errorCode = await _memoryDb.ChatManager.ExitLobby(request.PlayerId);
-		if (errorCode == ErrorCode.None)
+		if (errorCode != ErrorCode.None)
 		{
 			response.Result = errorCode;
 			return response;

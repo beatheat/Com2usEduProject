@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadAttendanceInfo
+public class LoadAttendanceInfo : ControllerBase
 {
 	readonly ILogger<LoadAttendanceInfo> _logger;
 	readonly IGameDb _gameDb;

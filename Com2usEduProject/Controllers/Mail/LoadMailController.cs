@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadMail
+public class LoadMail : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly ILogger<LoadMail> _logger;

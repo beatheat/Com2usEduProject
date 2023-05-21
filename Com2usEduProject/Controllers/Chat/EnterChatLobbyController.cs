@@ -8,7 +8,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class EnterChatLobby
+public class EnterChatLobby : ControllerBase
 {
 	readonly IMemoryDb _memoryDb;
 	readonly ILogger<EnterChatLobby> _logger;
@@ -37,6 +37,14 @@ public class EnterChatLobby
 				return response;
 			}
 		}
+
+		errorCode = await _memoryDb.ChatManager.ExitLobbyIfExist(request.PlayerId);
+		if (errorCode != ErrorCode.None)
+		{
+			LogError(errorCode,request,"ExitLobby If Exist Fail");
+			response.Result = errorCode;
+			return response;
+		}
 		
 		errorCode = await _memoryDb.ChatManager.EnterLobby(request.PlayerId, lobbyNumber);
 		if (errorCode != ErrorCode.None)
@@ -55,9 +63,10 @@ public class EnterChatLobby
 		}
 		
 		response.ChatHistory = chatHistory;
+		response.LobbyNumber = lobbyNumber;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIEnterChatLobby],
-			new {PlayerId = request.PlayerId}, "Enter Chat Lobby Success");
+			new {PlayerId = request.PlayerId , LobbyNumber = request.LobbyNumber}, "Enter Chat Lobby Success");
 		return response;
 	}
 

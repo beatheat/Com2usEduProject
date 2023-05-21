@@ -10,7 +10,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CompleteStage
+public class CompleteStage : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly IMemoryDb _memoryDb;

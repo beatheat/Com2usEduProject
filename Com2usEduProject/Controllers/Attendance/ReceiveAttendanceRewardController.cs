@@ -10,7 +10,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ReceiveAttendanceReward
+public class ReceiveAttendanceReward : ControllerBase
 {
 	readonly ILogger<ReceiveAttendanceReward> _logger;
 	readonly IGameDb _gameDb;

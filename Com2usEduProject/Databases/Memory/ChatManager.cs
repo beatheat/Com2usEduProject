@@ -29,7 +29,7 @@ public class ChatManager
         public const string ChatUser = "ChatUser_";
         public const string ChatLobbyLog = "ChatLobbyLog_";
         public const string ChatLobbyUserCounts = "ChatLobbyUserCounts";
-        public const string ChatLobbyEnterLock = "ChatLobbyEnterLock";
+        public const string ChatLobbyEnterLock = "ChatLobbyEnterLock_";
     }
     class ChatConfig
     {
@@ -42,22 +42,41 @@ public class ChatManager
 	{
 		_redisConnection = redisConnection;
 		_logger = logger;
-        Init();
+        InitChatLobby();
 	}
 
-    private async void Init()
+    private async void InitChatLobby()
     {
         var redisKey = RedisKeyPrefix.ChatLobbyUserCounts;
         try
         {
             var redis = new RedisList<int>(_redisConnection, redisKey, null);
-            for (int i = 0; i < ChatConfig.MaxLobbyNum; i++)
-                await redis.SetByIndexAsync(i, 0);
+            await redis.DeleteAsync();
+            for (var i = 0; i < ChatConfig.MaxLobbyNum; i++)
+                await redis.RightPushAsync(0);
         }
         catch (Exception e)
         {
             _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ChatInitError], e, 
-                new {ErrorCode = ErrorCode.RedisFailException}, $"Redis List Set {redisKey} Fail");
+                new {ErrorCode = ErrorCode.RedisFailException}, $"Redis List Delete & Right Push {redisKey} Fail");
+        }
+    }
+    
+    private async void InitChatLobbyLock()
+    {
+        try
+        {
+            for (int i = 1; i <= ChatConfig.MaxLobbyNum; i++)
+            {
+                var redisKey = RedisKeyPrefix.ChatLobbyEnterLock + i;
+                var redis = new RedisString<int>(_redisConnection, redisKey, null);
+                await redis.DeleteAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ChatInitError], e, 
+                new {ErrorCode = ErrorCode.RedisFailException}, $"Redis String Delete All Lock Key Fail");
         }
     }
     
@@ -114,7 +133,7 @@ public class ChatManager
     }
 
         
-    public async Task<ErrorCode> WriteChatAsync(int lobbyNumber, int playerId, string playerNickname, string content)
+    public async Task<ErrorCode> WriteChatAsync(int playerId, int lobbyNumber, string playerNickname, string content)
     {
         if (lobbyNumber is < 1 or > ChatConfig.MaxLobbyNum)
         {
@@ -173,7 +192,7 @@ public class ChatManager
     
     public async Task<ErrorCode> EnterLobby(int playerId, int lobbyNumber)
     {
-        var errorCode = await SetLobbyEnterLockAsync();
+        var errorCode = await SetLobbyEnterLockAsync(lobbyNumber);
         if (errorCode != ErrorCode.None)
         {
             return errorCode;
@@ -182,18 +201,18 @@ public class ChatManager
         (errorCode, var lobbyUserCounts)  = await GetLobbyUserCountsAsync(lobbyNumber);
         if (lobbyUserCounts >= ChatConfig.MaxLobbyUserNum)
         {
-            await DelLobbyEnterLockAsync();
+            await DelLobbyEnterLockAsync(lobbyNumber);
             return errorCode;
         }
 		
         errorCode = await SetLobbyUserCountsAsync(lobbyNumber, lobbyUserCounts + 1);
         if (errorCode != ErrorCode.None)
         {
-            await DelLobbyEnterLockAsync();
+            await DelLobbyEnterLockAsync(lobbyNumber);
             return errorCode;
         }
 		
-        await DelLobbyEnterLockAsync();
+        await DelLobbyEnterLockAsync(lobbyNumber);
 
         errorCode = await SetChatUserAsync(playerId, lobbyNumber);
         if (errorCode != ErrorCode.None)
@@ -213,6 +232,36 @@ public class ChatManager
         }
 
         errorCode = await DelChatUserAsync(playerId);
+        if (errorCode != ErrorCode.None)
+        {
+            return errorCode;
+        }
+        
+        (errorCode, var lobbyUserCounts)  = await GetLobbyUserCountsAsync(chatUser.LobbyNumber);
+        if (lobbyUserCounts >= ChatConfig.MaxLobbyUserNum)
+        {
+            return errorCode;
+        }
+		
+        errorCode = await SetLobbyUserCountsAsync(chatUser.LobbyNumber, lobbyUserCounts - 1);
+        if (errorCode != ErrorCode.None)
+        {
+            return errorCode;
+        }
+
+        return ErrorCode.None;
+    }
+    
+    
+    public async Task<ErrorCode> ExitLobbyIfExist(int playerId)
+    {
+        var chatUser = await GetChatUserIfExistAsync(playerId);
+        if (chatUser == null)
+        {
+            return ErrorCode.None;
+        }
+
+        var errorCode = await DelChatUserAsync(playerId);
         if (errorCode != ErrorCode.None)
         {
             return errorCode;
@@ -260,9 +309,14 @@ public class ChatManager
         return (ErrorCode.ChatLobbyFull, -1);
     }
     
-    private async Task<ErrorCode> SetLobbyEnterLockAsync()
+    private async Task<ErrorCode> SetLobbyEnterLockAsync(int lobbyNumber)
     {
-        var redisKey = RedisKeyPrefix.ChatLobbyEnterLock;
+        if (ValidateChatLobbyNum(lobbyNumber))
+        {
+            return ErrorCode.ChatLobbyOutOfIndex;
+        }
+        
+        var redisKey = RedisKeyPrefix.ChatLobbyEnterLock + lobbyNumber;
         var expireTime = TimeSpan.FromSeconds(RedisKeyExpireTime.ChatLobbyEnterLockExpireSec);
 
         try
@@ -285,9 +339,14 @@ public class ChatManager
         }
     }
     
-    private async Task<ErrorCode> DelLobbyEnterLockAsync()
+    private async Task<ErrorCode> DelLobbyEnterLockAsync(int lobbyNumber)
     {
-        var redisKey = RedisKeyPrefix.ChatLobbyEnterLock;
+        if (ValidateChatLobbyNum(lobbyNumber))
+        {
+            return ErrorCode.ChatLobbyOutOfIndex;
+        }
+        
+        var redisKey = RedisKeyPrefix.ChatLobbyEnterLock + lobbyNumber;
         var expireTime = TimeSpan.FromSeconds(RedisKeyExpireTime.ChatLobbyEnterLockExpireSec);
 
         try
@@ -418,6 +477,25 @@ public class ChatManager
             _logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.GetChatUserError], e,
                 new {ErrorCode = ErrorCode.RedisFailException}, $"Redis String Get ({redisKey}) Fail");
             return (ErrorCode.RedisFailException, new ChatUser());
+        }
+    }
+    
+    private async Task<ChatUser> GetChatUserIfExistAsync(int playerId)
+    {
+        var redisKey = RedisKeyPrefix.ChatUser + playerId;
+        try
+        {
+            var redis = new RedisString<ChatUser>(_redisConnection, redisKey, null);
+            var chatUser = await redis.GetAsync();
+            if (!chatUser.HasValue)
+            {
+                return null;
+            }
+            return chatUser.Value;
+        }
+        catch
+        {
+            return null;
         }
     }
 

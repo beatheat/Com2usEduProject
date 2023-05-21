@@ -9,7 +9,7 @@ namespace Com2usEduProject.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadPlayerStageInfo
+public class LoadPlayerStageInfo : ControllerBase
 {
 	readonly IGameDb _gameDb;
 	readonly ILogger<LoadPlayerStageInfo> _logger;
