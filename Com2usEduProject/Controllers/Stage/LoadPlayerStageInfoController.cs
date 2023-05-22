@@ -35,7 +35,8 @@ public class LoadPlayerStageInfo : ControllerBase
 			return response;
 		}
 
-		response.AccessibleStageCode = Enumerable.Range(1, player.HighestClearStageCode + 1).ToList();
+		response.ClearStageCodes = Enumerable.Range(1, player.HighestClearStageCode).ToList();
+		response.AccessibleStageCodes = Enumerable.Range(1, player.HighestClearStageCode + 1).ToList();
 		response.MaxStageCode = MAX_STAGE_CODE;
 		
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APILoadCompletedStageList], 

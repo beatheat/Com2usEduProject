@@ -49,7 +49,7 @@ public class PlayerItemReceiver
 			(errorCode, var itemInfo) = _masterDb.GetItem(itemBundle.ItemCode);
 			if (errorCode != ErrorCode.None)
 			{
-				LogError(errorCode, new {MailItem = itemInfo}, "Receive - Unknown Item Code");
+				LogError(errorCode, new {ItemInfo = itemInfo}, "Receive - Unknown Item Code");
 				return errorCode;
 			}
 
@@ -59,7 +59,7 @@ public class PlayerItemReceiver
 				errorCode = await _gameDb.PlayerTable.UpdateAddColumnAsync(playerId, "Money", itemBundle.ItemCount);
 				if (errorCode != ErrorCode.None)
 				{
-					LogError(errorCode, new {MailItem = itemInfo}, "Receive - Update Player Add Money Fail");
+					LogError(errorCode, new {ItemInfo = itemInfo}, "Receive - Update Player Add Money Fail");
 					return errorCode;
 				}
 				_rollbackData.Add(new RollbackData{Count = itemBundle.ItemCount,Type = RollbackData.ProcessType.MONEY});
@@ -68,32 +68,44 @@ public class PlayerItemReceiver
 			//아이템이 소비아이템이고 같은 종류의 아이템이 존재 한다면 중첩해서 저장함
 			else if(itemInfo.Consumable)
 			{
-				(errorCode, var playerItem) = await _gameDb.PlayerItemTable.SelectByItemCodeAsync(itemInfo.Code);
+				(errorCode, var playerItem) = await _gameDb.PlayerItemTable.SelectByItemCodeAsync(playerId, itemInfo.Code);
 				if (errorCode == ErrorCode.None)
 				{
 					playerItem.Count += itemBundle.ItemCount;
 					errorCode = await _gameDb.PlayerItemTable.UpdateAsync(playerItem);
 					_rollbackData.Add(new RollbackData{PlayerItem = playerItem, Count = itemBundle.ItemCount, Type = RollbackData.ProcessType.UPDATE});
-					continue;
 				}
-				else if (errorCode != ErrorCode.PlayerItemSelectNotExist)
+				else if(errorCode == ErrorCode.PlayerItemSelectNotExist)
 				{
-					LogError(errorCode, new {MailItem = itemInfo}, "Receive - Select PlayerItem By ItemCode Fail");
+					(errorCode, var playerItemId) = await _gameDb.PlayerItemTable.InsertAsync(playerId, itemInfo, itemBundle.ItemCount);
+					if (errorCode != ErrorCode.None)
+					{
+						LogError(errorCode, new {ItemInfo = itemInfo}, "Receive - Insert PlayerItem Fail");
+						return errorCode;
+					}
+					_rollbackData.Add(new RollbackData{PlayerItemId = playerItemId, Count = 1, Type = RollbackData.ProcessType.UPDATE});
+				}
+				else
+				{
+					LogError(errorCode, new {ItemInfo = itemInfo}, "Receive - Select PlayerItem By ItemCode Fail");
 					return errorCode;
+				}
+			}
+			else
+			{
+				for (int i = 0; i < itemBundle.ItemCount; i++)
+				{
+					//아이템이 장비아이템이거나 처음 얻게 된 소비아이템이라면 플레이어 아이템에 새롭게 추가함
+					(errorCode, var playerItemId) = await _gameDb.PlayerItemTable.InsertAsync(playerId, itemInfo, 1);
+					if (errorCode != ErrorCode.None)
+					{
+						LogError(errorCode, new {ItemInfo = itemInfo}, "Receive - Insert PlayerItem Fail");
+						return errorCode;
+					}
+					_rollbackData.Add(new RollbackData{PlayerItemId = playerItemId, Count = 1, Type = RollbackData.ProcessType.UPDATE});
 				}
 			}
 
-			for (int i = 0; i < itemBundle.ItemCount; i++)
-			{
-				//아이템이 장비아이템이거나 처음 얻게 된 소비아이템이라면 플레이어 아이템에 새롭게 추가함
-				(errorCode, var playerItemId) = await _gameDb.PlayerItemTable.InsertAsync(playerId, itemInfo, 1);
-				if (errorCode != ErrorCode.None)
-				{
-					LogError(errorCode, new {MailItem = itemInfo}, "Receive - Insert PlayerItem Fail");
-					return errorCode;
-				}
-				_rollbackData.Add(new RollbackData{PlayerItemId = playerItemId, Count = 1, Type = RollbackData.ProcessType.UPDATE});
-			}
 		}
 
 		return ErrorCode.None;

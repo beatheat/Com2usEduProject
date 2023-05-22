@@ -125,6 +125,7 @@ public class PlayerTable
 		try
 		{
 			var count = await _queryFactory.Query("Player").Where("Id", player.Id).UpdateAsync(player);
+
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 
@@ -143,9 +144,11 @@ public class PlayerTable
 	
 	public async Task<ErrorCode> UpdateAsync<T>(int playerId, string column, T value)
 	{
+		var updateObject = new Dictionary<string, object> {[column] = value};
 		try
 		{
-			var count = await _queryFactory.Query("Player").Where("Id", playerId).Select(column).UpdateAsync(value);
+			var count = await _queryFactory.Query("Player").Where("Id", playerId).UpdateAsync(updateObject);
+
 			if (count != 1)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.PlayerUpdateError], 

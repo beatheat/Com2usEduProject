@@ -73,7 +73,6 @@ public class CompleteStage : ControllerBase
 			var errorCode = await _gameDb.PlayerTable.UpdateAsync(stageInfo.PlayerId, "HighestClearStageCode", stageInfo.HighestClearStageCode);
 			if (errorCode != ErrorCode.None)
 			{
-				LogError(errorCode, new {StageInfo = stageInfo}, "Update Highest Clear Stage");
 				return errorCode;
 			}
 		}

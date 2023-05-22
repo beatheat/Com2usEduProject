@@ -56,14 +56,14 @@ public class FarmStageItem : ControllerBase
 
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIFarmStageItem], 
 			new {PlayerId = request.PlayerId}, "Farm Stage Item Success");
-		return response;
+		return response;	
 	}
 
 	private bool ValidateStageItem(int itemCode,int itemCount , PlayerStageInfo stageInfo)
 	{
 		if (stageInfo.FarmedStageItemCounts.TryGetValue(itemCode, out var farmedItemCount))
 		{
-			if (farmedItemCount + itemCount  > stageInfo.MaxAvailableItemCounts[itemCode])
+			if (farmedItemCount + itemCount  <= stageInfo.MaxAvailableItemCounts[itemCode])
 			{
 				return true;
 			}

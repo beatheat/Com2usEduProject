@@ -40,7 +40,7 @@ public class EnterStage : ControllerBase
 		}
 		
 		// 스테이지 코드 유효성 검증
-		if (await ValidateStageCode(request.StageCode,player.HighestClearStageCode))
+		if (await ValidateStageCode(request.StageCode,player.HighestClearStageCode) == false)
 		{
 			errorCode = ErrorCode.WrongStageCode;
 			LogError(errorCode, request, "Wrong Stage Code");

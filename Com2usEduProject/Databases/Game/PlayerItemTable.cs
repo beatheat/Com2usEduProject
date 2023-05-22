@@ -89,11 +89,11 @@ public class PlayerItemTable
 		}
 	}
 	
-	public async Task<(ErrorCode, PlayerItem)> SelectByItemCodeAsync(int itemCode)
+	public async Task<(ErrorCode, PlayerItem)> SelectByItemCodeAsync(int playerId, int itemCode)
 	{
 		try
 		{
-			var query = _queryFactory.Query("PlayerItem").Where("ItemCode", itemCode);
+			var query = _queryFactory.Query("PlayerItem").Where("PlayerId", playerId).Where("ItemCode", itemCode);
 			
 			if (await query.ExistsAsync() == false)
 			{

@@ -3,6 +3,7 @@ using Com2usEduProject.ReqRes;
 using Microsoft.AspNetCore.Mvc;
 using Com2usEduProject.Databases;
 using Com2usEduProject.Databases.Schema.Extension;
+using Com2usEduProject.GameLogic;
 using Com2usEduProject.Tools;
 using ZLogger;
 
@@ -88,11 +89,12 @@ public class CreateAccount : ControllerBase
 		foreach (var item in initialPlayerItemList)
 		{
 			var (_,itemInfo) = _masterDb.GetItem(item.ItemCode);
-			
-			var (errorCode, _) = await _gameDb.PlayerItemTable.InsertAsync(playerId, itemInfo, item.ItemCount);
-			
+			var playerItemReceiver = new PlayerItemReceiver(_logger, _masterDb, _gameDb);
+			var errorCode = await playerItemReceiver.Receive(playerId, new ItemBundle {ItemCode = itemInfo.Code, ItemCount = item.ItemCount});
 			if (errorCode != ErrorCode.None)
+			{
 				return errorCode;
+			}
 		}
 		return ErrorCode.None;
 	}
