@@ -91,7 +91,7 @@
             this.tbServerURL.Name = "tbServerURL";
             this.tbServerURL.Size = new System.Drawing.Size(235, 27);
             this.tbServerURL.TabIndex = 6;
-            this.tbServerURL.Text = "http://localhost:11500";
+            this.tbServerURL.Text = "http://localhost:18989";
             this.tbServerURL.TextChanged += new System.EventHandler(this.tbServerURL_TextChanged);
             // 
             // lbServerURL
