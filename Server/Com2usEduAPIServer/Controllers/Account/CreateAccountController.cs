@@ -102,7 +102,7 @@ public class CreateAccount : ControllerBase
 	private async Task<ErrorCode> InsertTestMails(int playerId)
 	{
 		Random random = new Random();
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < 50; i++)
 		{
 			Mail mail = new Mail();
 			
