@@ -44,7 +44,7 @@ internal class HttpRequest
         s_clientVersion = clientVersion;
         s_tbRequest = tbRequest;
         s_tbResponse = tbResponse;
-        s_httpClient = new HttpClient();
+        s_httpClient = new HttpClient(new HttpClientHandler { UseProxy = false });
         encoderSettings.AllowRange(UnicodeRanges.All);
     }
 
