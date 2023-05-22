@@ -70,7 +70,7 @@ public class CompleteStage : ControllerBase
 		if (stageInfo.StageCode > stageInfo.HighestClearStageCode)
 		{
 			// 플레이어가 완료한 스테이지 추가
-			var errorCode = await _gameDb.PlayerTable.UpdateAsync(stageInfo.PlayerId, "HighestClearStageCode", stageInfo.HighestClearStageCode);
+			var errorCode = await _gameDb.PlayerTable.UpdateAsync(stageInfo.PlayerId, "HighestClearStageCode", stageInfo.StageCode);
 			if (errorCode != ErrorCode.None)
 			{
 				return errorCode;

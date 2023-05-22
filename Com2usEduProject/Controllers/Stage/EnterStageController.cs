@@ -40,7 +40,7 @@ public class EnterStage : ControllerBase
 		}
 		
 		// 스테이지 코드 유효성 검증
-		if (await ValidateStageCode(request.StageCode,player.HighestClearStageCode) == false)
+		if (ValidateStageCode(request.StageCode,player.HighestClearStageCode) == false)
 		{
 			errorCode = ErrorCode.WrongStageCode;
 			LogError(errorCode, request, "Wrong Stage Code");
@@ -69,7 +69,7 @@ public class EnterStage : ControllerBase
 	}
 
 
-	private async Task<bool> ValidateStageCode(int accessStageCode, int highestClearStageCode)
+	private bool ValidateStageCode(int accessStageCode, int highestClearStageCode)
 	{
 		int maxAccessibleStageCode = highestClearStageCode + 1;
 		if (accessStageCode < 1 || accessStageCode > maxAccessibleStageCode)
@@ -78,6 +78,7 @@ public class EnterStage : ControllerBase
 		}
 		return true;
 	}
+	
 	private PlayerStageInfo CreatePlayerStageInfo(int playerId, int stageCode, int highestClearStageCode, out List<StageItem> stageItems, out List<StageNpc> stageNpcs)
 	{
 		(_, stageItems) = _masterDb.GetStageItem(stageCode);
