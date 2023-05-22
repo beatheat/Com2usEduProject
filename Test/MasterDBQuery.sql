@@ -77,7 +77,6 @@ CREATE TABLE IF NOT EXISTS MasterDB.`InitialPlayerItem`
 
 INSERT INTO MasterDB.`Version`(Version, ClientVersion) VALUES('1.0.0', '1.0.0');
 
-INSERT INTO MasterDB.`InitialPlayerItem`(ItemCode, ItemCount) VALUES(1,300);
 INSERT INTO MasterDB.`InitialPlayerItem`(ItemCode, ItemCount) VALUES(2,1);
 INSERT INTO MasterDB.`InitialPlayerItem`(ItemCode, ItemCount) VALUES(6,3);
 
