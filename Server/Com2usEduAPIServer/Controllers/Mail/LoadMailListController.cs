@@ -30,7 +30,7 @@ public class LoadMailList : ControllerBase
 
 		// 메일함의 총 메일 갯수를 로드해, 총 페이지 수를 구함
 		var (errorCode, totalPageCount) = await _gameDb.MailTable.SelectCountAsync(request.PlayerId);
-		response.TotalPageCount /= PAGE_SIZE;
+		totalPageCount = (int) Math.Ceiling((double) totalPageCount / (double) PAGE_SIZE);
 		if (errorCode != ErrorCode.None)
 		{
 			LogError(errorCode, request, "Select Mail Count Fail");
