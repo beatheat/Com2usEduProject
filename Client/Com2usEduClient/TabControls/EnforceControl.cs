@@ -69,12 +69,12 @@ namespace Com2usEduClient.TabControls
                 else if (enforceState == EnforceState.Fail)
                 {
                     MessageBox.Show("강화실패");
+                    LoadEnforceItemList();
                 }
                 else
                 {
                     MessageBox.Show("강화불가");
                 }
-                LoadEnforceItemList();
             }
         }
 
