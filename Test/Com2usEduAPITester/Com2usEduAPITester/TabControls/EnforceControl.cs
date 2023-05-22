@@ -39,7 +39,7 @@ namespace Com2usEduAPITester.TabControls
                 PlayerItemId = itemId
             };
 
-            var response = await HttpRequest.PostAuth<EnforcePlayerItemResponse>("EnforcePlayerItem", request);
+            var response = await HttpRequest.PostAuthWithErrorCode<EnforcePlayerItemResponse>("EnforcePlayerItem", request);
 
             if (response == null) return;
 
@@ -74,6 +74,7 @@ namespace Com2usEduAPITester.TabControls
                 {
                     MessageBox.Show("강화불가");
                 }
+                LoadEnforceItemList();
             }
         }
 

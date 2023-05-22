@@ -66,10 +66,8 @@ namespace Com2usEduAPITester
             if (response == null)
                 return;
 
-            if (response.Result == ErrorCode.None)
-            {
-                MessageBox.Show("수령완료");
-            }
+            MessageBox.Show("수령완료");
+            
         }
 
         private async void lbxMailBox_DoubleClick(object sender, EventArgs e)
@@ -128,7 +126,7 @@ namespace Com2usEduAPITester
                 item += mail.Id + ":\t";
                 item += mail.Name + "\t";
                 item += mail.TransmissionDate + "\t";
-                item += mail.IsItemReceived ? "아이템O" : "아이템X";
+                item += mail.IsItemReceived ? "아이템 수령" : "아이템 미수령";
 
                 lbxMailBox.Items.Add(item);
             }

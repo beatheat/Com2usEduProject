@@ -52,7 +52,7 @@ namespace Com2usEduAPITester.TabControls
         {
             var request = new ReceiveAttendanceRewardRequest();
 
-            var response = await HttpRequest.PostAuth<ReceiveAttendanceRewardResponse>("ReceiveAttendanceReward", request);
+            var response = await HttpRequest.PostAuthWithErrorCode<ReceiveAttendanceRewardResponse>("ReceiveAttendanceReward", request);
             if (response == null) return;
 
 

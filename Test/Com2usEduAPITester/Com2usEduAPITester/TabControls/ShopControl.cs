@@ -46,11 +46,8 @@ namespace Com2usEduAPITester.TabControls
             var response = await HttpRequest.PostAuth<ReceiveAttendanceRewardResponse>("ReceiveInAppPurchaseItem", request);
             if (response == null) return;
 
-
-            if (response.Result == ErrorCode.None)
-            {
-                MessageBox.Show("구매완료! 우편함에서 아이템을 확인하세요");
-            }
+            MessageBox.Show("구매완료! 우편함에서 아이템을 확인하세요");
+            
         }
 
     }

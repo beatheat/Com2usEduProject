@@ -60,6 +60,48 @@ internal class HttpRequest
         s_serverUrl = serverURL;
     }
 
+    public static async Task<string?> PostWithoutVisual(string apiName, string jsonString)
+    {
+        if (s_httpClient == null)
+            throw new Exception("HttpRequest Not Initialized");
+        if (s_serverUrl == "")
+            throw new Exception("Server URL is Missing");
+
+        var targetURL = s_serverUrl + "/" + apiName;
+
+        var jsonObject = JsonNode.Parse(jsonString);
+
+        jsonObject["MasterDataVersion"] = s_masterDataVersion;
+        jsonObject["ClientVersion"] = s_clientVersion;
+
+        jsonString = jsonObject.ToJsonString(new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(encoderSettings),
+            WriteIndented = true,
+        });
+
+        using (var response = await s_httpClient.PostAsync(s_serverUrl + "/" + apiName, new StringContent(jsonString, Encoding.UTF8, "application/json")))
+        {
+            if (HttpStatusCode.OK == response.StatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var prettyJsonString = JsonSerializer.Serialize(JsonSerializer.Deserialize<object>(responseString), new JsonSerializerOptions { WriteIndented = true });
+
+                var commonResponse = JsonSerializer.Deserialize<CommonResponse>(responseString);
+                if (commonResponse.Result != ErrorCode.None)
+                {
+                    return responseString;
+                }
+
+                return responseString;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
 
     public static async Task<string?> Post(string apiName, string jsonString)
     {
@@ -86,6 +128,7 @@ internal class HttpRequest
         s_tbRequest.Text += "POST " + targetURL + "\r\n";
         s_tbRequest.Text += "Content-Type: application/json\r\n";
         s_tbRequest.Text += jsonString;
+
 
         using (var response = await s_httpClient.PostAsync(s_serverUrl + "/" + apiName, new StringContent(jsonString, Encoding.UTF8, "application/json")))
         {
@@ -136,7 +179,68 @@ internal class HttpRequest
         jsonString = await Post(apiName, jsonString);
         if (jsonString == null)
             return default(T);
-        
+
+        if (JsonSerializer.Deserialize<CommonResponse>(jsonString).Result != ErrorCode.None)
+            return default(T);
+
+        var response = JsonSerializer.Deserialize<T>(jsonString);
+        return response;
+    }
+
+    public static async Task<T?> PostAuthWitoutVisual<T>(string apiName, object jsonBody)
+    {
+
+        var jsonString = JsonSerializer.Serialize(jsonBody);
+
+        var jsonObject = JsonNode.Parse(jsonString);
+
+        if (s_authToken == "" || s_playerId == -1 || s_accountId == -1)
+            throw new Exception("Auth Not Initialized");
+
+        jsonObject["AccountId"] = s_accountId;
+        jsonObject["AuthToken"] = s_authToken;
+        jsonObject["PlayerId"] = s_playerId;
+
+        jsonString = jsonObject.ToJsonString(new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(encoderSettings),
+            WriteIndented = true,
+        });
+        jsonString = await PostWithoutVisual(apiName, jsonString);
+        if (jsonString == null)
+            return default(T);
+
+        if (JsonSerializer.Deserialize<CommonResponse>(jsonString).Result != ErrorCode.None)
+            return default(T);
+
+        var response = JsonSerializer.Deserialize<T>(jsonString);
+        return response;
+    }
+
+
+    public static async Task<T?> PostAuthWithErrorCode<T>(string apiName, object jsonBody)
+    {
+
+        var jsonString = JsonSerializer.Serialize(jsonBody);
+
+        var jsonObject = JsonNode.Parse(jsonString);
+
+        if (s_authToken == "" || s_playerId == -1 || s_accountId == -1)
+            throw new Exception("Auth Not Initialized");
+
+        jsonObject["AccountId"] = s_accountId;
+        jsonObject["AuthToken"] = s_authToken;
+        jsonObject["PlayerId"] = s_playerId;
+
+        jsonString = jsonObject.ToJsonString(new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(encoderSettings),
+            WriteIndented = true,
+        });
+        jsonString = await Post(apiName, jsonString);
+        if (jsonString == null)
+            return default(T);
+
         var response = JsonSerializer.Deserialize<T>(jsonString);
         return response;
     }

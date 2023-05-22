@@ -12,13 +12,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 
 
 namespace Com2usEduAPITester.TabControls
 {
     public partial class StageControl : UserControl
     {
-        private List<int> _accessibleStages = new List<int>();
         private int _selectedStageCode = 0;
 
         public StageControl()
@@ -36,16 +36,18 @@ namespace Com2usEduAPITester.TabControls
             var request = new LoadPlayerStageInfoRequest();
             var response = await HttpRequest.PostAuth<LoadPlayerStageInfoResponse>("LoadPlayerStageInfo", request);
             if (response == null) return;
-            var maxStageCode = response.MaxStageCode;
-            var completedStages = response.CompletedStages.ToList();
-            _accessibleStages = response.AccessibleStages.ToList();
+            var maxStageCode = response.MaxStageCode;   
+
+            var completedStages = response.ClearStageCodes;
+            var accessibleStages = response.AccessibleStageCodes;
 
             lbxStageList.Items.Clear();
+
 
             for(int i=1;i<=maxStageCode;i++)
             {
                 var text = "";
-                if (!_accessibleStages.Contains(i))
+                if (!accessibleStages.Contains(i))
                     text += "🔒";
                 text += "스테이지 " + i;
                 if (completedStages.Contains(i))
@@ -82,7 +84,6 @@ namespace Com2usEduAPITester.TabControls
                 btnAutoGame.Enabled = true;
                 return;
             }
-           
 
             var (itemString, expString) = await Game(responseEnter.StageItems, responseEnter.StageNpcs);
 
@@ -115,13 +116,23 @@ namespace Com2usEduAPITester.TabControls
             var itemString = "";
             var npcString = "";
 
+            var farmItems = GetRandomStageItems(stageItems);
+            var farmNpcs = GetRandomStageNpcs(stageNpcs);
 
-            var itemTask = Task.Run(async () =>
+            List<object> farmObjects = new List<object>();
+
+            var random = new Random();
+            
+            int farmItemIndex = 0;
+            int farmNpcIndex = 0;
+
+            int exp = 0;
+            
+            while(farmItemIndex < farmItems.Count || farmNpcIndex < farmNpcs.Count)
             {
-                var farmItems = GetRandomStageItems(stageItems);
-
-                foreach (var farmItem in farmItems)
+                if (random.Next(2) == 0 && farmItemIndex < farmItems.Count)
                 {
+                    var farmItem = farmItems[farmItemIndex];
                     var request = new FarmStageItemRequest
                     {
                         ItemCode = farmItem.ItemCode,
@@ -130,46 +141,36 @@ namespace Com2usEduAPITester.TabControls
                     var response = await HttpRequest.PostAuth<FarmStageItemResponse>("FarmStageItem", request);
                     if (response == null)
                     {
-                        return;
+                        break;
                     }
-                    lock (this)
-                    {
-                        tbStageLog.AppendText(MasterData.ItemName[farmItem.ItemCode] + "를 " + farmItem.ItemCount + "개 획득!\r\n");
-                    }
+    
+                    tbStageLog.AppendText(MasterData.ItemName[farmItem.ItemCode] + "를 " + farmItem.ItemCount + "개 획득!\r\n");
+                   
                     itemString += MasterData.ItemName[farmItem.ItemCode] + " : " + farmItem.ItemCount + "개\r\n";
-                    await Task.Delay(100);
+                    farmItemIndex++;
                 }
-            });
-
-            var npcTask = Task.Run(async () =>
-            {
-                var farmNpcs = GetRandomStageNpcs(stageNpcs);
-                int exp = 0;
-                foreach (var farmNpc in farmNpcs)
+                else if(farmNpcIndex < farmNpcs.Count)
                 {
-                    for (int i = 0; i < farmNpc.Count; i++)
+                    var farmNpc = farmNpcs[farmNpcIndex];
+
+                    var request = new FarmStageNpcRequest
                     {
-                        var request = new FarmStageNpcRequest
-                        {
-                            NpcCode = farmNpc.Code
-                        };
-                        var response = await HttpRequest.PostAuth<FarmStageItemResponse>("FarmStageNpc", request);
-                        if (response == null)
-                            return;
-                        lock (this)
-                        {
-                            tbStageLog.AppendText(farmNpc.Code + "를 처치했습니다! 경험치(" + farmNpc.Exp + ") 획득! \r\n");
-                        }
-                        exp += farmNpc.Exp;
-                        await Task.Delay(50);
-                    }
+                        NpcCode = farmNpc.Code
+                    };
+                    var response = await HttpRequest.PostAuth<FarmStageItemResponse>("FarmStageNpc", request);
+                    if (response == null)
+                        break;
+      
+                    tbStageLog.AppendText(farmNpc.Code + "를 처치했습니다! 경험치(" + farmNpc.Exp + ") 획득! \r\n");
+                    exp += farmNpc.Exp;
+
+                    farmNpcIndex++;
+                    await Task.Delay(50);
+
                 }
-                npcString = "경험치 : " + exp;
-            });
 
-            await itemTask;
-            await npcTask;
-
+            }
+            npcString += "경험치 : " + exp + "\r\n";  
             return (itemString, npcString);
 
         }
@@ -196,21 +197,30 @@ namespace Com2usEduAPITester.TabControls
         {
 
             Random random = new Random();
+            List<StageNpc> result = new List<StageNpc>();
+
 
             if (random.Next(100) < 75)
             {
-                return stageNpcs.ToList();
+                foreach (var stageNpc in stageNpcs)
+                {
+                    for (int i = 0; i < stageNpc.Count; i++)
+                    {
+                        result.Add(stageNpc);
+                    }
+                }
+                return result;
             }
 
-            List<StageNpc> result = new List<StageNpc>();
 
             foreach (var stageNpc in stageNpcs)
             {
-                if (random.Next(100) < 75)
+                for (int i = 0; i < stageNpc.Count; i++)
                 {
-                    var selectedNpc = new StageNpc();
-                    selectedNpc.Count = random.Next(stageNpc.Count)+1;
-                    result.Add(selectedNpc);
+                    if (random.Next(100) < 75)
+                    {
+                        result.Add(stageNpc);
+                    }
                 }
             }
             return result;
