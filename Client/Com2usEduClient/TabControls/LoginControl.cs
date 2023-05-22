@@ -39,11 +39,16 @@ namespace Com2usEduClient
                 LoginId = tbID.Text,
                 Password = tbPassword.Text,
             };
-            await HttpRequest.Post("CreateAccount", JsonSerializer.Serialize(jsonBody, new JsonSerializerOptions
+            var response = await HttpRequest.Post("CreateAccount", JsonSerializer.Serialize(jsonBody, new JsonSerializerOptions
             {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(HttpRequest.encoderSettings),
                 WriteIndented = true,
             }));
+
+            if (response == null) return;
+            var createAccountResponse = JsonSerializer.Deserialize<CreateAccountResponse>(response);
+            if(createAccountResponse.Result == ErrorCode.None)
+                MessageBox.Show("계정이 생성되었습니다.");
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
