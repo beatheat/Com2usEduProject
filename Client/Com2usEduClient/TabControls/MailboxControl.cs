@@ -67,7 +67,7 @@ namespace Com2usEduClient
                 return;
 
             MessageBox.Show("수령완료");
-            
+            await LoadMailBox(_currentMailBoxPageNo);
         }
 
         private async void lbxMailBox_DoubleClick(object sender, EventArgs e)
@@ -123,9 +123,9 @@ namespace Com2usEduClient
             foreach (var mail in response.MailList)
             {
                 var item = "";
-                item += mail.Id + ":\t";
-                item += mail.Name + "\t";
-                item += mail.TransmissionDate + "\t";
+                item += mail.Id + ":  ";
+                item += mail.Name + "  ";
+                item += mail.TransmissionDate.ToString("yyyy-MM-dd") + "  ";
                 item += mail.IsItemReceived ? "아이템 수령" : "아이템 미수령";
 
                 lbxMailBox.Items.Add(item);
