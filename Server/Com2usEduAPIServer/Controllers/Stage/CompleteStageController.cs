@@ -50,15 +50,16 @@ public class CompleteStage : ControllerBase
 				response.Result = errorCode;
 				return response;
 			}
+			
+			errorCode = await UpdateHighestClearStage(stageInfo);
+			if (errorCode != ErrorCode.None)
+			{
+				LogError(errorCode, request, "Update HighestClearStage Fail");
+				response.Result = errorCode;
+				return response;
+			}
 		}
 
-		errorCode = await UpdateHighestClearStage(stageInfo);
-		if (errorCode != ErrorCode.None)
-		{
-			LogError(errorCode, request, "Update HighestClearStage Fail");
-			response.Result = errorCode;
-			return response;
-		}
 
 		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APICompleteStage], 
 			new {PlayerId = request.PlayerId, IsStageClear = response.IsStageCleared}, "Complete Stage Success");
