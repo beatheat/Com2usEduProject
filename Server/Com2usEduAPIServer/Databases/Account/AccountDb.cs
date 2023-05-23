@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using Com2usEduAPIServer.Databases.Schema;
-using Com2usEduAPIServer.ModelDB;
 using Com2usEduAPIServer.Tools;
 using Microsoft.Extensions.Options;
 using MySqlConnector;

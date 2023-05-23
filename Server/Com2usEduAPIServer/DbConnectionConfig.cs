@@ -1,4 +1,4 @@
-﻿namespace Com2usEduAPIServer.ModelDB;
+﻿namespace Com2usEduAPIServer;
 
 public class DbConnectionConfig
 {

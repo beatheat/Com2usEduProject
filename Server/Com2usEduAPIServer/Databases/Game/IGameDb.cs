@@ -1,5 +1,4 @@
 ﻿using Com2usEduAPIServer.Databases.Schema;
-using Com2usEduAPIServer.ModelDB;
 
 namespace Com2usEduAPIServer.Databases;
 
