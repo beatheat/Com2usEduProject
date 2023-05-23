@@ -1,3 +1,6 @@
+# DB Schema
+API 서버에서 사용하는 MySQL DB의 테이블 스키마를 소개한다.
+
 # Account DB
 
 ## Account 테이블
