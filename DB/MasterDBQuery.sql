@@ -8,32 +8,32 @@ CREATE TABLE IF NOT EXISTS MasterDB.`Version`
 (
 	Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '고유번호',
 	Version VARCHAR(30) NOT NULL COMMENT '마스터데이터 버전',
-    ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
+	ClientVersion VARCHAR(30) NOT NULL COMMENT '클라이언트 버전'
 ) COMMENT '데이터 버전 테이블';
 
 
 DROP TABLE IF EXISTS MasterDB.`Item`;
 CREATE TABLE IF NOT EXISTS MasterDB.`Item`
 (
-    Code INT NOT NULL PRIMARY KEY COMMENT '아이템 번호',
-    Name VARCHAR(50) NOT NULL UNIQUE COMMENT '아이템 이름',
-    Attribute SMALLINT NOT NULL COMMENT  '특성번호',
-    Sell INT NOT NULL COMMENT '판매 금액',
-    Buy INT NOT NULL COMMENT '구매 금액',
-    UseLevel INT NOT NULL COMMENT '사용가능 레벨',
-    Attack INT NOT NULL COMMENT '공격력',
-    Defence INT NOT NULL COMMENT '방어력',
+	Code INT NOT NULL PRIMARY KEY COMMENT '아이템 번호',
+	Name VARCHAR(50) NOT NULL UNIQUE COMMENT '아이템 이름',
+	Attribute SMALLINT NOT NULL COMMENT  '특성번호',
+	Sell INT NOT NULL COMMENT '판매 금액',
+	Buy INT NOT NULL COMMENT '구매 금액',
+	UseLevel INT NOT NULL COMMENT '사용가능 레벨',
+	Attack INT NOT NULL COMMENT '공격력',
+	Defence INT NOT NULL COMMENT '방어력',
 	Magic INT NOT NULL COMMENT '마법력',
-    MaxEnhanceCount INT NOT NULL COMMENT '최대 강화 가능 횟수',
+	MaxEnhanceCount INT NOT NULL COMMENT '최대 강화 가능 횟수',
 	Consumable BOOL NOT NULL DEFAULT FALSE COMMENT '소비가능 여부'
 ) COMMENT '아이템 테이블';
 
 DROP TABLE IF EXISTS MasterDB.`AttendanceReward`;
 CREATE TABLE IF NOT EXISTS MasterDB.`AttendanceReward`
 (
-    Day INT NOT NULL PRIMARY KEY COMMENT '날짜',
-    ItemCode INT NOT NULL COMMENT '아이템 코드',
-    ItemCount INT NOT NULL COMMENT  '아이템 개수'
+	Day INT NOT NULL PRIMARY KEY COMMENT '날짜',
+	ItemCode INT NOT NULL COMMENT '아이템 코드',
+	ItemCount INT NOT NULL COMMENT  '아이템 개수'
 ) COMMENT '출석 보상 테이블';
 
 DROP TABLE IF EXISTS MasterDB.`ShopItem`;
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS MasterDB.`ShopItem`
 	UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT  '상품테이블 고유번호',
 	Code INT NOT NULL COMMENT '상품번호',
 	ItemCode INT NOT NULL COMMENT '아이템코드',
-    ItemCount INT NOT NULL COMMENT '아이템 개수'
+	ItemCount INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '인앱상품 테이블';
 
 DROP TABLE IF EXISTS MasterDB.`StageItem`;
@@ -51,18 +51,16 @@ CREATE TABLE IF NOT EXISTS MasterDB.`StageItem`
 	UniqueNo INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '행 고유 번호',
 	StageCode INT NOT NULL COMMENT '스테이지 번호',
 	ItemCode INT NOT NULL COMMENT '아이템코드',
-    MaxItemCount INT NOT NULL COMMENT '아이템 최대 개수'
+	MaxItemCount INT NOT NULL COMMENT '아이템 최대 개수'
 ) COMMENT '스테이지 아이템 테이블';
 
 DROP TABLE IF EXISTS MasterDB.`StageNpc`;
 CREATE TABLE IF NOT EXISTS MasterDB.`StageNpc`
 (
-
 	Code INT NOT NULL PRIMARY KEY COMMENT '스테이지 NPC 번호',
 	StageCode INT NOT NULL COMMENT '스테이지 번호',
 	Count INT NOT NULL COMMENT 'NPC 개수',
 	Exp INT NOT NULL COMMENT '1개당 경험치'
-
 ) COMMENT '스테이지 NPC 테이블';
 
 
