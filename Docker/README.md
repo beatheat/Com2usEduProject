@@ -4,8 +4,9 @@
 
 
 ## 개요
-MySQL 서버, Redis 서버, API 서버 3가지를 서로 다른 도커 컨테이너에 운영하여
-분리된 환경에서 시스템이 정상적으로 운영되는 지 확인한다. 각 서버는 아래와 같이 컨테이너 이름을 짓는다.
+MySQL 서버, Redis 서버, API 서버 3가지를 서로 다른 도커 컨테이너에 운영하여 배포한다.
+
+아래는 각 컨테이너의 이름이다.
 
 1. MySQL 서버 : com2us-edu-mysql
 2. Redis 서버 : com2us-edu-redis
@@ -15,6 +16,70 @@ MySQL 서버, Redis 서버, API 서버 3가지를 서로 다른 도커 컨테이
 ## Com2usEduProject Docker 환경 구조도
  
 ![](https://cdn.discordapp.com/attachments/987652135107850315/1110267817284079767/image.png)
+
+
+## Docke-compose 
+```docker-compose
+version: "3"
+
+services:
+  apiserver:
+    container_name: com2us-edu-apiserver
+    build:
+      context : apiserver
+      dockerfile : Dockerfile
+    ports:
+      - 18989:18989
+    networks:
+      - com2us-edu-network
+
+
+  db:   
+    container_name: com2us-edu-mysql
+    image: mysql
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
+
+    volumes:
+      - "./mysql/initSQL:/docker-entrypoint-initdb.d/"
+
+    networks:
+      - com2us-edu-network
+
+
+  memorydb:
+    container_name: com2us-edu-redis
+    image: redis
+    
+    restart: always
+
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    networks: 
+      - com2us-edu-network
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+
+networks:
+  com2us-edu-network:
+    driver: bridge
+```
+Docker compose를 통해 시스템을 구성할 수 있다. 시스템을 구성하기 전 작성해야하는 Configuration은 2가지가 있다.
+
+
+1. MYSQL_ROOT_PASSWORD 작성
+- docker-compose.yml에서 MySQL의 ROOT 비밀번호를 수정한다. 
+2. API Server의 appconfiguration.json 확인
+- apiserver/app/appconfiguration.json에서 MySQL DB 연결정보를 수정한다.
+
+
+
+## 각 컨테이너의 구성방법
+
+Docker-compose에서 행하는 각 구성요소의 의미를 파악하기 위해 각각의 컨테이너를 수동으로 설정하는 방법을 알아본다.
 
 
 ## Redis 설정

@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  apiserver:
+    container_name: com2us-edu-apiserver
+    build:
+      context : apiserver
+      dockerfile : Dockerfile
+    ports:
+      - 18989:18989
+    networks:
+      - com2us-edu-network
+
+
+  db:   
+    container_name: com2us-edu-mysql
+    image: mysql
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
+
+    volumes:
+      - "./mysql/initSQL:/docker-entrypoint-initdb.d/"
+
+    networks:
+      - com2us-edu-network
+
+
+  memorydb:
+    container_name: com2us-edu-redis
+    image: redis
+    
+    restart: always
+
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    networks: 
+      - com2us-edu-network
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+
+networks:
+  com2us-edu-network:
+    driver: bridge
