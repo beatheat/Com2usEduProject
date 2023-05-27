@@ -54,16 +54,16 @@ public class FarmStageNpc : ControllerBase
 			return response;
 		}
 
-		 _logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIFarmStageNPC], 
+		_logger.ZLogInformationWithPayload(LogManager.EventIdDic[EventType.APIFarmStageNPC], 
 			new {PlayerId = request.PlayerId}, "Farm Stage Npc Success");
 		return response;	
 	}
 	
-	private bool ValidateStageNpc(int npcCode, PlayerStageInfo stageInfo)
+	private bool ValidateStageNpc(int npcCode, PlayerInGameStageInfo inGameStageInfo)
 	{
-		if (stageInfo.FarmedStageNpcCounts.TryGetValue(npcCode, out var farmedNpcCount))
+		if (inGameStageInfo.FarmedStageNpcCounts.TryGetValue(npcCode, out var farmedNpcCount))
 		{
-			if (farmedNpcCount + 1 <= stageInfo.MaxAvailableStageNpcCounts[npcCode])
+			if (farmedNpcCount + 1 <= inGameStageInfo.MaxAvailableStageNpcCounts[npcCode])
 			{
 				return true;
 			}

@@ -66,12 +66,12 @@ public class CompleteStage : ControllerBase
 		return response;
 	}
 
-	private async Task<ErrorCode> UpdateHighestClearStage(PlayerStageInfo stageInfo)
+	private async Task<ErrorCode> UpdateHighestClearStage(PlayerInGameStageInfo inGameStageInfo)
 	{
-		if (stageInfo.StageCode > stageInfo.HighestClearStageCode)
+		if (inGameStageInfo.PlayingStageCode > inGameStageInfo.HighestClearStageCode)
 		{
 			// 플레이어가 완료한 스테이지 추가
-			var errorCode = await _gameDb.PlayerTable.UpdateAsync(stageInfo.PlayerId, "HighestClearStageCode", stageInfo.StageCode);
+			var errorCode = await _gameDb.PlayerTable.UpdateAsync(inGameStageInfo.PlayerId, "HighestClearStageCode", inGameStageInfo.PlayingStageCode);
 			if (errorCode != ErrorCode.None)
 			{
 				return errorCode;
@@ -80,34 +80,34 @@ public class CompleteStage : ControllerBase
 		return ErrorCode.None;
 	}
 
-	private async Task<ErrorCode> InsertStageRewardToPlayer(PlayerStageInfo stageInfo)
+	private async Task<ErrorCode> InsertStageRewardToPlayer(PlayerInGameStageInfo inGameStageInfo)
 	{
 		//경험치 획득
-		var errorCode = await _gameDb.PlayerTable.UpdateAddColumnAsync(stageInfo.PlayerId, "Exp", CalculateStageExp(stageInfo.StageCode));
+		var errorCode = await _gameDb.PlayerTable.UpdateAddColumnAsync(inGameStageInfo.PlayerId, "Exp", CalculateStageExp(inGameStageInfo.PlayingStageCode));
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, new{PlayerStageInfo = stageInfo}, "InsertStageRewardToPlayer - Receive Stage Reward Exp To Player Fail");
+			LogError(errorCode, new{PlayerStageInfo = inGameStageInfo}, "InsertStageRewardToPlayer - Receive Stage Reward Exp To Player Fail");
 			return errorCode;
 		}
 		
 		//아이템 획득
 		var itemReceiver = new PlayerItemReceiver(_logger, _masterDb, _gameDb);
-		errorCode = await itemReceiver.Receive(stageInfo.PlayerId, CreateRewardItemList(stageInfo));
+		errorCode = await itemReceiver.Receive(inGameStageInfo.PlayerId, CreateRewardItemList(inGameStageInfo));
 		if (errorCode != ErrorCode.None)
 		{
-			LogError(errorCode, new{PlayerStageInfo = stageInfo}, "InsertStageRewardToPlayer - Receive Stage Reward Item To Player Fail");
-			await itemReceiver.Rollback(stageInfo.PlayerId);
+			LogError(errorCode, new{PlayerStageInfo = inGameStageInfo}, "InsertStageRewardToPlayer - Receive Stage Reward Item To Player Fail");
+			await itemReceiver.Rollback(inGameStageInfo.PlayerId);
 			return errorCode;
 		}
 
 		return ErrorCode.None;
 	}
 
-	private List<ItemBundle> CreateRewardItemList(PlayerStageInfo stageInfo)
+	private List<ItemBundle> CreateRewardItemList(PlayerInGameStageInfo inGameStageInfo)
 	{
-		var (_, stageItems) = _masterDb.GetStageItem(stageInfo.StageCode);
+		var (_, stageItems) = _masterDb.GetStageItem(inGameStageInfo.PlayingStageCode);
 		var itemBundles = new List<ItemBundle>();
-		foreach (var farmedItem in stageInfo.FarmedStageItemCounts)
+		foreach (var farmedItem in inGameStageInfo.FarmedStageItemCounts)
 		{
 			var itemCode = farmedItem.Key;
 			var itemCount = farmedItem.Value;
@@ -131,12 +131,12 @@ public class CompleteStage : ControllerBase
 		return expSum;
 	}
 	
-	private bool CheckStageClear(PlayerStageInfo stageInfo)
+	private bool CheckStageClear(PlayerInGameStageInfo inGameStageInfo)
 	{
-		var (_, stageNpcs) = _masterDb.GetStageNpc(stageInfo.StageCode);
+		var (_, stageNpcs) = _masterDb.GetStageNpc(inGameStageInfo.PlayingStageCode);
 		foreach (var npc in stageNpcs)
 		{
-			if (stageInfo.FarmedStageNpcCounts[npc.Code] < npc.Count)
+			if (inGameStageInfo.FarmedStageNpcCounts[npc.Code] < npc.Count)
 			{
 				return false;
 			}

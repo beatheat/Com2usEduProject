@@ -15,6 +15,6 @@ public class LoadPlayerStageInfoResponse
 	public ErrorCode Result { get; set; } = ErrorCode.None;
 
 	public int MaxStageCode { get; set; }
-	public List<int> ClearStageCodes { get; set; }
-	public List<int> AccessibleStageCodes { get; set; }
+	public IList<int> ClearStageCodes { get; set; }
+	public IList<int> AccessibleStageCodes { get; set; }
 }

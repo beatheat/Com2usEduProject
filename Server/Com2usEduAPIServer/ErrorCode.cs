@@ -163,6 +163,7 @@ public enum ErrorCode : UInt16
     SetChatUserFail = 50305,
     ChatUserNotFound = 50306,
     ChatLobbyFull = 50307,
+    WrongChatIndex = 50308,
     //StageManager 50400 ~ -------------------------------------------------
     
 }

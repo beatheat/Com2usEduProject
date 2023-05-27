@@ -222,7 +222,7 @@
             this.Controls.Add(this.tbRequest);
             this.Controls.Add(this.tabAPI);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Com2usEduClient";
             this.ResumeLayout(false);
             this.PerformLayout();
 

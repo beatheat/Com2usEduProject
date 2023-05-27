@@ -74,7 +74,7 @@ public class PlayerItemTable
 		}
 	}
 	
-	public async Task<(ErrorCode, IList<PlayerItem>)> SelectListAsync(int playerId)
+	public async Task<(ErrorCode, List<PlayerItem>)> SelectListAsync(int playerId)
 	{
 		try
 		{

@@ -47,6 +47,8 @@ public class EnforcePlayerItem : ControllerBase
 			return response;
 		}
 
+		
+		
 		// 아이템 강화
 		(errorCode, var enforceState) = await EnforceItem(playerItem);
 		if (errorCode != ErrorCode.None)

@@ -79,12 +79,12 @@ public class EnterStage : ControllerBase
 		return true;
 	}
 	
-	private PlayerStageInfo CreatePlayerStageInfo(int playerId, int stageCode, int highestClearStageCode, out List<StageItem> stageItems, out List<StageNpc> stageNpcs)
+	private PlayerInGameStageInfo CreatePlayerStageInfo(int playerId, int stageCode, int highestClearStageCode, out List<StageItem> stageItems, out List<StageNpc> stageNpcs)
 	{
 		(_, stageItems) = _masterDb.GetStageItem(stageCode);
 		(_, stageNpcs) = _masterDb.GetStageNpc(stageCode);
 		
-		var stageInfo = new PlayerStageInfo {PlayerId = playerId, StageCode = stageCode, HighestClearStageCode = highestClearStageCode};
+		var stageInfo = new PlayerInGameStageInfo {PlayerId = playerId, PlayingStageCode = stageCode, HighestClearStageCode = highestClearStageCode};
 
 		foreach (var item in stageItems)
 		{

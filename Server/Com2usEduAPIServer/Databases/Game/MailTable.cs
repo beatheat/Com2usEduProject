@@ -65,7 +65,7 @@ public class MailTable
 	}
 
 	
-	public async Task<(ErrorCode, IList<Mail>)> SelectList(int playerId, int size, int offset)
+	public async Task<(ErrorCode, List<Mail>)> SelectList(int playerId, int size, int offset)
 	{
 		try
 		{

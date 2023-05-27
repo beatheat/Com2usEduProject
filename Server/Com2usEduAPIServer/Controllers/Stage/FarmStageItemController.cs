@@ -59,11 +59,11 @@ public class FarmStageItem : ControllerBase
 		return response;	
 	}
 
-	private bool ValidateStageItem(int itemCode,int itemCount , PlayerStageInfo stageInfo)
+	private bool ValidateStageItem(int itemCode,int itemCount , PlayerInGameStageInfo inGameStageInfo)
 	{
-		if (stageInfo.FarmedStageItemCounts.TryGetValue(itemCode, out var farmedItemCount))
+		if (inGameStageInfo.FarmedStageItemCounts.TryGetValue(itemCode, out var farmedItemCount))
 		{
-			if (farmedItemCount + itemCount  <= stageInfo.MaxAvailableItemCounts[itemCode])
+			if (farmedItemCount + itemCount  <= inGameStageInfo.MaxAvailableItemCounts[itemCode])
 			{
 				return true;
 			}

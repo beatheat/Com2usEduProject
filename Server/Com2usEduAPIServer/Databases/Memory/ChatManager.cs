@@ -52,7 +52,7 @@ public class ChatManager
         {
             var redis = new RedisList<int>(_redisConnection, redisKey, null);
             await redis.DeleteAsync();
-            for (var i = 0; i < ChatConfig.MaxLobbyNum; i++)
+            for (var i = 0; i <= ChatConfig.MaxLobbyNum; i++)
                 await redis.RightPushAsync(0);
         }
         catch (Exception e)
@@ -113,6 +113,9 @@ public class ChatManager
         {
             return (ErrorCode.ChatLobbyOutOfIndex, Array.Empty<Chat>());
         }
+
+        if (index < 0)
+            return (ErrorCode.WrongChatIndex, Array.Empty<Chat>());
         try
         {
             var redis = new RedisList<Chat>(_redisConnection, redisKey, null);

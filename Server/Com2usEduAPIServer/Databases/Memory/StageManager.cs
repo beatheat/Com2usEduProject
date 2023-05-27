@@ -25,16 +25,16 @@ public class StageManager
 		_logger = logger;
 	}
 
-	public async Task<ErrorCode> EnterStageAsync(int playerId, PlayerStageInfo stageInfo)
+	public async Task<ErrorCode> EnterStageAsync(int playerId, PlayerInGameStageInfo inGameStageInfo)
 	{
 		var keyTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.StageKeyExpireMin);
 		try
 		{
-			var redis= new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, keyTimeSpan);
-			if (await redis.SetAsync(stageInfo, keyTimeSpan/*, When.NotExists*/) == false)
+			var redis= new RedisString<PlayerInGameStageInfo>(_redisConnection, SUID + playerId, keyTimeSpan);
+			if (await redis.SetAsync(inGameStageInfo, keyTimeSpan/*, When.NotExists*/) == false)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError],
-					new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = stageInfo},
+					new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = inGameStageInfo},
 					$"Redis Set Duplicate Key Error");           
 				return ErrorCode.RedisSetDuplicateKey;
 			}
@@ -44,22 +44,22 @@ public class StageManager
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError], e,
-				new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = stageInfo},
+				new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = inGameStageInfo},
 				$"Redis Set Fail");           
 			return ErrorCode.RedisFailException;
 		}
 	}
 	
-	public async Task<ErrorCode> UpdatePlayerStageInfoAsync(int playerId, PlayerStageInfo stageInfo)
+	public async Task<ErrorCode> UpdatePlayerStageInfoAsync(int playerId, PlayerInGameStageInfo inGameStageInfo)
 	{
 		var keyTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.StageKeyExpireMin);
 		try
 		{
-			var redis = new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, keyTimeSpan);
-			if (await redis.SetAsync(stageInfo, keyTimeSpan, When.Exists) == false)
+			var redis = new RedisString<PlayerInGameStageInfo>(_redisConnection, SUID + playerId, keyTimeSpan);
+			if (await redis.SetAsync(inGameStageInfo, keyTimeSpan, When.Exists) == false)
 			{
 				_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError],
-					new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = stageInfo},
+					new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = inGameStageInfo},
 					$"Redis Set Key Not Found");           
 				return ErrorCode.RedisKeyNotFound;
 			}
@@ -69,23 +69,23 @@ public class StageManager
 		catch (Exception e)
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError], e,
-				new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = stageInfo},
+				new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId, StageInfo = inGameStageInfo},
 				$"Redis Set Fail");
 			return ErrorCode.RedisFailException;
 		}
 	}
 
-	public async Task<(ErrorCode, PlayerStageInfo)> GetPlayerStageInfoAsync(int playerId)
+	public async Task<(ErrorCode, PlayerInGameStageInfo)> GetPlayerStageInfoAsync(int playerId)
 	{
 		var keyTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.StageKeyExpireMin);
 
 		try
 		{
-			var redis = new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, null);
+			var redis = new RedisString<PlayerInGameStageInfo>(_redisConnection, SUID + playerId, null);
 			var stageInfo = await redis.GetAsync();
 			if (!stageInfo.HasValue)
 			{
-				return (ErrorCode.RedisKeyNotFound, new PlayerStageInfo());
+				return (ErrorCode.RedisKeyNotFound, new PlayerInGameStageInfo());
 			}
 			return (ErrorCode.None, stageInfo.Value);
 		}
@@ -94,21 +94,21 @@ public class StageManager
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.EnterStageError], e,
 				new {ErrorCode = ErrorCode.RedisFailException, PlayerId = playerId},
 				$"Redis Get Fail");           
-			return (ErrorCode.RedisFailException, new PlayerStageInfo());
+			return (ErrorCode.RedisFailException, new PlayerInGameStageInfo());
 		}
 	}
 	
-	public async Task<(ErrorCode,PlayerStageInfo)> ExitAndGetStageInfoAsync(int playerId)
+	public async Task<(ErrorCode,PlayerInGameStageInfo)> ExitAndGetStageInfoAsync(int playerId)
 	{
 		var keyTimeSpan = TimeSpan.FromMinutes(RedisKeyExpireTime.StageKeyExpireMin);
 		try
 		{
-			var redis = new RedisString<PlayerStageInfo>(_redisConnection, SUID + playerId, null);
+			var redis = new RedisString<PlayerInGameStageInfo>(_redisConnection, SUID + playerId, null);
 			var stageInfo = await redis.GetAsync();
 			await redis.DeleteAsync();
 			if (!stageInfo.HasValue)
 			{
-				return (ErrorCode.RedisKeyNotFound, new PlayerStageInfo());
+				return (ErrorCode.RedisKeyNotFound, new PlayerInGameStageInfo());
 			}
 			return (ErrorCode.None, stageInfo.Value);
 		}
@@ -116,7 +116,7 @@ public class StageManager
 		{
 			_logger.ZLogErrorWithPayload(LogManager.EventIdDic[EventType.ExitStageError], e,
 				new {ErrorCode = ErrorCode.RedisFailException}, $"Redis Get/Delete Fail");           
-			return (ErrorCode.RedisFailException, new PlayerStageInfo());
+			return (ErrorCode.RedisFailException, new PlayerInGameStageInfo());
 		}
 	}
 
