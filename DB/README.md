@@ -1,5 +1,5 @@
 # DB Schema
-API 서버에서 사용하는 MySQL DB의 테이블 스키마를 소개한다.
+API 서버에서 사용하는 MySQL DB의 테이블 스키마를 소개합니다.
 
 # Account DB
 
@@ -22,7 +22,7 @@ CREATE TABLE AccountDB.`Account`
 
 ## Version 테이블
 마스터 데이터와 클라이언트 버전을 기록한 테이블   
-한 행만 존재한다.
+한 행만 존재합니다.
 ```sql
 CREATE TABLE MasterDB.`Version`
 (
@@ -127,7 +127,8 @@ CREATE TABLE GameDB.`Player`
 	Magic INT NOT NULL DEFAULT 5 COMMENT '마법력',
 	Exp INT NOT NULL DEFAULT 0 COMMENT '경험치',
 	Level INT NOT NULL DEFAULT 1 COMMENT '경험치',
-	Money INT NOT NULL DEFAULT 1000 COMMENT '소지금'
+	Money INT NOT NULL DEFAULT 1000 COMMENT '소지금',
+	HighestClearStageCode INT NOT NULL DEFAULT 0 COMMENT '클리어한 스테이지 중 가장 높은 코드'
 ) COMMENT '플레이어 기본 데이터 테이블';
 ```
 
@@ -140,18 +141,6 @@ CREATE TABLE GameDB.`PlayerAttendance`
 	ContinuousAttendanceDays INT NOT NULL DEFAULT 0 COMMENT '연속출석일수',
 	LastAttendanceDate DATE NOT NULL DEFAULT "1985-01-01" COMMENT '마지막출석일'
 ) COMMENT '플레이어 출석부 테이블';
-```
-
-## PlayerCompletedStage 테이블
-플레이어가 클리어한 스테이지 정보를 가진 테이블
-(비선형적인 스테이지일 경우를 고려해서 테이블을 통해 저장)
-```sql
-CREATE TABLE GameDB.`PlayerCompletedStage`
-(
-	PlayerId INT NOT NULL COMMENT '플레이어 고유번호',
-	StageCode INT NOT NULL COMMENT '완료한 스테이지 코드',
-	CONSTRAINT PlayerCompletedStagePK PRIMARY KEY(PlayerId,StageCode)
-) COMMENT '플레이어가 완료한 스테이지 테이블';
 ```
 
 
