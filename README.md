@@ -7,6 +7,9 @@
 
 API서버로는 C# ASP.NET Core 7.0을 사용하고 있고 DB로는 MySQL과 MemoryDB인 Redis를 사용하고 있습니다.
 
+## Docker 배포
+
+[도커 배포](https://github.com/beatheat/Com2usEduProject/blob/master/Docker/README.md)
 
 ## 구현
 
@@ -25,7 +28,14 @@ API서버로는 C# ASP.NET Core 7.0을 사용하고 있고 DB로는 MySQL과 Mem
 	- [DB](#db)
 	- [미들웨어](#미들웨어)
 	- [API](#api)
-
+		- [계정](#계정)
+		- [플레이어](#플레이어)
+		- [메일함](#메일함)
+		- [출석](#출석)
+		- [인앱 아이템 상점](#인앱-아이템-상점)
+		- [강화](#강화)
+		- [스테이지](#스테이지)
+		- [채팅](#채팅)
 
 ### 클라이언트 및 게임 요구사항
 
@@ -356,7 +366,7 @@ Response
 |ClearStageCodes|int[]|클리어한 스테이지 코드 리스트|
 |AccessibleStageCodes|int[]|입장가능한 스테이지 코드 리스트|
 
-스테이지에서 정보 로드 요청이 오면  PlayerTable에서 플레이어가 클리어한 최고 스테이지 코드를 불러옵니다. 이 코드를 이용해 ClearStageCodes = (1~최고스테이지코드), AccessibleStageCodes = (1~최고스테이지코드+1) 두 데이터를 생성해 반환합니다.
+스테이지에서 정보 로드 요청이 오면  PlayerTable에서 플레이어가 클리어한 최고 스테이지 코드를 불러옵니다. 이 코드를 이용해 ClearStageCodes = (1 ~ 최고 스테이지 코드), AccessibleStageCodes = (1 ~ 최고 스테이지 코드 + 1) 두 데이터를 생성해 반환합니다.
 
 
 #### 2. 스테이지 입장 (EnterStage)
@@ -548,7 +558,7 @@ Response
 |-|-|-|
 |Result|ErrorCode|에러코드|
 
-사용자의 ChatUser정보가 있다면 채팅 로비 인원수를 1 줄입니다.
+사용자의 ChatUser정보가 있다면 채팅 로비 인원수를 1 줄이고 ChatUser를 삭제합니다. ChatUser정보가 없다면 에러코드를 반환합니다.
 
 
 #### 3. 채팅 쓰기 (WriteChat)
@@ -592,5 +602,5 @@ Response
 
 
 사용자의 ChatUser정보가 존재하는지 검증하고 Redis에서 LastChatIndex를 기준으로 최신 Chat을 불러옵니다.
-만약 LastChatIndex가 음수라면 에러코드를 반환 50이 넘어가면 50까지만 로드
+만약 LastChatIndex가 음수라면 에러코드를 반환합니다. 또한 LastChatIndex부터 최신 Chat의 Index차이가 ChatHistorySize(50) 보다 크다면 최신 50개의 Chat만을 반환합니다.
 
