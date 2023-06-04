@@ -23,7 +23,7 @@ LogManager.SettingLogger(builder.Logging, configuration["LogDirectory"]);
 var app = builder.Build();
 
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-LogManager.SetLoggerFactory(loggerFactory, "Global");
+LogManager.SetLoggerFactory(loggerFactory);
 
 app.UseMiddleware<CheckUserAuth>();
 

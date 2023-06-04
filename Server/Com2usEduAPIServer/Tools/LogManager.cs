@@ -11,19 +11,14 @@ public static class LogManager
 	private static ILoggerFactory s_loggerFactory;
 
 	public static Dictionary<EventType, EventId> EventIdDic { private set; get; }
-
-	public static ILogger Logger { get; private set; }
-
-	public static void SetLoggerFactory(ILoggerFactory loggerFactory, string categoryName)
+	
+	public static void SetLoggerFactory(ILoggerFactory loggerFactory)
 	{
 		s_loggerFactory = loggerFactory;
-		Logger = loggerFactory.CreateLogger(categoryName);
 	}
 
-	public static ILogger<T> GetLogger<T>() where T : class
+	public static ILogger<T>? GetLogger<T>() where T : class
 	{
-		var log = s_loggerFactory.CreateLogger<T>();
-		
 		return s_loggerFactory.CreateLogger<T>();
 	}
 
